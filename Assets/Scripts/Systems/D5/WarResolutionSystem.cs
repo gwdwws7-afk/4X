@@ -7,7 +7,6 @@ namespace EventideAge.Systems.D5
 {
     public class WarResolutionSystem : GameSystem
     {
-        [Header("System References")]
         public VictoryDefeatSystem VictoryDefeatSystem { get; set; }
         
         [Header("Control Point Resolution")]

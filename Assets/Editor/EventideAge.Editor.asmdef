@@ -1,0 +1,21 @@
+{
+    "name": "EventideAge.Editor",
+    "rootNamespace": "EventideAge.Editor",
+    "references": [
+        "EventideAge.Core",
+        "EventideAge.Config",
+        "EventideAge.Systems",
+        "EventideAge.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

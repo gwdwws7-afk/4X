@@ -32,7 +32,6 @@ namespace EventideAge.Systems.D1
     
     public class MilitaryOperationsSystem : GameSystem
     {
-        [Header("System References")]
         public MilitaryTechSystem MilitaryTechSystem { get; set; }
         public MilitaryPoliticalLinkageSystem PoliticalLinkageSystem { get; set; }
         public VictoryDefeatSystem VictoryDefeatSystem { get; set; }

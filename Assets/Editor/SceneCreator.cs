@@ -22,8 +22,6 @@ namespace EventideAge.Editor
                 var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Additive);
                 EditorSceneManager.SaveScene(scene, path);
                 EditorSceneManager.OpenScene(path);
-                
-                Selection.activeObject = scene;
                 Debug.Log($"[SceneCreator] Created main game scene at: {path}");
             }
         }
@@ -47,8 +45,6 @@ namespace EventideAge.Editor
                 
                 EditorSceneManager.SaveScene(scene, path);
                 EditorSceneManager.OpenScene(path);
-                
-                Selection.activeObject = scene;
                 Debug.Log($"[SceneCreator] Created boot scene at: {path}");
             }
         }

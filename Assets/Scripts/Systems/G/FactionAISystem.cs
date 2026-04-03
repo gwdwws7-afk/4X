@@ -117,12 +117,12 @@ namespace EventideAge.Systems.G
             
             if (_turnSinceLastUpdate >= AIUpdateInterval)
             {
-                ProcessAI Decisions();
+                ProcessAIDecisions();
                 _turnSinceLastUpdate = 0;
             }
         }
         
-        public void ProcessAI Decisions()
+        public void ProcessAIDecisions()
         {
             foreach (var kvp in _factionAIs)
             {

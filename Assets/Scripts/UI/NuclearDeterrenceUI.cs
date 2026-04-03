@@ -43,7 +43,7 @@ namespace EventideAge.UI
         
         public void RefreshStatus()
         {
-            var nuclearSystem = GetComponent<D4.NuclearDeterrenceSystem>();
+            var nuclearSystem = GetComponent<NuclearDeterrenceSystem>();
             if (nuclearSystem == null) return;
             
             var state = nuclearSystem.GetState();
@@ -79,7 +79,7 @@ namespace EventideAge.UI
         
         public void OnDisplayDeterrenceClicked()
         {
-            var nuclearSystem = GetComponent<D4.NuclearDeterrenceSystem>();
+            var nuclearSystem = GetComponent<NuclearDeterrenceSystem>();
             if (nuclearSystem != null)
             {
                 nuclearSystem.ExecuteDeterrenceDisplay();

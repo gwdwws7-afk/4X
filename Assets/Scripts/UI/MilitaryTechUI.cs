@@ -18,7 +18,7 @@ namespace EventideAge.UI
         public Image ResearchProgressFill;
         public Button CancelResearchButton;
         
-        private D6.MilitaryTechSystem _techSystem;
+        private MilitaryTechSystem _techSystem;
         
         public override void Initialize(GameState state, GameEvents events)
         {
@@ -50,7 +50,7 @@ namespace EventideAge.UI
                 Destroy(child.gameObject);
             }
             
-            var techSystem = GetComponent<D6.MilitaryTechSystem>();
+            var techSystem = GetComponent<MilitaryTechSystem>();
             if (techSystem == null) return;
             
             var availableTechs = techSystem.GetAvailableTechs();
@@ -69,7 +69,7 @@ namespace EventideAge.UI
         
         private void OnTechSelected(string techId)
         {
-            var techSystem = GetComponent<D6.MilitaryTechSystem>();
+            var techSystem = GetComponent<MilitaryTechSystem>();
             if (techSystem != null)
             {
                 techSystem.StartResearch(techId);
@@ -79,7 +79,7 @@ namespace EventideAge.UI
         
         private void UpdateResearchInfo()
         {
-            var techSystem = GetComponent<D6.MilitaryTechSystem>();
+            var techSystem = GetComponent<MilitaryTechSystem>();
             if (techSystem == null) return;
             
             var research = techSystem.GetCurrentResearch();
@@ -115,7 +115,7 @@ namespace EventideAge.UI
         
         public void OnCancelResearchClicked()
         {
-            var techSystem = GetComponent<D6.MilitaryTechSystem>();
+            var techSystem = GetComponent<MilitaryTechSystem>();
             if (techSystem != null)
             {
                 techSystem.CancelResearch();

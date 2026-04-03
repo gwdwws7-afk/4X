@@ -405,8 +405,8 @@ namespace EventideAge.Tests
             config.PhaseConfigs[0] = new PhaseConfig { PhaseName = "Test", BaseActionPoints = 2 };
             
             config.FactionConfigs = new FactionConfig[2];
-            config.FactionConfigs[0] = new FactionConfig { FactionId = "Vashid", FactionName = "Vashid", IsPlayerControlled = true, InitialControlledPoints = 100, InitialRelationship = 100, Satisfaction = 100 };
-            config.FactionConfigs[1] = new FactionConfig { FactionId = "GoldLeader", FactionName = "GoldLeader", IsPlayerControlled = false, InitialControlledPoints = 50, InitialRelationship = -50, Satisfaction = 50 };
+            config.FactionConfigs[0] = new FactionConfig { FactionId = "Vashid", FactionName = "Vashid", IsPlayerControlled = true, InitialControlledPoints = 100, InitialRelationship = 100, InitialSatisfaction = 100 };
+            config.FactionConfigs[1] = new FactionConfig { FactionId = "GoldLeader", FactionName = "GoldLeader", IsPlayerControlled = false, InitialControlledPoints = 50, InitialRelationship = -50, InitialSatisfaction = 50 };
             
             config.ResourceConfigs = new ResourceConfig[8];
             config.ResourceConfigs[0] = new ResourceConfig { ResourceId = "SocialValue", ResourceName = "SocialValue", InitialAmount = 50, MaxCapacity = 100, ResourceType = ResourceType.Ratio };

@@ -61,6 +61,11 @@ namespace EventideAge.Systems.D4
         {
             ProcessTurnCooldown();
         }
+
+        private void HandleTurnEnded(int turnNumber)
+        {
+            OnTurnEnded(turnNumber);
+        }
         
         public NuclearDeterrenceState GetState()
         {

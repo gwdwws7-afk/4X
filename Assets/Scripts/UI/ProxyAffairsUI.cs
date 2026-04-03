@@ -48,7 +48,7 @@ namespace EventideAge.UI
                 Destroy(child.gameObject);
             }
             
-            var proxySystem = GetComponent<D3.ProxyCivilAffairsSystem>();
+            var proxySystem = GetComponent<ProxyCivilAffairsSystem>();
             if (proxySystem == null) return;
             
             foreach (var region in State.Map.Regions)
@@ -78,7 +78,7 @@ namespace EventideAge.UI
         {
             if (string.IsNullOrEmpty(_selectedRegionId)) return;
             
-            var proxySystem = GetComponent<D3.ProxyCivilAffairsSystem>();
+            var proxySystem = GetComponent<ProxyCivilAffairsSystem>();
             if (proxySystem == null) return;
             
             GovernanceLevel level = GovernanceLevelDropdown != null 
@@ -130,7 +130,7 @@ namespace EventideAge.UI
             
             if (OutputModifierText != null && _parentUI != null)
             {
-                float mod = _parentUI.GetComponent<D3.ProxyCivilAffairsSystem>()?.GetOutputModifier(region.NodeId) ?? 1f;
+                float mod = _parentUI.GetComponent<ProxyCivilAffairsSystem>()?.GetOutputModifier(region.NodeId) ?? 1f;
                 OutputModifierText.text = $"产出: {mod * 100:F0}%";
             }
             

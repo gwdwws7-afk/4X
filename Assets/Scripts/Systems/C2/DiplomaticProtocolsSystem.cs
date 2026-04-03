@@ -6,6 +6,7 @@ namespace EventideAge.Systems.C2
 {
     public enum ProtocolType
     {
+        Any,
         TradeAgreement,
         NonAggression,
         DefensePact,

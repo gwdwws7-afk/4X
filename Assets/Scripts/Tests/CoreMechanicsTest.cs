@@ -34,10 +34,6 @@ namespace EventideAge.Tests
         private void Setup()
         {
             _config = ScriptableObject.CreateInstance<GameConfig>();
-            _config.kTotalActionPoints = 11;
-            _config.kUniversalActionPoints = 2;
-            _config.kStartingYear = 2028;
-            _config.kMaxTurns = 24;
             
             _config.PhaseConfigs = new PhaseConfig[6];
             _config.PhaseConfigs[0] = new PhaseConfig { PhaseName = "外交", BaseActionPoints = 2, SortOrder = 0 };
@@ -81,7 +77,7 @@ namespace EventideAge.Tests
             Assert("Config has 2 factions", _config.FactionConfigs.Length == 2);
             Assert("Config has 3 resources", _config.ResourceConfigs.Length == 3);
             Assert("Config has 1 region", _config.RegionConfigs.Length == 1);
-            Assert("Total AP is 11", _config.kTotalActionPoints == 11);
+            Assert("Total AP is 11", GameConfig.kTotalActionPoints == 11);
         }
         
         private void TestGameStateInitialization()

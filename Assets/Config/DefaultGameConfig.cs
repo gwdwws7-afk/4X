@@ -6,6 +6,12 @@ namespace EventideAge.Config
     [CreateAssetMenu(fileName = "DefaultGameConfig", menuName = "EventideAge/DefaultGameConfig")]
     public class DefaultGameConfig : GameConfig
     {
+        public static GameConfig CreateDefault()
+        {
+            var config = ScriptableObject.CreateInstance<DefaultGameConfig>();
+            return config;
+        }
+
         [Header("Phases")]
         public PhaseConfig[] PhaseConfigs = new PhaseConfig[]
         {

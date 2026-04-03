@@ -26,6 +26,11 @@ namespace EventideAge.Systems.D2
         {
             ProcessAllNodeDigestion();
         }
+
+        private void HandleTurnEnded(int turnNumber)
+        {
+            OnTurnEnded(turnNumber);
+        }
         
         private void ProcessAllNodeDigestion()
         {

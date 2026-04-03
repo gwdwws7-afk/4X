@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using EventideAge.Core;
+using EventideAge.Config;
 using EventideAge.Systems;
 using EventideAge.Systems.A1;
 using EventideAge.Systems.A2;
@@ -30,6 +31,7 @@ using EventideAge.Systems.G;
 using EventideAge.Systems.H1;
 using EventideAge.Systems.I1;
 using EventideAge.Systems.J;
+using EventideAge.UI;
 
 namespace EventideAge.Editor
 {
@@ -204,8 +206,7 @@ namespace EventideAge.Editor
             var uiGO = new GameObject("UI");
             uiGO.transform.SetParent(go.transform);
             var uiManager = uiGO.AddComponent<UIManager>();
-            uiManager.State = state;
-            uiManager.Events = events;
+            uiManager.Initialize(state, events);
 
             Debug.Log($"[SceneSetup] GameManager created with {systemsList.Count} systems");
             return go;

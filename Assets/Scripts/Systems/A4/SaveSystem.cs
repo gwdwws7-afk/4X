@@ -90,12 +90,13 @@ namespace EventideAge.Systems.A4
                 }
                 
                 string json = File.ReadAllText(path);
-                var saveData = JsonUtility.FromJsonOverwrite(json, new GameSaveData()) as GameSaveData;
+                GameSaveData saveData = new GameSaveData();
+                JsonUtility.FromJsonOverwrite(json, saveData);
                 
                 if (saveData == null)
                 {
                     json = File.ReadAllText(path);
-                    var oldSave = JsonUtility.FromJsonOverwrite(json, State);
+                    JsonUtility.FromJsonOverwrite(json, State);
                     Debug.Log($"[SaveSystem] Loaded legacy save format: {saveName}");
                     return true;
                 }
@@ -171,7 +172,8 @@ namespace EventideAge.Systems.A4
             var systemData = saveData.Systems.Find(s => s.SystemTypeName == "MilitaryPoliticalLinkageSystem");
             if (systemData == null || string.IsNullOrEmpty(systemData.JsonData)) return;
             
-            var data = JsonUtility.FromJsonOverwrite(systemData.JsonData, new D2SaveData()) as D2SaveData;
+            D2SaveData data = new D2SaveData();
+            JsonUtility.FromJsonOverwrite(systemData.JsonData, data);
             if (data == null) return;
             
             var occupiedField = typeof(MilitaryPoliticalLinkageSystem).GetField("_occupiedNodesUnderDigestion",
@@ -233,7 +235,8 @@ namespace EventideAge.Systems.A4
             var systemData = saveData.Systems.Find(s => s.SystemTypeName == "ProxyCivilAffairsSystem");
             if (systemData == null || string.IsNullOrEmpty(systemData.JsonData)) return;
             
-            var data = JsonUtility.FromJsonOverwrite(systemData.JsonData, new D3SaveData()) as D3SaveData;
+            D3SaveData data = new D3SaveData();
+            JsonUtility.FromJsonOverwrite(systemData.JsonData, data);
             if (data == null || data.ProxyRegions == null) return;
             
             var regionsField = typeof(ProxyCivilAffairsSystem).GetField("_proxyRegions",
@@ -287,7 +290,8 @@ namespace EventideAge.Systems.A4
             var systemData = saveData.Systems.Find(s => s.SystemTypeName == "NuclearDeterrenceSystem");
             if (systemData == null || string.IsNullOrEmpty(systemData.JsonData)) return;
             
-            var save = JsonUtility.FromJsonOverwrite(systemData.JsonData, new D4SaveData()) as D4SaveData;
+            D4SaveData save = new D4SaveData();
+            JsonUtility.FromJsonOverwrite(systemData.JsonData, save);
             if (save == null) return;
             
             var state = new NuclearDeterrenceState
@@ -336,7 +340,8 @@ namespace EventideAge.Systems.A4
             var systemData = saveData.Systems.Find(s => s.SystemTypeName == "MilitaryTechSystem");
             if (systemData == null || string.IsNullOrEmpty(systemData.JsonData)) return;
             
-            var data = JsonUtility.FromJsonOverwrite(systemData.JsonData, new D6SaveData()) as D6SaveData;
+            D6SaveData data = new D6SaveData();
+            JsonUtility.FromJsonOverwrite(systemData.JsonData, data);
             if (data == null) return;
             
             foreach (var techId in data.CompletedTechs)
@@ -372,7 +377,8 @@ namespace EventideAge.Systems.A4
             var systemData = saveData.Systems.Find(s => s.SystemTypeName == "VictoryDefeatSystem");
             if (systemData == null || string.IsNullOrEmpty(systemData.JsonData)) return;
             
-            var save = JsonUtility.FromJsonOverwrite(systemData.JsonData, new JSaveData()) as JSaveData;
+            JSaveData save = new JSaveData();
+            JsonUtility.FromJsonOverwrite(systemData.JsonData, save);
             if (save == null) return;
             
             if (save.GameEnded)

@@ -197,7 +197,7 @@ namespace EventideAge.Systems.B2
         
         private T FindSystem<T>() where T : GameSystem
         {
-            foreach (var system in State != null ? new List<GameSystem>() : new List<GameSystem>())
+            foreach (var system in GameManager.Instance.Systems)
             {
                 if (system is T)
                     return (T)system;
@@ -207,7 +207,7 @@ namespace EventideAge.Systems.B2
         
         private void NotifyFactionRelations()
         {
-            int totalPressure = GetTotalPressure();
+            float totalPressure = GetTotalPressure();
             
             if (totalPressure >= MultiBlockadeThreshold)
             {

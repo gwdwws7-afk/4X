@@ -68,6 +68,11 @@ namespace EventideAge.Systems.D3
         {
             ProcessAllRegionsDecay();
         }
+
+        private void HandleTurnEnded(int turnNumber)
+        {
+            OnTurnEnded(turnNumber);
+        }
         
         private void ProcessAllRegionsDecay()
         {

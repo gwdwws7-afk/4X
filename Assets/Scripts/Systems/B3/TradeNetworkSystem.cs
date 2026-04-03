@@ -44,8 +44,8 @@ namespace EventideAge.Systems.B3
     public class TradeNetworkSystem : GameSystem
     {
         [Header("Trade Routes Configuration")]
-        public string[] PersianGulfRoute = new string[] { "VashidPlateau", "Hormuz", "Beirut" };
-        public string[] NorthernRoute = new string[] { "VashidPlateau", "NorthPass", "EastTradeRoute" };
+        public string[] PersianGulfRoute = new string[] { "Tehran", "Hormuz", "Beirut" };
+        public string[] NorthernRoute = new string[] { "Tehran", "NorthPass", "EastTradeRoute" };
         public string[] TigrisRoute = new string[] { "Kirkuk", "TigrisFederal", "EastTradeRoute" };
         
         [Header("Route Parameters")]
@@ -277,7 +277,7 @@ namespace EventideAge.Systems.B3
         {
             float total = 0f;
             
-            var vasshidPlateau = State.GetNode("VashidPlateau");
+            var vasshidPlateau = State.GetNode("Tehran");
             if (vasshidPlateau != null && vasshidPlateau.NodeType == NodeType.ResourceNode)
             {
                 total += 8f;

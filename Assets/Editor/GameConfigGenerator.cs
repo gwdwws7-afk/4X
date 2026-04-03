@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 using EventideAge.Core;
+using EventideAge.Config;
 
 namespace EventideAge.Editor
 {
