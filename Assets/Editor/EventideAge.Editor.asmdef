@@ -5,7 +5,8 @@
         "EventideAge.Core",
         "EventideAge.Config",
         "EventideAge.Systems",
-        "EventideAge.UI"
+        "EventideAge.UI",
+        "EventideAge.Tests"
     ],
     "includePlatforms": [
         "Editor"

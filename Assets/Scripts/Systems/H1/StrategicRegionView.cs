@@ -39,9 +39,9 @@ namespace EventideAge.Systems.H1
             
             foreach (var node in _regionState.Nodes)
             {
-                if (node.ControllingFactionId == "Vashid")
+                if (node.ControllingFactionId == GameIds.Faction.Vashid)
                     playerCount++;
-                else if (!string.IsNullOrEmpty(node.ControllingFactionId) && node.ControllingFactionId != "Neutral")
+                else if (!string.IsNullOrEmpty(node.ControllingFactionId) && node.ControllingFactionId != GameIds.Faction.Neutral)
                     enemyCount++;
             }
             

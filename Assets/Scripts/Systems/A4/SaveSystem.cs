@@ -22,6 +22,7 @@ namespace EventideAge.Systems.A4
         {
             base.Initialize(state, events);
             EnsureSaveDirectoryExists();
+            AutoRegisterSystemsForSave();
         }
         
         public void RegisterSystemForSave(GameSystem system)
@@ -29,6 +30,26 @@ namespace EventideAge.Systems.A4
             if (system != null && !_allSystems.Contains(system))
             {
                 _allSystems.Add(system);
+            }
+        }
+
+        private void AutoRegisterSystemsForSave()
+        {
+            var manager = GameManager.Instance;
+            if (manager == null)
+            {
+                manager = UnityEngine.Object.FindObjectOfType<GameManager>();
+            }
+
+            if (manager == null || manager.Systems == null)
+                return;
+
+            foreach (var system in manager.Systems)
+            {
+                if (system == null || system == this)
+                    continue;
+
+                RegisterSystemForSave(system);
             }
         }
         

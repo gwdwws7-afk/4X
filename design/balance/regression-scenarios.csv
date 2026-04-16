@@ -1,0 +1,4 @@
+﻿scenario_id,scenario_name,turns,setup_summary,expected_goldleaf_income_min,expected_goldleaf_income_max,expected_export_efficiency_min,expected_export_efficiency_max,expected_main_route_uptime_min,pass_criteria
+S1,Steady State Baseline,8,"No blockade; main route open; stable diplomacy",550,750,0.75,1.00,0.90,"Income and efficiency remain within baseline band"
+S2,Blockade Escalation Pressure,8,"Financial+energy blockade escalates by turn 3",180,320,0.15,0.40,0.40,"Economy degrades but remains non-zero; no immediate collapse"
+S3,Main Route Cutover,8,"Main route interrupted from turn 2; reroute via northern/tigris",250,450,0.35,0.70,0.20,"Alternative routes recover at least part of export capacity"

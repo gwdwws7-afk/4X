@@ -208,53 +208,66 @@ namespace EventideAge.Systems.B1
             var avail = new ChannelAvailability();
             
             avail.GoldLeaves = true;
-            avail.TradeNotes = HasTradeAgreementWithEast();
-            avail.NorthCoins = HasNorthAlliance();
+            avail.TradeNotes = HasSacredFireTradeAgreement();
+            avail.NorthCoins = HasGoldenHordAlliance();
             avail.Barter = true;
             avail.GreyMarket = SmugglingExposurePenalty > MaxSmugglingExposurePenalty;
             
             return avail;
         }
         
-        private bool HasTradeAgreementWithEast()
+        private bool HasSacredFireTradeAgreement()
         {
-            var vashid = State.GetFaction("Vashid");
+            var vashid = State.GetFaction(GameIds.Faction.Vashid);
             if (vashid == null) return false;
             return vashid.FactionPolicies.Contains("TradeAgreement_East");
         }
         
-        private bool HasNorthAlliance()
+        private bool HasGoldenHordAlliance()
         {
-            var vashid = State.GetFaction("Vashid");
+            var vashid = State.GetFaction(GameIds.Faction.Vashid);
             if (vashid == null) return false;
             return vashid.RelationshipWithPlayer >= 60;
         }
         
         public bool TryPurchaseWithCurrency(string currency, float amount, float price)
         {
-            switch (currency)
-            {
-                case "GoldLeaves":
-                    var goldLeaf = State.GetResource("GoldLeaf");
-                    if (goldLeaf != null && goldLeaf.Amount >= amount * price)
-                    {
-                        goldLeaf.Amount -= (int)(amount * price);
-                        Events.ResourceChanged("GoldLeaf", goldLeaf.Amount + (int)(amount * price), goldLeaf.Amount);
-                        return true;
-                    }
-                    break;
-                    
-                case "TradeNotes":
-                    var tradeNotes = State.GetResource("TradeToken");
-                    if (tradeNotes != null && tradeNotes.Amount >= amount * price)
-                    {
-                        tradeNotes.Amount -= (int)(amount * price);
-                        Events.ResourceChanged("TradeToken", tradeNotes.Amount + (int)(amount * price), tradeNotes.Amount);
-                        return true;
-                    }
-                    break;
-            }
-            return false;
+            if (string.IsNullOrWhiteSpace(currency))
+                return false;
+
+            string resourceId = ResolveSettlementResourceId(currency);
+            if (string.IsNullOrEmpty(resourceId))
+                return false;
+
+            int totalCost = (int)(amount * price);
+            if (totalCost < 0)
+                return false;
+
+            return TrySpendResource(resourceId, totalCost);
+        }
+
+        private string ResolveSettlementResourceId(string currency)
+        {
+            string canonicalResourceId = GameIds.ResolveResourceId(currency);
+            if (canonicalResourceId == GameIds.Resource.GoldLeaf)
+                return GameIds.Resource.GoldLeaf;
+
+            if (canonicalResourceId == GameIds.Resource.TradeToken)
+                return GameIds.Resource.TradeToken;
+
+            return null;
+        }
+
+        private bool TrySpendResource(string resourceId, int amount)
+        {
+            var resource = State.GetResource(resourceId);
+            if (resource == null || resource.Amount < amount)
+                return false;
+
+            int oldAmount = resource.Amount;
+            resource.Amount -= amount;
+            Events.ResourceChanged(resourceId, oldAmount, resource.Amount);
+            return true;
         }
         
         public bool AttemptSmuggling()
@@ -280,17 +293,16 @@ namespace EventideAge.Systems.B1
         {
             var state = new EconomicState();
             
-            var goldLeaf = State.GetResource("GoldLeaf");
-            state.GoldLeaves = goldLeaf?.Amount ?? 0;
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
+            state.GoldLeaf = goldLeaf?.Amount ?? 0;
             
-            var fireOil = State.GetResource("FireOil");
+            var fireOil = State.GetResource(GameIds.Resource.FireOil);
             state.FireOil = fireOil?.Amount ?? 0;
             
-            var tradeNotes = State.GetResource("TradeToken");
-            state.TradeNotes = tradeNotes?.Amount ?? 0;
-            
-            var northCoins = State.GetResource("NorthCoins");
-            state.NorthCoins = northCoins?.Amount ?? 0;
+            var tradeNotes = State.GetResource(GameIds.Resource.TradeToken);
+            state.TradeToken = tradeNotes?.Amount ?? 0;
+
+            state.NorthCoins = EstimateNorthCoinsSettlement(state.FireOil);
             
             state.BlockadeLevel = _blockadeData.Level;
             state.GlobalOilPrice = _globalOilPrice;
@@ -299,17 +311,44 @@ namespace EventideAge.Systems.B1
             
             return state;
         }
+
+        private int EstimateNorthCoinsSettlement(int fireOilStock)
+        {
+            if (fireOilStock <= 0)
+                return 0;
+
+            var channels = GetChannelAvailability();
+            if (!channels.NorthCoins)
+                return 0;
+
+            float exportableFireOil = fireOilStock * ExportRatio;
+            return Mathf.Max(0, Mathf.RoundToInt(exportableFireOil * NorthCoinsPerFireOil));
+        }
     }
     
     public class EconomicState
     {
-        public int GoldLeaves;
+        public int GoldLeaf;
         public int FireOil;
-        public int TradeNotes;
+        public int TradeToken;
         public int NorthCoins;
         public BlockadeLevel BlockadeLevel;
         public float GlobalOilPrice;
         public float EnergyExportIncome;
         public float DomesticEnergyIncome;
+
+        [Obsolete("Use GoldLeaf")]
+        public int GoldLeaves
+        {
+            get => GoldLeaf;
+            set => GoldLeaf = value;
+        }
+
+        [Obsolete("Use TradeToken")]
+        public int TradeNotes
+        {
+            get => TradeToken;
+            set => TradeToken = value;
+        }
     }
 }

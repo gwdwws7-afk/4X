@@ -15,7 +15,6 @@ namespace EventideAge.Tests
         public void RunGameConfigTests()
         {
             Debug.Log("=== GameConfig Tests ===");
-            int p = 0, f = 0;
             StandaloneTest.RunAll();
         }
     }

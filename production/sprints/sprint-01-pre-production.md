@@ -28,7 +28,7 @@
 | ID | Task | Agent/Owner | Est. Days | Dependencies | Acceptance Criteria |
 |----|------|-------------|-----------|-------------|-------------------|
 | S1-07 | 实现 A4 存档系统基础 | Lead Dev | 1 | S1-01 | 支持完整存档保存/加载，GameState序列化正常 |
-| S1-08 | 实现 A5 游戏时钟 | Gameplay Programmer | 0.5 | S1-02 | 时间格式显示（2028.0），24回合上限提示 |
+| S1-08 | 实现 A5 游戏时钟 | Gameplay Programmer | 0.5 | S1-02 | 时间格式显示（2028 H1/H2），24回合上限提示 |
 | S1-09 | 创建 UI 基础框架 (K) | UI Programmer | 1 | S1-01 | 主面板布局，资源条，显示行动点剩余 |
 
 ### Nice to Have
@@ -52,7 +52,7 @@
 
 ## Dependencies on External Factors
 
-- Unity 6.0 许可/安装（已于 C:\test\4X 建立项目）
+- Unity 2022.3 LTS 许可/安装（当前工程版本：2022.3.62f1）
 - 所有 GDD 文档已完成（30/30）
 
 ## Definition of Done for this Sprint

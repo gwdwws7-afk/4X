@@ -62,6 +62,8 @@ namespace EventideAge.Tests
             Assert("TurnLoopSystem exists in systems list", foundTurnLoop);
             Assert("Initial turn is 1", GameManager.State.CurrentTurn == 1);
             Assert("Initial AP is 11", GameManager.State.ActionPointsRemaining == 11);
+            Assert("Initial phase AP is 2", GameManager.State.CurrentPhaseActionPointsRemaining == 2);
+            Assert("Initial universal AP is 2", GameManager.State.UniversalActionPointsRemaining == 2);
         }
         
         private void TestPhaseEngine()
@@ -103,9 +105,11 @@ namespace EventideAge.Tests
             bool success = GameManager.SpendActionPoints(3);
             Assert("AP spending works", success);
             Assert("AP correctly deducted", GameManager.State.ActionPointsRemaining == initialAP - 3);
+            Assert("Phase AP consumed first", GameManager.State.CurrentPhaseActionPointsRemaining == 0);
+            Assert("Universal AP consumed for shortfall", GameManager.State.UniversalActionPointsRemaining == 1);
             
-            bool overspend = GameManager.SpendActionPoints(999);
-            Assert("Cannot overspend AP", !overspend);
+            bool immediateOverspend = GameManager.SpendActionPoints(2);
+            Assert("Cannot overspend immediate phase+universal AP", !immediateOverspend);
         }
         
         private Core.GameSystem GetSystemByName(string typeName)

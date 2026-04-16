@@ -68,10 +68,11 @@ namespace EventideAge.Systems.J
         private int _enemyKeyNodeLosses = 0;
         private int _blockadePostponementCount = 0;
         private bool _isLargeScaleConflictActive = false;
+        private int _lastTurnEndCheckTurn = -1;
 
         [Header("Victory Thresholds")]
         public float VictoryThreshold = 80f;
-        public int MaxGameTurns = 24;
+        public int MaxGameTurns = GameConfig.kMaxTurns;
 
         [Header("Defeat Thresholds")]
         public int MilitaryCollapseAshWillThreshold = 30;
@@ -82,10 +83,19 @@ namespace EventideAge.Systems.J
         public float VictoryHopeThreshold = 60f;
         public float VictoryImminentThreshold = 80f;
         public int DefeatRiskAshWillThreshold = 35;
+        
+        private const string kPrimaryEconomicResourceId = GameIds.Resource.FireOil;
+        private const string kTimeoutEndReason = "attrition";
 
         public override void Initialize(GameState state, GameEvents events)
         {
             base.Initialize(state, events);
+
+            if (MaxGameTurns != GameConfig.kMaxTurns)
+            {
+                Debug.LogWarning($"[VictoryDefeatSystem] MaxGameTurns={MaxGameTurns} overridden to SSOT value {GameConfig.kMaxTurns}.");
+                MaxGameTurns = GameConfig.kMaxTurns;
+            }
 
             _victoryPaths.Add(new VictoryPath
             {
@@ -126,11 +136,29 @@ namespace EventideAge.Systems.J
         
         public override void OnTurnEnded(int turnNumber)
         {
-            CheckVictoryDefeat();
+            EvaluateTurnEndgameOnce(turnNumber);
         }
         
         private void HandleTurnEnded(int turnNumber)
         {
+            EvaluateTurnEndgameOnce(turnNumber);
+        }
+
+        // J can be reached from both GameSystem callback and event callback on turn end.
+        // Guard once per turn to avoid duplicate endgame evaluation and duplicate GameEnded dispatch.
+        private void EvaluateTurnEndgameOnce(int turnNumber)
+        {
+            if (turnNumber < _lastTurnEndCheckTurn)
+            {
+                _lastTurnEndCheckTurn = turnNumber - 1;
+            }
+
+            if (turnNumber <= _lastTurnEndCheckTurn)
+            {
+                return;
+            }
+
+            _lastTurnEndCheckTurn = turnNumber;
             CheckVictoryDefeat();
         }
         
@@ -172,16 +200,16 @@ namespace EventideAge.Systems.J
 
         private bool CheckMilitaryCollapse()
         {
-            var ashWill = State.GetResource("AshWill");
+            var ashWill = State.GetResource(GameIds.Resource.AshWill);
             if (ashWill == null) return false;
             return ashWill.Amount < MilitaryCollapseAshWillThreshold;
         }
 
         private bool CheckEconomicCollapse()
         {
-            var energy = State.GetResource("Energy");
-            if (energy == null) return false;
-            return energy.Amount <= 0;
+            var economicResource = GetEconomicCollapseResource();
+            if (economicResource == null) return false;
+            return economicResource.Amount <= 0;
         }
 
         private bool CheckInternalDivision()
@@ -226,7 +254,7 @@ namespace EventideAge.Systems.J
         {
             if (State.CurrentTurn >= MaxGameTurns)
             {
-                TriggerEndgame("timeout", "attrition");
+                TriggerEndgame("timeout", kTimeoutEndReason);
             }
         }
 
@@ -269,21 +297,21 @@ namespace EventideAge.Systems.J
                 Status = blockadeProgress >= 80 ? "on_track" : "at_risk"
             });
 
-            path.Progress = (shangMengProgress * 0.4f) + (northProgress * 0.3f) + (blockadeProgress * 0.3f);
+            path.Progress = Mathf.Clamp((shangMengProgress * 0.4f) + (northProgress * 0.3f) + (blockadeProgress * 0.3f), 0f, 100f);
         }
 
         private float CalculateShangMengProgress()
         {
-            var socialValue = State.GetResource("SocialValue");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             if (socialValue == null) return 0f;
-            return Mathf.Clamp01((socialValue.Amount / 50f) * 100f);
+            return Mathf.Clamp((socialValue.Amount / 50f) * 100f, 0f, 100f);
         }
 
         private float CalculateNorthChannelProgress()
         {
-            var tradeToken = State.GetResource("TradeToken");
+            var tradeToken = State.GetResource(GameIds.Resource.TradeToken);
             if (tradeToken == null) return 0f;
-            return Mathf.Clamp01((tradeToken.Amount / 30f) * 100f);
+            return Mathf.Clamp((tradeToken.Amount / 30f) * 100f, 0f, 100f);
         }
 
         private float CalculateBlockadeFailureProgress()
@@ -297,7 +325,7 @@ namespace EventideAge.Systems.J
                 case BlockadeLevel.Total: levelProgress = 0f; break;
             }
 
-            float timeProgress = Mathf.Clamp01((_turnsUnderLowBlockade / 24f) * 100f);
+            float timeProgress = Mathf.Clamp((_turnsUnderLowBlockade / 24f) * 100f, 0f, 100f);
             return Mathf.Max(levelProgress, timeProgress);
         }
 
@@ -355,14 +383,14 @@ namespace EventideAge.Systems.J
                 Status = ceasefirePossibility >= 40 ? "on_track" : "at_risk"
             });
 
-            path.Progress = (warDevelopment * 0.4f) + (enemyLosses * 0.3f) + (ceasefirePossibility * 0.3f);
+            path.Progress = Mathf.Clamp((warDevelopment * 0.4f) + (enemyLosses * 0.3f) + (ceasefirePossibility * 0.3f), 0f, 100f);
         }
 
         private float CalculateWarDevelopment()
         {
             if (_isLargeScaleConflictActive)
             {
-                return Mathf.Clamp01(50f + (_activeConflictTurns * 5f));
+                return Mathf.Clamp(50f + (_activeConflictTurns * 5f), 0f, 100f);
             }
             return 0f;
         }
@@ -373,7 +401,7 @@ namespace EventideAge.Systems.J
             losses += _enemyKeyNodeLosses * 30f;
             if (_blockadePostponementCount > 3)
                 losses += 20f;
-            return Mathf.Clamp01(losses);
+            return Mathf.Clamp(losses, 0f, 100f);
         }
 
         public void SetLargeScaleConflictActive(bool active)
@@ -405,13 +433,13 @@ namespace EventideAge.Systems.J
 
         private float CalculateCeasefirePossibility()
         {
-            var ashWill = State.GetResource("AshWill");
+            var ashWill = State.GetResource(GameIds.Resource.AshWill);
             if (ashWill == null) return 0f;
 
             float possibility = 0f;
             if (ashWill.Amount > 50) possibility += 20f;
 
-            return Mathf.Clamp01(possibility);
+            return Mathf.Clamp(possibility, 0f, 100f);
         }
 
         private void UpdateAxisVictoryProgress()
@@ -453,41 +481,43 @@ namespace EventideAge.Systems.J
                 Status = holyFireRelation >= 50 ? "on_track" : "at_risk"
             });
 
-            path.Progress = (tigrisControl * 0.3f) + (syriaControl * 0.3f) + (lebanonControl * 0.2f) + (holyFireRelation * 0.2f);
+            path.Progress = Mathf.Clamp((tigrisControl * 0.3f) + (syriaControl * 0.3f) + (lebanonControl * 0.2f) + (holyFireRelation * 0.2f), 0f, 100f);
         }
 
         private float CalculateTigrisControl()
         {
-            var tigrisNode = State.GetNode("Tigris");
+            var tigrisNode = State.GetNode(GameIds.Node.IraqBorder);
             if (tigrisNode == null) return 0f;
             return IsUnderResistanceAxis(tigrisNode.ControllingFactionId) ? 100f : 0f;
         }
 
         private float CalculateSyriaControl()
         {
-            var damascus = State.GetNode("Damascus");
+            var damascus = State.GetNode(GameIds.Node.SyriaZone);
             if (damascus == null) return 0f;
             return IsUnderResistanceAxis(damascus.ControllingFactionId) ? 100f : 0f;
         }
 
         private float CalculateLebanonControl()
         {
-            var beirut = State.GetNode("Beirut");
+            var beirut = State.GetNode(GameIds.Node.Mediterranean);
             if (beirut == null) return 0f;
             return IsUnderResistanceAxis(beirut.ControllingFactionId) ? 100f : 0f;
         }
 
         private float CalculateHolyFireRelation()
         {
-            var holyFire = State.GetFaction("HolyFire");
+            var holyFire = State.GetFaction(GameIds.Faction.SacredFire);
             if (holyFire == null) return 0f;
-            return Mathf.Clamp01(((holyFire.RelationshipWithPlayer + 80f) / 160f) * 100f);
+            return Mathf.Clamp(((holyFire.RelationshipWithPlayer + 80f) / 160f) * 100f, 0f, 100f);
         }
 
         private bool IsUnderResistanceAxis(string factionId)
         {
             if (string.IsNullOrEmpty(factionId)) return false;
-            return factionId == "Vahid" || factionId == "AshCloud" || factionId == "ResistanceAxis";
+            string canonicalFactionId = GameIds.ResolveFactionId(factionId);
+            return canonicalFactionId == GameIds.Faction.Vashid
+                || canonicalFactionId == GameIds.Faction.AshConfederacy;
         }
 
         private void UpdateDiplomaticResolutionProgress()
@@ -521,21 +551,21 @@ namespace EventideAge.Systems.J
                 Status = blockadeRelief >= 80 ? "on_track" : "at_risk"
             });
 
-            path.Progress = (tributeOrderProgress * 0.3f) + (goldLeaderRelation * 0.4f) + (blockadeRelief * 0.3f);
+            path.Progress = Mathf.Clamp((tributeOrderProgress * 0.3f) + (goldLeaderRelation * 0.4f) + (blockadeRelief * 0.3f), 0f, 100f);
         }
 
         private float CalculateTributeOrderProgress()
         {
-            var socialValue = State.GetResource("SocialValue");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             if (socialValue == null) return 0f;
-            return Mathf.Clamp01((socialValue.Amount / 70f) * 100f);
+            return Mathf.Clamp((socialValue.Amount / 70f) * 100f, 0f, 100f);
         }
 
         private float CalculateGoldLeaderRelation()
         {
-            var goldLeader = State.GetFaction("GoldLeader");
+            var goldLeader = State.GetFaction(GameIds.Faction.Aurean);
             if (goldLeader == null) return 0f;
-            return Mathf.Clamp01(((goldLeader.RelationshipWithPlayer + 80f) / 120f) * 100f);
+            return Mathf.Clamp(((goldLeader.RelationshipWithPlayer + 80f) / 120f) * 100f, 0f, 100f);
         }
 
         private float CalculateBlockadeRelief()
@@ -564,7 +594,7 @@ namespace EventideAge.Systems.J
         public VictoryPath GetClosestPath()
         {
             VictoryPath closest = null;
-            float maxProgress = 0f;
+            float maxProgress = -1f;
             foreach (var path in _victoryPaths)
             {
                 if (path.Progress > maxProgress)
@@ -580,7 +610,7 @@ namespace EventideAge.Systems.J
         {
             _defeatRisks.Clear();
 
-            var ashWill = State.GetResource("AshWill");
+            var ashWill = State.GetResource(GameIds.Resource.AshWill);
             if (ashWill != null && ashWill.Amount < DefeatRiskAshWillThreshold)
             {
                 _defeatRisks.Add(new DefeatRisk
@@ -591,13 +621,13 @@ namespace EventideAge.Systems.J
                 });
             }
 
-            var energy = State.GetResource("Energy");
-            if (energy != null && energy.Amount <= 0)
+            var economicResource = GetEconomicCollapseResource();
+            if (economicResource != null && economicResource.Amount <= 0)
             {
                 _defeatRisks.Add(new DefeatRisk
                 {
                     Type = DefeatType.EconomicCollapse,
-                    WarningMessage = "经济崩溃风险：能源收入归零",
+                    WarningMessage = $"经济崩溃风险：{economicResource.ResourceName}归零",
                     IsImminent = false
                 });
             }
@@ -633,6 +663,7 @@ namespace EventideAge.Systems.J
         {
             _gameEnded = false;
             _endReason = "";
+            _lastTurnEndCheckTurn = -1;
             _currentBlockadeLevel = BlockadeLevel.Unilateral;
             _turnsUnderLowBlockade = 0;
             _activeConflictTurns = 0;
@@ -648,6 +679,11 @@ namespace EventideAge.Systems.J
             }
 
             _defeatRisks.Clear();
+        }
+        
+        private ResourceState GetEconomicCollapseResource()
+        {
+            return State.GetResource(kPrimaryEconomicResourceId);
         }
     }
 }

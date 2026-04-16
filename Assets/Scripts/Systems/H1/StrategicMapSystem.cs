@@ -1,11 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
 using EventideAge.Core;
+using EventideAge.Systems.H2;
 
 namespace EventideAge.Systems.H1
 {
     public class StrategicMapSystem : GameSystem
     {
+        public NodeNetworkSystem NodeNetworkSystem { get; set; }
+
         [Header("Map Visuals")]
         public Transform MapContainer;
         public GameObject RegionPrefab;
@@ -14,6 +17,7 @@ namespace EventideAge.Systems.H1
         
         private Dictionary<string, StrategicNodeView> _nodeViews = new Dictionary<string, StrategicNodeView>();
         private Dictionary<string, StrategicRegionView> _regionViews = new Dictionary<string, StrategicRegionView>();
+        private readonly List<GameObject> _connectionViews = new List<GameObject>();
         
         public override void Initialize(GameState state, GameEvents events)
         {
@@ -52,6 +56,8 @@ namespace EventideAge.Systems.H1
                     CreateNodeView(node);
                 }
             }
+
+            BuildConnectionViews();
             
             Debug.Log($"[StrategicMap] Map built with {State.Map.Regions.Length} regions");
         }
@@ -78,7 +84,7 @@ namespace EventideAge.Systems.H1
             if (view != null)
             {
                 view.Initialize(node);
-                _nodeViews[node.NodeId] = view;
+                _nodeViews[GameIds.ResolveNodeId(node.NodeId)] = view;
             }
         }
         
@@ -95,13 +101,21 @@ namespace EventideAge.Systems.H1
                 if (view != null) Destroy(view.gameObject);
             }
             _regionViews.Clear();
+
+            foreach (var connectionView in _connectionViews)
+            {
+                if (connectionView != null) Destroy(connectionView);
+            }
+            _connectionViews.Clear();
         }
         
-        private void HandleNodeControlChanged(string nodeId, int controlPoints1, int controlPoints2)
+        private void HandleNodeControlChanged(string nodeId, string oldController, string newController, int controlPoints)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
+            newController = GameIds.ResolveFactionId(newController);
             if (_nodeViews.TryGetValue(nodeId, out var view))
             {
-                view.UpdateControl(nodeId, controlPoints1);
+                view.UpdateControl(newController, controlPoints);
             }
         }
         
@@ -116,29 +130,110 @@ namespace EventideAge.Systems.H1
             {
                 foreach (var node in region.Nodes)
                 {
-                    if (_nodeViews.TryGetValue(node.NodeId, out var view))
+                    string canonicalNodeId = GameIds.ResolveNodeId(node.NodeId);
+                    if (_nodeViews.TryGetValue(canonicalNodeId, out var view))
                     {
                         view.UpdateFromState(node);
                     }
                 }
             }
         }
+
+        private void BuildConnectionViews()
+        {
+            foreach (var connectionView in _connectionViews)
+            {
+                if (connectionView != null) Destroy(connectionView);
+            }
+            _connectionViews.Clear();
+
+            if (ConnectionLinePrefab == null || MapContainer == null)
+                return;
+
+            var builtEdges = new HashSet<string>();
+            foreach (var pair in _nodeViews)
+            {
+                string nodeId = pair.Key;
+                var sourceView = pair.Value;
+                if (sourceView == null)
+                    continue;
+
+                var adjacentNodes = GetAdjacentNodes(nodeId);
+                foreach (var adjacentId in adjacentNodes)
+                {
+                    if (!_nodeViews.ContainsKey(adjacentId))
+                        continue;
+
+                    string edgeKey = string.CompareOrdinal(nodeId, adjacentId) < 0
+                        ? $"{nodeId}|{adjacentId}"
+                        : $"{adjacentId}|{nodeId}";
+
+                    if (builtEdges.Contains(edgeKey))
+                        continue;
+                    builtEdges.Add(edgeKey);
+
+                    var line = Instantiate(ConnectionLinePrefab, MapContainer);
+                    line.name = $"Connection_{nodeId}_{adjacentId}";
+                    line.transform.position = (sourceView.transform.position + _nodeViews[adjacentId].transform.position) * 0.5f;
+                    _connectionViews.Add(line);
+                }
+            }
+        }
+
+        public List<string> GetAdjacentNodes(string nodeId)
+        {
+            nodeId = GameIds.ResolveNodeId(nodeId);
+            if (NodeNetworkSystem != null)
+                return NodeNetworkSystem.GetAdjacentNodes(nodeId);
+
+            var adjacent = new List<string>();
+            foreach (var region in State.Map.Regions)
+            {
+                if (region?.Nodes == null)
+                    continue;
+
+                bool inRegion = false;
+                foreach (var node in region.Nodes)
+                {
+                    if (node != null && GameIds.ResolveNodeId(node.NodeId) == nodeId)
+                    {
+                        inRegion = true;
+                        break;
+                    }
+                }
+
+                if (!inRegion)
+                    continue;
+
+                foreach (var node in region.Nodes)
+                {
+                    if (node != null && GameIds.ResolveNodeId(node.NodeId) != nodeId)
+                        adjacent.Add(GameIds.ResolveNodeId(node.NodeId));
+                }
+
+                break;
+            }
+
+            return adjacent;
+        }
         
         public StrategicNodeView GetNodeView(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             return _nodeViews.TryGetValue(nodeId, out var view) ? view : null;
         }
         
         public List<string> GetNodesControlledBy(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             var result = new List<string>();
             foreach (var region in State.Map.Regions)
             {
                 foreach (var node in region.Nodes)
                 {
-                    if (node.ControllingFactionId == factionId)
+                    if (GameIds.ResolveFactionId(node.ControllingFactionId) == factionId)
                     {
-                        result.Add(node.NodeId);
+                        result.Add(GameIds.ResolveNodeId(node.NodeId));
                     }
                 }
             }
@@ -147,12 +242,13 @@ namespace EventideAge.Systems.H1
         
         public int GetTotalControlPoints(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             int total = 0;
             foreach (var region in State.Map.Regions)
             {
                 foreach (var node in region.Nodes)
                 {
-                    if (node.ControllingFactionId == factionId)
+                    if (GameIds.ResolveFactionId(node.ControllingFactionId) == factionId)
                     {
                         total += node.ControlPoints;
                     }

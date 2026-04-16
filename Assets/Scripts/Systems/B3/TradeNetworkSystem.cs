@@ -44,9 +44,9 @@ namespace EventideAge.Systems.B3
     public class TradeNetworkSystem : GameSystem
     {
         [Header("Trade Routes Configuration")]
-        public string[] PersianGulfRoute = new string[] { "Tehran", "Hormuz", "Beirut" };
-        public string[] NorthernRoute = new string[] { "Tehran", "NorthPass", "EastTradeRoute" };
-        public string[] TigrisRoute = new string[] { "Kirkuk", "TigrisFederal", "EastTradeRoute" };
+        public string[] PersianGulfRoute = new string[] { GameIds.Node.Bushehr, GameIds.Node.Hormuz, GameIds.Node.Mediterranean };
+        public string[] NorthernRoute = new string[] { GameIds.Node.Caspian, GameIds.Node.Caucasus, GameIds.Node.TradeHub };
+        public string[] TigrisRoute = new string[] { GameIds.Node.Caspian, GameIds.Node.IraqBorder, GameIds.Node.TradeHub };
         
         [Header("Route Parameters")]
         public float ExportRatio = 0.7f;
@@ -69,7 +69,7 @@ namespace EventideAge.Systems.B3
         public float GreyMarketEfficiency = 0.4f;
         
         private Dictionary<string, RouteState> _routes = new Dictionary<string, RouteState>();
-        private string _primaryRouteId = "PersianGulf";
+        private string _primaryRouteId = GameIds.Route.PersianGulf;
         
         public override void Initialize(GameState state, GameEvents events)
         {
@@ -91,35 +91,35 @@ namespace EventideAge.Systems.B3
         
         private void InitializeRoutes()
         {
-            _routes["PersianGulf"] = new RouteState
+            _routes[GameIds.Route.PersianGulf] = new RouteState
             {
-                RouteId = "PersianGulf",
-                RouteName = "火海航线",
-                NodeIds = PersianGulfRoute,
+                RouteId = GameIds.Route.PersianGulf,
+                RouteName = "Persian Gulf Route",
+                NodeIds = ResolveNodeIds(PersianGulfRoute),
                 Status = RouteStatus.Open,
-                ControllingFaction = "Vashid"
+                ControllingFaction = GameIds.ResolveFactionId(GameIds.Faction.Vashid)
             };
             
-            _routes["Northern"] = new RouteState
+            _routes[GameIds.Route.Northern] = new RouteState
             {
-                RouteId = "Northern",
-                RouteName = "北境商路",
-                NodeIds = NorthernRoute,
+                RouteId = GameIds.Route.Northern,
+                RouteName = "Northern Route",
+                NodeIds = ResolveNodeIds(NorthernRoute),
                 Status = RouteStatus.Open,
-                ControllingFaction = "North"
+                ControllingFaction = GameIds.ResolveFactionId(GameIds.Faction.GoldenHord)
             };
             
-            _routes["Tigris"] = new RouteState
+            _routes[GameIds.Route.Tigris] = new RouteState
             {
-                RouteId = "Tigris",
-                RouteName = "两河走廊",
-                NodeIds = TigrisRoute,
+                RouteId = GameIds.Route.Tigris,
+                RouteName = "Tigris Corridor",
+                NodeIds = ResolveNodeIds(TigrisRoute),
                 Status = RouteStatus.Open,
-                ControllingFaction = "Neutral"
+                ControllingFaction = GameIds.ResolveFactionId(GameIds.Faction.Neutral)
             };
         }
         
-        private void HandleNodeControlChanged(string nodeId, int oldCP, int newCP)
+        private void HandleNodeControlChanged(string nodeId, string oldController, string newController, int controlPoints)
         {
             RecalculateAllRoutes();
         }
@@ -148,7 +148,7 @@ namespace EventideAge.Systems.B3
             
             foreach (string nodeId in route.NodeIds)
             {
-                var node = State.GetNode(nodeId);
+                var node = State.GetNode(GameIds.ResolveNodeId(nodeId));
                 if (node == null) continue;
                 
                 float nodeEff = GetNodeEfficiency(node);
@@ -167,11 +167,12 @@ namespace EventideAge.Systems.B3
         
         private float GetNodeEfficiency(NodeState node)
         {
-            if (node.ControllingFactionId == "Vashid")
+            string controller = GameIds.ResolveFactionId(node.ControllingFactionId);
+            if (controller == GameIds.Faction.Vashid)
                 return FriendlyNodeEfficiency;
-            else if (string.IsNullOrEmpty(node.ControllingFactionId) || node.ControllingFactionId == "Neutral")
+            else if (string.IsNullOrEmpty(controller) || controller == GameIds.Faction.Neutral)
                 return NeutralNodeEfficiency;
-            else if (node.ControllingFactionId == "Contested")
+            else if (controller == "Contested")
                 return ContestedNodeEfficiency;
             else
                 return EnemyNodeEfficiency;
@@ -193,19 +194,19 @@ namespace EventideAge.Systems.B3
         {
             float bonus = 0f;
             
-            if (route.RouteId == "PersianGulf")
+            if (route.RouteId == GameIds.Route.PersianGulf)
                 bonus += MainRouteBonus;
             
             string lastNodeId = route.NodeIds[route.NodeIds.Length - 1];
             var lastNode = State.GetNode(lastNodeId);
-            if (lastNode != null && lastNode.ControllingFactionId == "Vashid")
+            if (lastNode != null && GameIds.ResolveFactionId(lastNode.ControllingFactionId) == GameIds.Faction.Vashid)
                 bonus += EndNodeBonus;
             
             bool allVashid = true;
             foreach (string nodeId in route.NodeIds)
             {
                 var node = State.GetNode(nodeId);
-                if (node == null || node.ControllingFactionId != "Vashid")
+                if (node == null || GameIds.ResolveFactionId(node.ControllingFactionId) != GameIds.Faction.Vashid)
                 {
                     allVashid = false;
                     break;
@@ -219,6 +220,7 @@ namespace EventideAge.Systems.B3
         
         public RouteStatus GetRouteStatus(string routeId)
         {
+            routeId = GameIds.ResolveRouteId(routeId);
             if (_routes.TryGetValue(routeId, out var route))
                 return route.Status;
             return RouteStatus.Blocked;
@@ -226,6 +228,7 @@ namespace EventideAge.Systems.B3
         
         public float GetRouteEfficiency(string routeId)
         {
+            routeId = GameIds.ResolveRouteId(routeId);
             if (_routes.TryGetValue(routeId, out var route))
                 return route.Efficiency;
             return 0f;
@@ -258,13 +261,13 @@ namespace EventideAge.Systems.B3
                 allocation.GoldLeaves = actualTradeAmount * 0.5f;
             }
             
-            var eastRelation = GetFactionRelation("EastAlliance");
+            var eastRelation = GetFactionRelation(GameIds.Faction.SacredFire);
             if (eastRelation >= 50)
             {
                 allocation.TradeNotes = actualTradeAmount * 0.3f;
             }
             
-            var northRelation = GetFactionRelation("North");
+            var northRelation = GetFactionRelation(GameIds.Faction.GoldenHord);
             if (northRelation >= 60)
             {
                 allocation.NorthCoins = actualTradeAmount * 0.2f;
@@ -277,14 +280,14 @@ namespace EventideAge.Systems.B3
         {
             float total = 0f;
             
-            var vasshidPlateau = State.GetNode("Tehran");
-            if (vasshidPlateau != null && vasshidPlateau.NodeType == NodeType.ResourceNode)
+            var caspianNode = State.GetNode(GameIds.Node.Caspian);
+            if (caspianNode != null && caspianNode.NodeType == NodeType.ResourceNode)
             {
                 total += 8f;
             }
             
-            var kiruk = State.GetNode("Kirkuk");
-            if (kiruk != null && kiruk.NodeType == NodeType.ResourceNode && kiruk.ControllingFactionId == "Vashid")
+            var tradeHubNode = State.GetNode(GameIds.Node.TradeHub);
+            if (tradeHubNode != null && tradeHubNode.NodeType == NodeType.ResourceNode && GameIds.ResolveFactionId(tradeHubNode.ControllingFactionId) == GameIds.Faction.Vashid)
             {
                 total += 6f;
             }
@@ -302,13 +305,13 @@ namespace EventideAge.Systems.B3
             
             float bestAlt = 0f;
             
-            if (_routes.TryGetValue("Northern", out var northern))
+            if (_routes.TryGetValue(GameIds.Route.Northern, out var northern))
             {
                 if (northern.Status != RouteStatus.Blocked && northern.Efficiency > bestAlt)
                     bestAlt = northern.Efficiency * NorthernRouteEfficiency;
             }
             
-            if (_routes.TryGetValue("Tigris", out var tigris))
+            if (_routes.TryGetValue(GameIds.Route.Tigris, out var tigris))
             {
                 if (tigris.Status != RouteStatus.Blocked && tigris.Efficiency > bestAlt)
                     bestAlt = tigris.Efficiency * TigrisRouteEfficiency;
@@ -319,31 +322,47 @@ namespace EventideAge.Systems.B3
         
         private int GetFactionRelation(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             var faction = State.GetFaction(factionId);
             return faction?.RelationshipWithPlayer ?? 0;
+        }
+
+        private string[] ResolveNodeIds(string[] nodeIds)
+        {
+            if (nodeIds == null)
+                return new string[0];
+
+            var resolved = new string[nodeIds.Length];
+            for (int i = 0; i < nodeIds.Length; i++)
+            {
+                resolved[i] = GameIds.ResolveNodeId(nodeIds[i]);
+            }
+
+            return resolved;
         }
         
         public AlternativeRoute[] GetAlternativeRoutes(string mainRouteId)
         {
+            mainRouteId = GameIds.ResolveRouteId(mainRouteId);
             var alternatives = new List<AlternativeRoute>();
             
-            if (mainRouteId == "PersianGulf")
+            if (mainRouteId == GameIds.Route.PersianGulf)
             {
-                if (_routes.TryGetValue("Northern", out var northern) && northern.Status != RouteStatus.Blocked)
+                if (_routes.TryGetValue(GameIds.Route.Northern, out var northern) && northern.Status != RouteStatus.Blocked)
                 {
                     alternatives.Add(new AlternativeRoute
                     {
-                        RouteId = "Northern",
+                        RouteId = GameIds.Route.Northern,
                         RouteName = northern.RouteName,
                         Efficiency = northern.Efficiency * NorthernRouteEfficiency
                     });
                 }
                 
-                if (_routes.TryGetValue("Tigris", out var tigris) && tigris.Status != RouteStatus.Blocked)
+                if (_routes.TryGetValue(GameIds.Route.Tigris, out var tigris) && tigris.Status != RouteStatus.Blocked)
                 {
                     alternatives.Add(new AlternativeRoute
                     {
-                        RouteId = "Tigris",
+                        RouteId = GameIds.Route.Tigris,
                         RouteName = tigris.RouteName,
                         Efficiency = tigris.Efficiency * TigrisRouteEfficiency
                     });
@@ -365,3 +384,4 @@ namespace EventideAge.Systems.B3
         }
     }
 }
+

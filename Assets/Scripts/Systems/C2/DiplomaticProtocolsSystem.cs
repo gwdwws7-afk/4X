@@ -94,6 +94,10 @@ namespace EventideAge.Systems.C2
                     if (protocol.TurnsRemaining <= 0)
                     {
                         protocol.Status = ProtocolStatus.Expired;
+                        Events.ActionLogAdded("C2", $"{protocol.ProtocolId} expired ({protocol.Type})", FeedbackSeverity.Warning);
+                        Events.ConsequenceAdded("C2.Protocol.Breach", $"Protocol expired without renewal: {protocol.Type}", 3, false);
+                        Events.NarrativeEventAdded(protocol.ProtocolId, $"Protocol expired: {protocol.Type}", FeedbackSeverity.Warning);
+                        Events.NotificationAdded("C2.Protocol", $"{protocol.Type} expired and entered unstable state.", FeedbackSeverity.Warning);
                         Debug.Log($"[DiplomaticProtocols] {protocol.ProtocolId} expired");
                     }
                 }
@@ -113,6 +117,9 @@ namespace EventideAge.Systems.C2
                     protocol.Type == ProtocolType.TradeAgreement)
                 {
                     protocol.TurnsRemaining = GetProtocolDuration(protocol.Type);
+                    Events.ActionLogAdded("C2", $"{protocol.ProtocolId} auto-renewed for {protocol.TurnsRemaining} turns", FeedbackSeverity.Info);
+                    Events.ConsequenceAdded("C2.Protocol.Renew", $"Trade protocol renewed: {protocol.ProtocolId}", 5, true);
+                    Events.NotificationAdded("C2.Protocol.Renew", $"{protocol.ProtocolId} renewed automatically.", FeedbackSeverity.Info);
                     Debug.Log($"[DiplomaticProtocols] {protocol.ProtocolId} auto-renewed for {protocol.TurnsRemaining} turns");
                 }
             }
@@ -120,6 +127,8 @@ namespace EventideAge.Systems.C2
         
         public bool CanProposeProtocol(string fromFaction, string toFaction, ProtocolType type)
         {
+            fromFaction = GameIds.ResolveFactionId(fromFaction);
+            toFaction = GameIds.ResolveFactionId(toFaction);
             if (HasActiveProtocol(fromFaction, toFaction, type))
                 return false;
             
@@ -131,6 +140,8 @@ namespace EventideAge.Systems.C2
         
         public DiplomaticProtocol ProposeProtocol(string fromFaction, string toFaction, ProtocolType type)
         {
+            fromFaction = GameIds.ResolveFactionId(fromFaction);
+            toFaction = GameIds.ResolveFactionId(toFaction);
             if (!CanProposeProtocol(fromFaction, toFaction, type))
                 return null;
             
@@ -149,6 +160,8 @@ namespace EventideAge.Systems.C2
             };
             
             _activeProtocols.Add(protocol);
+
+            Events.ActionLogAdded("C2", $"Proposed {type} from {fromFaction} to {toFaction}", FeedbackSeverity.Info);
             
             Debug.Log($"[DiplomaticProtocols] Proposed {type} from {fromFaction} to {toFaction}");
             
@@ -162,6 +175,18 @@ namespace EventideAge.Systems.C2
                 return false;
             
             protocol.Status = ProtocolStatus.Active;
+            string actionId = GetCanonicalActionId(protocol.Type);
+            Events.ActionLogAdded("C2", $"{protocol.ProtocolId} signed ({protocol.Type})", FeedbackSeverity.Info);
+            Events.ConsequenceAdded(actionId, GetSignConsequenceDescription(protocol), GetSignDuration(protocol), IsSignReversible(protocol.Type));
+
+            if (protocol.Type == ProtocolType.DefensePact || protocol.Type == ProtocolType.Coalition)
+            {
+                Events.GlobalAlertRaised($"Strategic protocol active: {protocol.Type} ({protocol.FromFaction} <-> {protocol.ToFaction})", FeedbackSeverity.Warning);
+            }
+            else if (protocol.Type == ProtocolType.Neutrality)
+            {
+                Events.AlertAdded("C2.NeutralityGuarantee.Sign", $"Neutrality guarantee active: {protocol.FromFaction} <-> {protocol.ToFaction}", FeedbackSeverity.Warning);
+            }
             
             Debug.Log($"[DiplomaticProtocols] {protocolId} signed and active");
             
@@ -175,9 +200,18 @@ namespace EventideAge.Systems.C2
                 return false;
             
             protocol.Status = ProtocolStatus.Violated;
-            
-            Events.RelationshipChanged(protocol.ToFaction, -20);
-            Events.RelationshipChanged(protocol.FromFaction, -10);
+
+            string toFaction = GameIds.ResolveFactionId(protocol.ToFaction);
+            string fromFaction = GameIds.ResolveFactionId(protocol.FromFaction);
+            protocol.ToFaction = toFaction;
+            protocol.FromFaction = fromFaction;
+
+            Events.RelationshipChanged(toFaction, -20);
+            Events.RelationshipChanged(fromFaction, -10);
+            Events.ActionLogAdded("C2", $"{protocol.ProtocolId} violated by {protocol.FromFaction}", FeedbackSeverity.Warning);
+            Events.ConsequenceAdded("C2.Protocol.Breach", $"Protocol breach: {protocol.ProtocolId} ({protocol.Type})", 3, false);
+            Events.GlobalAlertRaised($"Protocol breach detected: {protocol.Type} between {protocol.FromFaction} and {protocol.ToFaction}", FeedbackSeverity.Critical);
+            Events.NarrativeEventAdded(protocol.ProtocolId, $"Protocol breach event: {protocol.Type}", FeedbackSeverity.Critical);
             
             Debug.Log($"[DiplomaticProtocols] {protocolId} violated by {protocol.FromFaction}");
             
@@ -186,13 +220,18 @@ namespace EventideAge.Systems.C2
         
         public bool HasActiveProtocol(string faction1, string faction2, ProtocolType type)
         {
+            faction1 = GameIds.ResolveFactionId(faction1);
+            faction2 = GameIds.ResolveFactionId(faction2);
             foreach (var protocol in _activeProtocols)
             {
                 if (protocol.Status != ProtocolStatus.Active)
                     continue;
-                
-                if ((protocol.FromFaction == faction1 && protocol.ToFaction == faction2) ||
-                    (protocol.FromFaction == faction2 && protocol.ToFaction == faction1))
+
+                string fromFaction = GameIds.ResolveFactionId(protocol.FromFaction);
+                string toFaction = GameIds.ResolveFactionId(protocol.ToFaction);
+
+                if ((fromFaction == faction1 && toFaction == faction2) ||
+                    (fromFaction == faction2 && toFaction == faction1))
                 {
                     if (type == ProtocolType.Any || protocol.Type == type)
                         return true;
@@ -203,11 +242,12 @@ namespace EventideAge.Systems.C2
         
         public int GetActiveProtocolCount(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             int count = 0;
             foreach (var protocol in _activeProtocols)
             {
                 if (protocol.Status == ProtocolStatus.Active &&
-                    (protocol.FromFaction == factionId || protocol.ToFaction == factionId))
+                    (GameIds.ResolveFactionId(protocol.FromFaction) == factionId || GameIds.ResolveFactionId(protocol.ToFaction) == factionId))
                 {
                     count++;
                 }
@@ -217,11 +257,12 @@ namespace EventideAge.Systems.C2
         
         public DiplomaticProtocol[] GetActiveProtocolsFor(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             var result = new List<DiplomaticProtocol>();
             foreach (var protocol in _activeProtocols)
             {
                 if (protocol.Status == ProtocolStatus.Active &&
-                    (protocol.FromFaction == factionId || protocol.ToFaction == factionId))
+                    (GameIds.ResolveFactionId(protocol.FromFaction) == factionId || GameIds.ResolveFactionId(protocol.ToFaction) == factionId))
                 {
                     result.Add(protocol);
                 }
@@ -300,6 +341,42 @@ namespace EventideAge.Systems.C2
         public bool SameTypeStackingAllowed(ProtocolType type)
         {
             return type == ProtocolType.TradeAgreement;
+        }
+
+        private string GetCanonicalActionId(ProtocolType type)
+        {
+            switch (type)
+            {
+                case ProtocolType.TradeAgreement: return "C2.CurrencySettlement.Sign";
+                case ProtocolType.NonAggression: return "C2.MilitaryCooperation.Sign";
+                case ProtocolType.DefensePact: return "C2.DefensePact.Sign";
+                case ProtocolType.Coalition: return "C2.AxisCoordination.Sign";
+                case ProtocolType.Ceasefire: return "C2.EnergyTransit.Sign";
+                case ProtocolType.Neutrality: return "C2.NeutralityGuarantee.Sign";
+                default: return "C2.Protocol.Unknown";
+            }
+        }
+
+        private string GetSignConsequenceDescription(DiplomaticProtocol protocol)
+        {
+            return $"{protocol.Type} active between {protocol.FromFaction} and {protocol.ToFaction}";
+        }
+
+        private int GetSignDuration(DiplomaticProtocol protocol)
+        {
+            return protocol.Duration > 0 ? protocol.Duration : -1;
+        }
+
+        private bool IsSignReversible(ProtocolType type)
+        {
+            switch (type)
+            {
+                case ProtocolType.DefensePact:
+                case ProtocolType.Coalition:
+                    return false;
+                default:
+                    return true;
+            }
         }
     }
 }

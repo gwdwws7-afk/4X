@@ -26,7 +26,7 @@ EventideAge → Setup Complete Scene → "在当前场景中创建 GameManager"
 
 这将自动创建：
 - GameManager 游戏对象
-- Systems 子对象（包含所有30个系统组件）
+- Systems 子对象（默认挂载核心原型组件；全量系统口径为34）
 - UI 子对象（包含UIManager）
 - 所有必要的ScriptableObject引用
 

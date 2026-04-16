@@ -72,6 +72,8 @@ namespace EventideAge.Systems.C4
         
         public bool CanFormAlliance(string faction1, string faction2, AllianceType type)
         {
+            faction1 = GameIds.ResolveFactionId(faction1);
+            faction2 = GameIds.ResolveFactionId(faction2);
             int relation1 = GetRelation(faction1, faction2);
             int requiredRelation = GetRequiredRelation(type);
             
@@ -89,6 +91,8 @@ namespace EventideAge.Systems.C4
         
         public Alliance FormAlliance(string faction1, string faction2, AllianceType type)
         {
+            faction1 = GameIds.ResolveFactionId(faction1);
+            faction2 = GameIds.ResolveFactionId(faction2);
             if (!CanFormAlliance(faction1, faction2, type))
                 return null;
             
@@ -129,7 +133,7 @@ namespace EventideAge.Systems.C4
                 if (alliance.Status != AllianceStatus.Active)
                     continue;
                 
-                var goldLeaf = State.GetResource("GoldLeaf");
+                var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
                 if (goldLeaf != null && goldLeaf.Amount >= alliance.MaintenanceCost)
                 {
                     goldLeaf.Amount -= alliance.MaintenanceCost;
@@ -143,25 +147,25 @@ namespace EventideAge.Systems.C4
         
         public bool HasExistingAlliance(string faction1, string faction2)
         {
+            faction1 = GameIds.ResolveFactionId(faction1);
+            faction2 = GameIds.ResolveFactionId(faction2);
             foreach (var alliance in _activeAlliances)
             {
                 if (alliance.Status != AllianceStatus.Active)
                     continue;
-                
+
+                bool hasFaction1 = false;
+                bool hasFaction2 = false;
                 foreach (var member in alliance.MemberFactions)
                 {
-                    if (member == faction1 || member == faction2)
-                    {
-                        bool hasOther = false;
-                        foreach (var other in alliance.MemberFactions)
-                        {
-                            if (other == faction1 || other == faction2)
-                                hasOther = true;
-                        }
-                        if (hasOther)
-                            return true;
-                    }
+                    if (GameIds.ResolveFactionId(member) == faction1)
+                        hasFaction1 = true;
+                    if (GameIds.ResolveFactionId(member) == faction2)
+                        hasFaction2 = true;
                 }
+
+                if (hasFaction1 && hasFaction2)
+                    return true;
             }
             return false;
         }
@@ -173,6 +177,7 @@ namespace EventideAge.Systems.C4
         
         public int GetAllianceCount(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             int count = 0;
             foreach (var alliance in _activeAlliances)
             {
@@ -181,7 +186,7 @@ namespace EventideAge.Systems.C4
                 
                 foreach (var member in alliance.MemberFactions)
                 {
-                    if (member == factionId)
+                    if (GameIds.ResolveFactionId(member) == factionId)
                     {
                         count++;
                         break;
@@ -193,6 +198,7 @@ namespace EventideAge.Systems.C4
         
         public float GetMilitaryBonusFor(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             float totalBonus = 0f;
             foreach (var alliance in _activeAlliances)
             {
@@ -201,7 +207,7 @@ namespace EventideAge.Systems.C4
                 
                 foreach (var member in alliance.MemberFactions)
                 {
-                    if (member == factionId)
+                    if (GameIds.ResolveFactionId(member) == factionId)
                     {
                         totalBonus += alliance.MilitaryBonus;
                         break;
@@ -213,6 +219,7 @@ namespace EventideAge.Systems.C4
         
         public Alliance[] GetAlliancesFor(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             var result = new List<Alliance>();
             foreach (var alliance in _activeAlliances)
             {
@@ -221,7 +228,7 @@ namespace EventideAge.Systems.C4
                 
                 foreach (var member in alliance.MemberFactions)
                 {
-                    if (member == factionId)
+                    if (GameIds.ResolveFactionId(member) == factionId)
                     {
                         result.Add(alliance);
                         break;
@@ -233,6 +240,7 @@ namespace EventideAge.Systems.C4
         
         private int GetRelation(string faction1, string faction2)
         {
+            faction1 = GameIds.ResolveFactionId(faction1);
             var f = State.GetFaction(faction1);
             return f?.RelationshipWithPlayer ?? 0;
         }

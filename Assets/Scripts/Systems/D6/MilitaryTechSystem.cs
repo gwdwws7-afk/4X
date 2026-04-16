@@ -217,13 +217,13 @@ namespace EventideAge.Systems.D6
             if (!MeetsPrerequisites(tech))
                 return false;
 
-            var goldLeaf = State.GetResource("GoldLeaf");
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             if (goldLeaf == null || goldLeaf.Amount < tech.GoldLeafCost)
                 return false;
 
             int oldAmount = goldLeaf.Amount;
             goldLeaf.Amount -= tech.GoldLeafCost;
-            Events.ResourceChanged("GoldLeaf", oldAmount, goldLeaf.Amount);
+            Events.ResourceChanged(GameIds.Resource.GoldLeaf, oldAmount, goldLeaf.Amount);
 
             _currentResearch = new TechResearch
             {
@@ -276,7 +276,7 @@ namespace EventideAge.Systems.D6
             if (!MeetsPrerequisites(tech))
                 return false;
             
-            var goldLeaf = State.GetResource("GoldLeaf");
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             if (goldLeaf == null || goldLeaf.Amount < tech.GoldLeafCost)
                 return false;
             

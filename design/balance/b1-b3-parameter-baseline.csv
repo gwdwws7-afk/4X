@@ -1,0 +1,16 @@
+﻿system,param_id,param_name,baseline,min,max,unit,owner,notes,source_doc
+B1,b1_domestic_consumption_ratio,Domestic Consumption Ratio,0.30,0.20,0.40,ratio,B1,Domestic share of produced FireOil,b1-star-currency-energy-system.md
+B1,b1_export_ratio,Export Ratio,0.70,0.60,0.80,ratio,B1,Export share of produced FireOil,b1-star-currency-energy-system.md
+B1,b1_base_energy_price,Base Energy Price,80,60,120,goldleaf_per_unit,B1,Base price before global modifiers,b1-star-currency-energy-system.md
+B1,b1_blockade_coeff_financial,Financial Blockade Coefficient,0.20,0.10,0.40,ratio,B1,Star-currency acquisition coefficient under financial blockade,b1-star-currency-energy-system.md
+B1,b1_blockade_coeff_embargo,Energy Embargo Coefficient,0.20,0.10,0.40,ratio,B1,Export settlement coefficient under energy embargo,b1-star-currency-energy-system.md
+B2,b2_single_blockade_min_types,Single Blockade Min Types,1,1,2,count,B2,Activated blockade type count for single blockade,b2-blockade-system.md
+B2,b2_multilateral_blockade_min_types,Multilateral Blockade Min Types,3,2,4,count,B2,Activated blockade type count for multilateral blockade,b2-blockade-system.md
+B2,b2_full_blockade_min_types,Full Blockade Min Types,5,4,5,count,B2,Activated blockade type count for full blockade,b2-blockade-system.md
+B3,b3_main_route_bonus,Main Route Bonus,0.10,0.00,0.20,ratio,B3,Main route output bonus,b3-energy-trade-network.md
+B3,b3_alternative_route_penalty,Alternative Route Penalty,0.10,0.00,0.25,ratio,B3,Penalty when rerouting via alternatives,b3-energy-trade-network.md
+B3,b3_northern_route_efficiency,Northern Route Efficiency,0.60,0.40,0.80,ratio,B3,Fallback efficiency modifier,b3-energy-trade-network.md
+B3,b3_tigris_route_efficiency,Tigris Route Efficiency,0.55,0.35,0.75,ratio,B3,Fallback efficiency modifier,b3-energy-trade-network.md
+B3,b3_grey_market_efficiency,Grey Market Efficiency,0.40,0.20,0.60,ratio,B3,Last-resort fallback efficiency,b3-energy-trade-network.md
+B3,b3_route_length_decay,Route Length Decay,0.90,0.80,0.95,ratio,B3,Per-hop efficiency decay,b3-energy-trade-network.md
+B3,b3_contested_node_efficiency,Contested Node Efficiency,0.60,0.40,0.80,ratio,B3,Node efficiency when contested,b3-energy-trade-network.md

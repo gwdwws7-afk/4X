@@ -47,6 +47,7 @@ namespace EventideAge.Systems.B4
             _currentRates.GoldLeavesToStarCoin = GoldLeavesPerStarCoin;
             _currentRates.GoldLeavesToTradeNotes = GoldLeavesPerTradeNotes;
             _currentRates.GoldLeavesToNorthCoins = GoldLeavesPerNorthCoins;
+            RecalculateDerivedRates();
             
             _turnsSinceLastEvaluation = 0;
             
@@ -89,8 +90,21 @@ namespace EventideAge.Systems.B4
                 GoldLeavesPerNorthCoins * (1 - NorthCoinsVolatility),
                 GoldLeavesPerNorthCoins * (1 + NorthCoinsVolatility)
             );
+
+            RecalculateDerivedRates();
             
             Debug.Log($"[ExchangeRateSystem] Rates updated: GoldLeaves/TradeNotes={_currentRates.GoldLeavesToTradeNotes:F3}, GoldLeaves/NorthCoins={_currentRates.GoldLeavesToNorthCoins:F3}");
+        }
+
+        private void RecalculateDerivedRates()
+        {
+            _currentRates.TradeNotesToGoldLeaves = _currentRates.GoldLeavesToTradeNotes > 0f
+                ? 1f / _currentRates.GoldLeavesToTradeNotes
+                : 0f;
+
+            _currentRates.NorthCoinsToGoldLeaves = _currentRates.GoldLeavesToNorthCoins > 0f
+                ? 1f / _currentRates.GoldLeavesToNorthCoins
+                : 0f;
         }
         
         public float GetExchangeRate(Currency from, Currency to)

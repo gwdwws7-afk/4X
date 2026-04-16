@@ -31,6 +31,7 @@ namespace EventideAge.Systems.D5
         
         public int ResolveWar(string nodeId, out int attackerLosses, out int defenderLosses)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             var node = State.GetNode(nodeId);
             if (node == null)
             {
@@ -41,7 +42,7 @@ namespace EventideAge.Systems.D5
             
             int controlThreshold = BaseControlPoints;
             int currentControl = node.ControlPoints;
-            string controlling = node.ControllingFactionId;
+            string controlling = GameIds.ResolveFactionId(node.ControllingFactionId);
             
             int attackerPower = CalculateAttackerPower();
             int defenderPower = CalculateDefenderPower(node);
@@ -78,16 +79,16 @@ namespace EventideAge.Systems.D5
             
             if (controlGained > LeadBonusThreshold)
             {
-                string oldController = node.ControllingFactionId;
-                node.ControllingFactionId = "Vashid";
+                string oldController = GameIds.ResolveFactionId(node.ControllingFactionId);
+                node.ControllingFactionId = GameIds.Faction.Vashid;
                 
-                if (oldController != "Vashid" && VictoryDefeatSystem != null)
+                if (oldController != GameIds.Faction.Vashid && VictoryDefeatSystem != null)
                 {
                     VictoryDefeatSystem.RecordEnemyKeyNodeLoss();
                 }
             }
             
-            Events.NodeControlChanged(nodeId, controlling, node.ControllingFactionId, node.ControlPoints);
+            Events.NodeControlChanged(nodeId, controlling, GameIds.ResolveFactionId(node.ControllingFactionId), node.ControlPoints);
             
             Debug.Log($"[WarResolution] {nodeId}: control {currentControl} → {newControl}, attacker losses: {attackerLosses}, defender losses: {defenderLosses}");
             
@@ -96,7 +97,7 @@ namespace EventideAge.Systems.D5
         
         private int CalculateAttackerPower()
         {
-            var arms = State.GetResource("Arms");
+            var arms = State.GetResource(GameIds.Resource.Arms);
             return arms?.Amount ?? 0;
         }
         
@@ -109,7 +110,7 @@ namespace EventideAge.Systems.D5
         
         private int CalculateStabilizationBonus()
         {
-            var socialValue = State.GetResource("SocialValue");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             if (socialValue == null) return 0;
             
             if (socialValue.Amount >= StabilizationTurnThreshold * 10)
@@ -120,16 +121,17 @@ namespace EventideAge.Systems.D5
         
         public bool CheckWarConclusion(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             var node = State.GetNode(nodeId);
             if (node == null) return false;
             
             if (node.ControlPoints <= 0)
             {
-                string oldController = node.ControllingFactionId;
-                node.ControllingFactionId = "Vashid";
+                string oldController = GameIds.ResolveFactionId(node.ControllingFactionId);
+                node.ControllingFactionId = GameIds.Faction.Vashid;
                 node.ControlPoints = node.MaxControlPoints / 2;
                 
-                if (oldController != "Vashid" && VictoryDefeatSystem != null)
+                if (oldController != GameIds.Faction.Vashid && VictoryDefeatSystem != null)
                 {
                     VictoryDefeatSystem.RecordEnemyKeyNodeLoss();
                 }

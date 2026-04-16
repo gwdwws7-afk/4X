@@ -43,18 +43,18 @@ namespace EventideAge.Systems.D2
 
         public void ApplyMilitaryActionPoliticalCost(MilitaryActionType actionType)
         {
-            var socialValue = State.GetResource("SocialValue");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             if (socialValue == null) return;
 
             int socialCost = GetSocialCost(actionType);
             int oldAmount = socialValue.Amount;
             socialValue.Amount = Mathf.Max(0, socialValue.Amount - socialCost);
-            Events.ResourceChanged("SocialValue", oldAmount, socialValue.Amount);
+            Events.ResourceChanged(GameIds.Resource.SocialValue, oldAmount, socialValue.Amount);
         }
 
         public void ApplyMilitaryActionPoliticalBenefit(string benefitType)
         {
-            var socialValue = State.GetResource("SocialValue");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             if (socialValue == null) return;
 
             int socialGain = 0;
@@ -67,7 +67,7 @@ namespace EventideAge.Systems.D2
 
             int oldAmount = socialValue.Amount;
             socialValue.Amount = Mathf.Clamp(socialValue.Amount + socialGain, 0, 100);
-            Events.ResourceChanged("SocialValue", oldAmount, socialValue.Amount);
+            Events.ResourceChanged(GameIds.Resource.SocialValue, oldAmount, socialValue.Amount);
         }
 
         public float GetActionCostModifier()
@@ -96,6 +96,7 @@ namespace EventideAge.Systems.D2
 
         public int GetDigestionTurnsForNode(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             var node = State.GetNode(nodeId);
             if (node == null) return 0;
 
@@ -108,6 +109,7 @@ namespace EventideAge.Systems.D2
 
         public void StartNodeDigestion(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             if (!_occupiedNodesUnderDigestion.Contains(nodeId))
             {
                 _occupiedNodesUnderDigestion.Add(nodeId);
@@ -117,24 +119,25 @@ namespace EventideAge.Systems.D2
 
         public void ProcessNodeDigestion(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             if (!_occupiedNodesUnderDigestion.Contains(nodeId))
                 return;
 
-            var socialValue = State.GetResource("SocialValue");
-            var arms = State.GetResource("Arms");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
+            var arms = State.GetResource(GameIds.Resource.Arms);
 
             if (socialValue != null)
             {
                 int old = socialValue.Amount;
                 socialValue.Amount = Mathf.Max(0, socialValue.Amount - 2);
-                Events.ResourceChanged("SocialValue", old, socialValue.Amount);
+                Events.ResourceChanged(GameIds.Resource.SocialValue, old, socialValue.Amount);
             }
 
             if (arms != null)
             {
                 int old = arms.Amount;
                 arms.Amount = Mathf.Max(0, arms.Amount - 1);
-                Events.ResourceChanged("Arms", old, arms.Amount);
+                Events.ResourceChanged(GameIds.Resource.Arms, old, arms.Amount);
             }
 
             if (!_digestionTurnsRemaining.ContainsKey(nodeId))
@@ -152,6 +155,7 @@ namespace EventideAge.Systems.D2
 
         public bool IsNodeUnderDigestion(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             return _occupiedNodesUnderDigestion.Contains(nodeId);
         }
     }

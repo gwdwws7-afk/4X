@@ -9,6 +9,7 @@ namespace EventideAge.Core
         [Header("Game Constants")]
         public const int kTotalActionPoints = 11;
         public const int kUniversalActionPoints = 2;
+        public const int kAiResponsePhaseIndex = 5;
         public const int kMaxTurns = 24;
         public const int kStartingYear = 2028;
         

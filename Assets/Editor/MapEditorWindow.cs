@@ -13,7 +13,15 @@ namespace EventideAge.Editor
         private Vector2 _scrollPosition;
         private int _selectedRegionIndex = -1;
         private int _selectedNodeIndex = -1;
-        private string[] _factionIds = new string[] { "Vashid", "GoldLeader", "HolyFire", "NorthAlliance", "EastTrader", "AshCloud", "Neutral" };
+        private string[] _factionIds = new string[]
+        {
+            GameIds.Faction.Vashid,
+            GameIds.Faction.Aurean,
+            GameIds.Faction.SacredFire,
+            GameIds.Faction.GoldenHord,
+            GameIds.Faction.AshConfederacy,
+            GameIds.Faction.Neutral
+        };
 
         [MenuItem("EventideAge/Map Editor")]
         public static void ShowWindow()
@@ -115,32 +123,31 @@ namespace EventideAge.Editor
                 new PhaseConfig { PhaseName = "外交", BaseActionPoints = 2, SortOrder = 0 },
                 new PhaseConfig { PhaseName = "战略", BaseActionPoints = 2, SortOrder = 1 },
                 new PhaseConfig { PhaseName = "作战", BaseActionPoints = 3, SortOrder = 2 },
-                new PhaseConfig { PhaseName = "后勤", BaseActionPoints = 2, SortOrder = 3 },
+                new PhaseConfig { PhaseName = "后勤", BaseActionPoints = 1, SortOrder = 3 },
                 new PhaseConfig { PhaseName = "情报", BaseActionPoints = 1, SortOrder = 4 },
-                new PhaseConfig { PhaseName = "AI响应", BaseActionPoints = 1, SortOrder = 5 }
+                new PhaseConfig { PhaseName = "AI响应", BaseActionPoints = 0, SortOrder = 5 }
             };
 
             config.FactionConfigs = new FactionConfig[]
             {
-                new FactionConfig { FactionId = "Vashid", FactionName = "瓦希德帝国", IsPlayerControlled = true, InitialControlledPoints = 100, InitialRelationship = 100 },
-                new FactionConfig { FactionId = "GoldLeader", FactionName = "黄金领", IsPlayerControlled = false, InitialControlledPoints = 80, InitialRelationship = -80 },
-                new FactionConfig { FactionId = "HolyFire", FactionName = "圣火序", IsPlayerControlled = false, InitialControlledPoints = 60, InitialRelationship = -60 },
-                new FactionConfig { FactionId = "NorthAlliance", FactionName = "北境共主", IsPlayerControlled = false, InitialControlledPoints = 50, InitialRelationship = 40 },
-                new FactionConfig { FactionId = "EastTrader", FactionName = "东土商盟", IsPlayerControlled = false, InitialControlledPoints = 40, InitialRelationship = 30 },
-                new FactionConfig { FactionId = "AshCloud", FactionName = "灰烬众", IsPlayerControlled = false, InitialControlledPoints = 30, InitialRelationship = 70 }
+                new FactionConfig { FactionId = GameIds.Faction.Vashid, FactionName = "瓦希德帝国", IsPlayerControlled = true, InitialControlledPoints = 100, InitialRelationship = 100 },
+                new FactionConfig { FactionId = GameIds.Faction.Aurean, FactionName = "黄金领", IsPlayerControlled = false, InitialControlledPoints = 80, InitialRelationship = -80 },
+                new FactionConfig { FactionId = GameIds.Faction.SacredFire, FactionName = "圣火序", IsPlayerControlled = false, InitialControlledPoints = 60, InitialRelationship = -60 },
+                new FactionConfig { FactionId = GameIds.Faction.GoldenHord, FactionName = "金帐合众", IsPlayerControlled = false, InitialControlledPoints = 50, InitialRelationship = 40 },
+                new FactionConfig { FactionId = GameIds.Faction.AshConfederacy, FactionName = "灰烬众", IsPlayerControlled = false, InitialControlledPoints = 30, InitialRelationship = 70 }
             };
 
             config.ResourceConfigs = new ResourceConfig[]
             {
-                new ResourceConfig { ResourceId = "GoldLeaf", ResourceName = "金叶", InitialAmount = 200, MaxCapacity = 2000, ResourceType = ResourceType.Consumable },
+                new ResourceConfig { ResourceId = GameIds.Resource.GoldLeaf, ResourceName = "金叶", InitialAmount = 200, MaxCapacity = 2000, ResourceType = ResourceType.Accumulative },
                 new ResourceConfig { ResourceId = "GoldLeafReserve", ResourceName = "金叶储备", InitialAmount = 500, MaxCapacity = 5000, ResourceType = ResourceType.Accumulative },
-                new ResourceConfig { ResourceId = "Arms", ResourceName = "战械", InitialAmount = 80, MaxCapacity = 300, ResourceType = ResourceType.Consumable },
-                new ResourceConfig { ResourceId = "Energy", ResourceName = "能源", InitialAmount = 200, MaxCapacity = 1000, ResourceType = ResourceType.Accumulative },
-                new ResourceConfig { ResourceId = "SocialValue", ResourceName = "社稷值", InitialAmount = 60, MaxCapacity = 100, ResourceType = ResourceType.Ratio },
-                new ResourceConfig { ResourceId = "AshWill", ResourceName = "灰烬志", InitialAmount = 50, MaxCapacity = 100, ResourceType = ResourceType.Ratio },
-                new ResourceConfig { ResourceId = "TradeToken", ResourceName = "商盟券", InitialAmount = 40, MaxCapacity = 300, ResourceType = ResourceType.Consumable },
+                new ResourceConfig { ResourceId = GameIds.Resource.Arms, ResourceName = "战械", InitialAmount = 80, MaxCapacity = 300, ResourceType = ResourceType.Consumable },
+                new ResourceConfig { ResourceId = GameIds.Resource.FireOil, ResourceName = "火油", InitialAmount = 200, MaxCapacity = 1000, ResourceType = ResourceType.Accumulative },
+                new ResourceConfig { ResourceId = GameIds.Resource.SocialValue, ResourceName = "社稷值", InitialAmount = 60, MaxCapacity = 100, ResourceType = ResourceType.Ratio },
+                new ResourceConfig { ResourceId = GameIds.Resource.AshWill, ResourceName = "灰烬志", InitialAmount = 50, MaxCapacity = 100, ResourceType = ResourceType.Ratio },
+                new ResourceConfig { ResourceId = GameIds.Resource.TradeToken, ResourceName = "商盟券", InitialAmount = 40, MaxCapacity = 300, ResourceType = ResourceType.Accumulative },
                 new ResourceConfig { ResourceId = "NorthCoins", ResourceName = "北境银", InitialAmount = 30, MaxCapacity = 200, ResourceType = ResourceType.Consumable },
-                new ResourceConfig { ResourceId = "Prestige", ResourceName = "朝贡序", InitialAmount = 30, MaxCapacity = 100, ResourceType = ResourceType.Ratio }
+                new ResourceConfig { ResourceId = GameIds.Resource.TributeOrder, ResourceName = "朝贡序", InitialAmount = 30, MaxCapacity = 100, ResourceType = ResourceType.Ratio }
             };
 
             string path = EditorUtility.SaveFilePanelInProject("保存配置", "GameConfig_Custom", "asset", "选择保存位置");
@@ -383,7 +390,7 @@ namespace EventideAge.Editor
                 NodeName = $"新节点 {newIndex + 1}",
                 NodeType = NodeType.City,
                 DefenseBonus = 10,
-                InitialController = "Neutral",
+                    InitialController = GameIds.Faction.Neutral,
                 InitialControlPoints = 50,
                 MaxControlPoints = 100
             };

@@ -64,6 +64,7 @@ namespace EventideAge.Systems.C5
         
         public bool CanProposeResolution(string faction, ResolutionType type)
         {
+            faction = GameIds.ResolveFactionId(faction);
             if (_factionLastResolutionTurn.TryGetValue(faction, out var lastTurn))
             {
                 if (State.CurrentTurn - lastTurn < ResolutionCooldown)
@@ -74,6 +75,8 @@ namespace EventideAge.Systems.C5
         
         public UNResolution ProposeResolution(string proposer, string target, ResolutionType type)
         {
+            proposer = GameIds.ResolveFactionId(proposer);
+            target = GameIds.ResolveFactionId(target);
             if (!CanProposeResolution(proposer, type))
                 return null;
             
@@ -100,10 +103,48 @@ namespace EventideAge.Systems.C5
         
         public VotingResult CastVote(UNResolution resolution, string faction, bool voteFor)
         {
+            faction = GameIds.ResolveFactionId(faction);
             if (resolution.Result != VotingResult.Pending)
                 return resolution.Result;
             
             int votingWeight = CalculateVotingWeight(faction);
+
+            // Keep one effective vote per faction by replacing previous choice.
+            int existingFor = 0;
+            string existingForKey = null;
+            foreach (var pair in resolution.VotesFor)
+            {
+                if (GameIds.ResolveFactionId(pair.Key) == faction)
+                {
+                    existingFor = pair.Value;
+                    existingForKey = pair.Key;
+                    break;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(existingForKey))
+            {
+                resolution.TotalVotesFor = Mathf.Max(0, resolution.TotalVotesFor - existingFor);
+                resolution.VotesFor.Remove(existingForKey);
+            }
+
+            int existingAgainst = 0;
+            string existingAgainstKey = null;
+            foreach (var pair in resolution.VotesAgainst)
+            {
+                if (GameIds.ResolveFactionId(pair.Key) == faction)
+                {
+                    existingAgainst = pair.Value;
+                    existingAgainstKey = pair.Key;
+                    break;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(existingAgainstKey))
+            {
+                resolution.TotalVotesAgainst = Mathf.Max(0, resolution.TotalVotesAgainst - existingAgainst);
+                resolution.VotesAgainst.Remove(existingAgainstKey);
+            }
             
             if (voteFor)
             {
@@ -163,26 +204,43 @@ namespace EventideAge.Systems.C5
         
         private bool IsVetoed(UNResolution resolution)
         {
-            string[] vetoPowers = { "Aurean", "North", "EastAlliance", "SacredFire", "GoldenHord" };
+            string[] vetoPowers =
+            {
+                GameIds.Faction.Vashid,
+                GameIds.Faction.Aurean,
+                GameIds.Faction.SacredFire,
+                GameIds.Faction.GoldenHord,
+                GameIds.Faction.AshConfederacy
+            };
             
             foreach (var vetoPower in vetoPowers)
             {
-                if (resolution.VotesAgainst.ContainsKey(vetoPower))
+                int vetoWeight = 0;
+                bool hasVeto = false;
+                foreach (var pair in resolution.VotesAgainst)
                 {
-                    int vetoWeight = resolution.VotesAgainst[vetoPower];
-                    int totalPossible = 100;
-                    int currentTotal = resolution.TotalVotesFor + resolution.TotalVotesAgainst;
-                    
-                    if (currentTotal > 0 && (vetoWeight * 100 / currentTotal) > 30)
-                        return true;
+                    if (GameIds.ResolveFactionId(pair.Key) == vetoPower)
+                    {
+                        vetoWeight = pair.Value;
+                        hasVeto = true;
+                        break;
+                    }
                 }
-            }
+
+                if (!hasVeto)
+                    continue;
+
+                int currentTotal = resolution.TotalVotesFor + resolution.TotalVotesAgainst;
+                if (currentTotal > 0 && (vetoWeight * 100 / currentTotal) > 30)
+                    return true;
+                }
             
             return false;
         }
         
         private int CalculateVotingWeight(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             int baseWeight = 10;
             
             var faction = State.GetFaction(factionId);
@@ -196,6 +254,7 @@ namespace EventideAge.Systems.C5
         
         private void ApplyResolutionEffects(UNResolution resolution)
         {
+            resolution.Target = GameIds.ResolveFactionId(resolution.Target);
             switch (resolution.Type)
             {
                 case ResolutionType.Condemnation:
@@ -203,9 +262,13 @@ namespace EventideAge.Systems.C5
                     break;
                     
                 case ResolutionType.Sanctions:
-                    var goldLeaf = State.GetResource("GoldLeaf");
+                    var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
                     if (goldLeaf != null)
+                    {
+                        int oldAmount = goldLeaf.Amount;
                         goldLeaf.Amount = Mathf.Max(0, goldLeaf.Amount + SanctionsGoldLeafPenalty);
+                        Events.ResourceChanged(GameIds.Resource.GoldLeaf, oldAmount, goldLeaf.Amount);
+                    }
                     break;
                     
                 case ResolutionType.Embargo:
@@ -242,12 +305,16 @@ namespace EventideAge.Systems.C5
         
         private T FindSystem<T>() where T : GameSystem
         {
-            foreach (var system in State != null ? new List<GameSystem>() : new List<GameSystem>())
+            if (GameManager.Instance == null)
+                return null;
+
+            foreach (var system in GameManager.Instance.Systems)
             {
-                if (system is T)
-                    return (T)system;
+                if (system is T typedSystem)
+                    return typedSystem;
             }
-            return default(T);
+
+            return null;
         }
     }
 }

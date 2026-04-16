@@ -1,0 +1,4 @@
+﻿run_id,run_date,runner,build_ref,scenario_id,parameter_profile,actual_goldleaf_income_avg,actual_export_efficiency_avg,actual_main_route_uptime,actual_defeat_risk_events,pass_fail,notes
+R-0001,YYYY-MM-DD,owner,commit_or_tag,S1,baseline,0,0,0,0,PENDING,fill after run
+R-0002,YYYY-MM-DD,owner,commit_or_tag,S2,baseline,0,0,0,0,PENDING,fill after run
+R-0003,YYYY-MM-DD,owner,commit_or_tag,S3,baseline,0,0,0,0,PENDING,fill after run

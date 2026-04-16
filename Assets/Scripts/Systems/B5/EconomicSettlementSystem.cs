@@ -88,10 +88,21 @@ namespace EventideAge.Systems.B5
         
         [Header("Resource Limits")]
         public int SocialValueDecayThreshold = 20;
+
+        [Header("Expense Parameters")]
+        public float ArmsMaintenanceRatio = 0.2f;
+        public int MinimumArmsMaintenance = 4;
+        public int RouteMaintenanceBaseCost = 8;
+        public int RouteMaintenanceVolatilityCost = 16;
+        public int FinancialBlockadeSurcharge = 10;
+        public int EnergyEmbargoSurcharge = 20;
+        public int FullBlockadeSurcharge = 35;
+        public int LowSocialStabilityCostPerPoint = 2;
         
-        private int _previousGoldLeavesIncome;
+        private int _previousGoldLeafIncome;
         private int _currentTurnIncome;
         private int _overdraftTurns;
+        private SettlementResult _lastSettlementResult;
         
         public override void Initialize(GameState state, GameEvents events)
         {
@@ -99,9 +110,10 @@ namespace EventideAge.Systems.B5
             
             Events.OnTurnEnded += HandleTurnEnded;
             
-            _previousGoldLeavesIncome = 0;
+            _previousGoldLeafIncome = 0;
             _currentTurnIncome = 0;
             _overdraftTurns = 0;
+            _lastSettlementResult = null;
             
             Debug.Log("[EconomicSettlementSystem] Initialized");
         }
@@ -130,7 +142,10 @@ namespace EventideAge.Systems.B5
             
             CheckOverdraft(result);
             
-            _previousGoldLeavesIncome = _currentTurnIncome;
+            _previousGoldLeafIncome = _currentTurnIncome;
+            _lastSettlementResult = result;
+
+            EmitSettlementLogs(result);
             
             Debug.Log($"[EconomicSettlementSystem] Turn {result.TurnNumber} settlement complete. Health: {result.Health.Overall}");
             
@@ -139,7 +154,7 @@ namespace EventideAge.Systems.B5
         
         private void CalculateIncomePhase(SettlementResult result)
         {
-            var goldLeaf = State.GetResource("GoldLeaf");
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             int goldLeafBefore = goldLeaf?.Amount ?? 0;
             
             _currentTurnIncome = CalculateTotalIncome();
@@ -147,11 +162,11 @@ namespace EventideAge.Systems.B5
             if (goldLeaf != null)
             {
                 goldLeaf.Amount += _currentTurnIncome;
-                Events.ResourceChanged("GoldLeaf", goldLeafBefore, goldLeaf.Amount);
+                Events.ResourceChanged(GameIds.Resource.GoldLeaf, goldLeafBefore, goldLeaf.Amount);
                 
                 result.ResourceChanges.Add(new ResourceChange
                 {
-                    ResourceId = "GoldLeaf",
+                    ResourceId = GameIds.Resource.GoldLeaf,
                     PreviousValue = goldLeafBefore,
                     ChangeAmount = _currentTurnIncome,
                     NewValue = goldLeaf.Amount,
@@ -159,18 +174,18 @@ namespace EventideAge.Systems.B5
                 });
             }
             
-            var fireOil = State.GetResource("FireOil");
+            var fireOil = State.GetResource(GameIds.Resource.FireOil);
             if (fireOil != null)
             {
                 int production = CalculateEnergyProduction();
                 int fireOilBefore = fireOil.Amount;
                 
                 fireOil.Amount = Mathf.Min(fireOil.Amount + production, fireOil.MaxCapacity);
-                Events.ResourceChanged("FireOil", fireOilBefore, fireOil.Amount);
+                Events.ResourceChanged(GameIds.Resource.FireOil, fireOilBefore, fireOil.Amount);
                 
                 result.ResourceChanges.Add(new ResourceChange
                 {
-                    ResourceId = "FireOil",
+                    ResourceId = GameIds.Resource.FireOil,
                     PreviousValue = fireOilBefore,
                     ChangeAmount = production,
                     NewValue = fireOil.Amount,
@@ -204,7 +219,7 @@ namespace EventideAge.Systems.B5
             {
                 foreach (var node in region.Nodes)
                 {
-                    if (node.NodeType == NodeType.ResourceNode && node.ControllingFactionId == "Vashid")
+                    if (node.NodeType == NodeType.ResourceNode && node.ControllingFactionId == GameIds.Faction.Vashid)
                     {
                         production += 8;
                     }
@@ -216,16 +231,105 @@ namespace EventideAge.Systems.B5
         
         private void CalculateExpensePhase(SettlementResult result)
         {
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
+            if (goldLeaf == null)
+                return;
+
+            int armsExpense = CalculateArmsMaintenanceExpense();
+            int blockadeExpense = CalculateBlockadeExpense();
+            int routeExpense = CalculateRouteMaintenanceExpense();
+            int stabilityExpense = CalculateStabilityExpense();
+
+            int totalExpense = armsExpense + blockadeExpense + routeExpense + stabilityExpense;
+            if (totalExpense <= 0)
+                return;
+
+            int previousAmount = goldLeaf.Amount;
+            goldLeaf.Amount -= totalExpense;
+            Events.ResourceChanged(GameIds.Resource.GoldLeaf, previousAmount, goldLeaf.Amount);
+
+            result.ResourceChanges.Add(new ResourceChange
+            {
+                ResourceId = GameIds.Resource.GoldLeaf,
+                PreviousValue = previousAmount,
+                ChangeAmount = -totalExpense,
+                NewValue = goldLeaf.Amount,
+                ChangeReason = BuildExpenseReason(armsExpense, blockadeExpense, routeExpense, stabilityExpense)
+            });
+        }
+
+        private int CalculateArmsMaintenanceExpense()
+        {
+            var arms = State.GetResource(GameIds.Resource.Arms);
+            if (arms == null)
+                return 0;
+
+            int variableCost = Mathf.RoundToInt(arms.Amount * ArmsMaintenanceRatio);
+            return Mathf.Max(MinimumArmsMaintenance, variableCost);
+        }
+
+        private int CalculateBlockadeExpense()
+        {
+            var finance = FindSystem<FinanceSystem>();
+            if (finance == null)
+                return 0;
+
+            switch (finance.GetBlockadeLevel())
+            {
+                case B1.BlockadeLevel.Financial:
+                    return FinancialBlockadeSurcharge;
+                case B1.BlockadeLevel.EnergyEmbargo:
+                    return EnergyEmbargoSurcharge;
+                case B1.BlockadeLevel.Full:
+                    return FullBlockadeSurcharge;
+                default:
+                    return 0;
+            }
+        }
+
+        private int CalculateRouteMaintenanceExpense()
+        {
+            var tradeNetwork = FindSystem<TradeNetworkSystem>();
+            if (tradeNetwork == null)
+                return RouteMaintenanceBaseCost;
+
+            var routeStates = tradeNetwork.GetAllRouteStatuses();
+            if (routeStates == null || routeStates.Length == 0)
+                return RouteMaintenanceBaseCost;
+
+            float bestEfficiency = 0f;
+            foreach (var route in routeStates)
+            {
+                bestEfficiency = Mathf.Max(bestEfficiency, route.Efficiency);
+            }
+
+            float inefficiency = 1f - Mathf.Clamp01(bestEfficiency);
+            return RouteMaintenanceBaseCost + Mathf.RoundToInt(inefficiency * RouteMaintenanceVolatilityCost);
+        }
+
+        private int CalculateStabilityExpense()
+        {
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
+            if (socialValue == null || socialValue.Amount >= SocialValueDecayThreshold)
+                return 0;
+
+            int deficit = SocialValueDecayThreshold - socialValue.Amount;
+            return deficit * LowSocialStabilityCostPerPoint;
+        }
+
+        private string BuildExpenseReason(int armsExpense, int blockadeExpense, int routeExpense, int stabilityExpense)
+        {
+            return $"Operational upkeep (arms {armsExpense}, blockade {blockadeExpense}, routes {routeExpense}, stability {stabilityExpense})";
         }
         
         private void ApplySocialValueDiscount(SettlementResult result)
         {
-            var socialValue = State.GetResource("SocialValue");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             if (socialValue == null) return;
             
             float discount = socialValue.Amount / 100f;
             
-            var goldLeaf = State.GetResource("GoldLeaf");
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             if (goldLeaf != null)
             {
                 goldLeaf.Amount = Mathf.RoundToInt(goldLeaf.Amount * discount);
@@ -244,7 +348,15 @@ namespace EventideAge.Systems.B5
                 }
                 else
                 {
-                    resource.Amount = Mathf.Clamp(resource.Amount, 0, resource.MaxCapacity);
+                    bool allowGoldLeafOverdraft = resource.ResourceId == GameIds.Resource.GoldLeaf;
+                    if (allowGoldLeafOverdraft)
+                    {
+                        resource.Amount = Mathf.Min(resource.Amount, resource.MaxCapacity);
+                    }
+                    else
+                    {
+                        resource.Amount = Mathf.Clamp(resource.Amount, 0, resource.MaxCapacity);
+                    }
                 }
                 
                 if (previousAmount != resource.Amount)
@@ -280,7 +392,7 @@ namespace EventideAge.Systems.B5
             
             health.Grade = GetGrade(health.Overall);
             
-            int prevIncome = _previousGoldLeavesIncome;
+            int prevIncome = _previousGoldLeafIncome;
             if (_currentTurnIncome > prevIncome)
                 health.Trend = HealthTrend.Improving;
             else if (_currentTurnIncome < prevIncome)
@@ -293,7 +405,7 @@ namespace EventideAge.Systems.B5
         
         private int CalculateReservesScore()
         {
-            var goldLeaf = State.GetResource("GoldLeaf");
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             if (goldLeaf == null) return 0;
             
             int monthlyExpense = 50;
@@ -307,7 +419,7 @@ namespace EventideAge.Systems.B5
         
         private int CalculateStabilityScore()
         {
-            var socialValue = State.GetResource("SocialValue");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             if (socialValue == null) return 50;
             
             if (socialValue.Amount >= 80) return 100;
@@ -340,10 +452,10 @@ namespace EventideAge.Systems.B5
         
         private int CalculateGrowthTrendScore()
         {
-            if (_previousGoldLeavesIncome == 0) return 50;
+            if (_previousGoldLeafIncome == 0) return 50;
             
-            int diff = _currentTurnIncome - _previousGoldLeavesIncome;
-            int percentChange = (diff * 100) / _previousGoldLeavesIncome;
+            int diff = _currentTurnIncome - _previousGoldLeafIncome;
+            int percentChange = (diff * 100) / _previousGoldLeafIncome;
             
             if (percentChange > 0) return Mathf.Min(100, 50 + percentChange);
             if (percentChange < 0) return Mathf.Max(0, 50 + percentChange);
@@ -362,7 +474,7 @@ namespace EventideAge.Systems.B5
         private void CheckWarnings(SettlementResult result)
         {
             var health = result.Health;
-            var goldLeaf = State.GetResource("GoldLeaf");
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             int monthlyExpense = 50;
             int monthsOfReserve = goldLeaf != null ? goldLeaf.Amount / monthlyExpense : 0;
             
@@ -397,17 +509,18 @@ namespace EventideAge.Systems.B5
         
         private void CheckOverdraft(SettlementResult result)
         {
-            var goldLeaf = State.GetResource("GoldLeaf");
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             if (goldLeaf == null) return;
             
             if (goldLeaf.Amount < 0)
             {
                 _overdraftTurns++;
+                int maxOverdraftTurns = Mathf.Max(1, MaxOverdraftMonths);
                 
                 int interest = Mathf.RoundToInt(Mathf.Abs(goldLeaf.Amount) * OverdraftInterestRate);
                 goldLeaf.Amount -= interest;
                 
-                var socialValue = State.GetResource("SocialValue");
+                var socialValue = State.GetResource(GameIds.Resource.SocialValue);
                 if (socialValue != null)
                 {
                     socialValue.Amount = Mathf.Max(0, socialValue.Amount - 5);
@@ -417,10 +530,10 @@ namespace EventideAge.Systems.B5
                 {
                     Level = WarningLevel.Level2,
                     Message = $"透支中！利息消耗 {interest} 金叶，社稷值下降",
-                    TurnsUntilCrisis = 3 - _overdraftTurns
+                    TurnsUntilCrisis = Mathf.Max(0, maxOverdraftTurns - _overdraftTurns)
                 });
                 
-                if (_overdraftTurns >= 5)
+                if (_overdraftTurns >= maxOverdraftTurns)
                 {
                     Events.GameEnded("economic_collapse");
                 }
@@ -430,9 +543,45 @@ namespace EventideAge.Systems.B5
                 _overdraftTurns = 0;
             }
         }
+
+        private void EmitSettlementLogs(SettlementResult result)
+        {
+            if (Events == null || result == null)
+                return;
+
+            for (int i = 0; i < result.ResourceChanges.Count; i++)
+            {
+                var change = result.ResourceChanges[i];
+                string sign = change.ChangeAmount >= 0 ? "+" : string.Empty;
+                Events.ActionLogAdded(
+                    "B5",
+                    $"Turn {result.TurnNumber}: {change.ResourceId} {sign}{change.ChangeAmount} ({change.PreviousValue} -> {change.NewValue}) | {change.ChangeReason}",
+                    FeedbackSeverity.Info);
+            }
+
+            if (result.Health != null)
+            {
+                Events.ActionLogAdded(
+                    "B5",
+                    $"Turn {result.TurnNumber}: Health {result.Health.Overall} ({result.Health.Grade})",
+                    result.Health.Overall < Warning2Threshold ? FeedbackSeverity.Warning : FeedbackSeverity.Info);
+            }
+
+            for (int i = 0; i < result.Warnings.Count; i++)
+            {
+                var warning = result.Warnings[i];
+                Events.ActionLogAdded(
+                    "B5",
+                    warning.Message,
+                    warning.Level == WarningLevel.Level3 ? FeedbackSeverity.Critical : FeedbackSeverity.Warning);
+            }
+        }
         
         private T FindSystem<T>() where T : GameSystem
         {
+            if (GameManager.Instance == null || GameManager.Instance.Systems == null)
+                return default(T);
+
             foreach (var system in GameManager.Instance.Systems)
             {
                 if (system is T)
@@ -448,6 +597,9 @@ namespace EventideAge.Systems.B5
         
         public EconomicHealthScore GetEconomicHealth()
         {
+            if (_lastSettlementResult != null && _lastSettlementResult.Health != null)
+                return _lastSettlementResult.Health;
+
             var result = new SettlementResult();
             CalculateEconomicHealth(result);
             return result.Health;
@@ -455,8 +607,10 @@ namespace EventideAge.Systems.B5
         
         public List<ResourceChange> GetResourceChangeReport()
         {
-            var settlement = ExecuteTurnSettlement();
-            return settlement.ResourceChanges;
+            if (_lastSettlementResult != null)
+                return new List<ResourceChange>(_lastSettlementResult.ResourceChanges);
+
+            return new List<ResourceChange>();
         }
     }
 }

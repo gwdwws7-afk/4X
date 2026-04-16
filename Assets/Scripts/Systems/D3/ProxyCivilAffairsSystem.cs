@@ -84,6 +84,8 @@ namespace EventideAge.Systems.D3
         
         public void RegisterProxyRegion(string nodeId, string factionId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
+            factionId = GameIds.ResolveFactionId(factionId);
             if (!_proxyRegions.ContainsKey(nodeId))
             {
                 _proxyRegions[nodeId] = new ProxyControlRegion
@@ -100,6 +102,7 @@ namespace EventideAge.Systems.D3
 
         public void SetGovernanceLevel(string nodeId, GovernanceLevel level)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             if (!_proxyRegions.ContainsKey(nodeId))
                 return;
 
@@ -108,6 +111,7 @@ namespace EventideAge.Systems.D3
 
         public void ApplyGovernance(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             if (!_proxyRegions.ContainsKey(nodeId))
                 return;
 
@@ -115,12 +119,12 @@ namespace EventideAge.Systems.D3
             int cost = GetGovernanceCost(region.GovernanceLevel);
             int gain = GetGovernanceStabilityGain(region.GovernanceLevel);
 
-            var socialValue = State.GetResource("SocialValue");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             if (socialValue != null && socialValue.Amount >= cost)
             {
                 int old = socialValue.Amount;
                 socialValue.Amount -= cost;
-                Events.ResourceChanged("SocialValue", old, socialValue.Amount);
+                Events.ResourceChanged(GameIds.Resource.SocialValue, old, socialValue.Amount);
 
                 region.Stability = Mathf.Min(100, region.Stability + gain);
             }
@@ -128,6 +132,7 @@ namespace EventideAge.Systems.D3
 
         public void ProcessTurnDecay(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             if (!_proxyRegions.ContainsKey(nodeId))
                 return;
 
@@ -143,6 +148,7 @@ namespace EventideAge.Systems.D3
 
         public ProxyCivilStatus GetNodeStatus(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             if (!_proxyRegions.ContainsKey(nodeId))
                 return ProxyCivilStatus.Normal;
 
@@ -158,11 +164,13 @@ namespace EventideAge.Systems.D3
 
         public bool HasRegionCollapsed(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             return GetNodeStatus(nodeId) == ProxyCivilStatus.Collapsed;
         }
 
         public void UpdatePublicSupport(string nodeId, int delta)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             if (!_proxyRegions.ContainsKey(nodeId))
                 return;
 
@@ -172,11 +180,13 @@ namespace EventideAge.Systems.D3
 
         public ProxyControlRegion GetProxyRegion(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             return _proxyRegions.ContainsKey(nodeId) ? _proxyRegions[nodeId] : null;
         }
 
         public float GetOutputModifier(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             var status = GetNodeStatus(nodeId);
             switch (status)
             {

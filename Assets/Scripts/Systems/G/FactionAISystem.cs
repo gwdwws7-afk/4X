@@ -8,10 +8,12 @@ using EventideAge.Systems.D1;
 using EventideAge.Systems.D2;
 using EventideAge.Systems.D3;
 using EventideAge.Systems.D4;
+using EventideAge.Systems.D5;
 using EventideAge.Systems.D6;
 using EventideAge.Systems.B1;
 using EventideAge.Systems.B2;
 using EventideAge.Systems.B3;
+using EventideAge.Systems.H2;
 
 namespace EventideAge.Systems.G
 {
@@ -104,6 +106,8 @@ namespace EventideAge.Systems.G
 
     public class FactionAISystem : GameSystem
     {
+        public NodeNetworkSystem NodeNetworkSystem { get; set; }
+
         [Header("Personality Multipliers")]
         public float AggressiveAggression = 1.5f;
         public float DefensiveDefense = 1.5f;
@@ -127,12 +131,15 @@ namespace EventideAge.Systems.G
         public float LowResourceThreshold = 0.3f;
 
         private Dictionary<string, FactionAI> _factionAIs = new Dictionary<string, FactionAI>();
+        private Dictionary<string, HashSet<string>> _nodeAdjacency = new Dictionary<string, HashSet<string>>();
+        private Dictionary<string, string> _nodeRegionLookup = new Dictionary<string, string>();
         private int _turnSinceLastUpdate;
 
         public override void Initialize(GameState state, GameEvents events)
         {
             base.Initialize(state, events);
 
+            BuildNodeAdjacency();
             InitializeFactionAIs();
 
             Events.OnTurnEnded += HandleTurnEnded;
@@ -147,9 +154,9 @@ namespace EventideAge.Systems.G
 
         private void InitializeFactionAIs()
         {
-            _factionAIs["GoldLeader"] = new FactionAI
+            _factionAIs[GameIds.Faction.Aurean] = new FactionAI
             {
-                FactionId = "GoldLeader",
+                FactionId = GameIds.Faction.Aurean,
                 Personality = AIPersonality.Aggressive,
                 AggressionLevel = 0.8f,
                 DefenseLevel = 0.5f,
@@ -160,9 +167,9 @@ namespace EventideAge.Systems.G
                 OpportunityPerception = 0.8f
             };
 
-            _factionAIs["HolyFire"] = new FactionAI
+            _factionAIs[GameIds.Faction.SacredFire] = new FactionAI
             {
-                FactionId = "HolyFire",
+                FactionId = GameIds.Faction.SacredFire,
                 Personality = AIPersonality.Defensive,
                 AggressionLevel = 0.3f,
                 DefenseLevel = 0.9f,
@@ -173,35 +180,22 @@ namespace EventideAge.Systems.G
                 OpportunityPerception = 0.3f
             };
 
-            _factionAIs["NorthAlliance"] = new FactionAI
+            _factionAIs[GameIds.Faction.GoldenHord] = new FactionAI
             {
-                FactionId = "NorthAlliance",
+                FactionId = GameIds.Faction.GoldenHord,
                 Personality = AIPersonality.Diplomatic,
                 AggressionLevel = 0.4f,
                 DefenseLevel = 0.6f,
                 DiplomaticLevel = 0.8f,
                 ExpansionLevel = 0.3f,
-                ActiveGoals = new List<string> { "build_alliances", "trade_expansion", "maintain_neutrality" },
+                ActiveGoals = new List<string> { "build_alliances", "trade_expansion", "maintain_balance" },
                 ThreatPerception = 0.5f,
                 OpportunityPerception = 0.6f
             };
 
-            _factionAIs["EastTrader"] = new FactionAI
+            _factionAIs[GameIds.Faction.AshConfederacy] = new FactionAI
             {
-                FactionId = "EastTrader",
-                Personality = AIPersonality.Expansionist,
-                AggressionLevel = 0.5f,
-                DefenseLevel = 0.4f,
-                DiplomaticLevel = 0.6f,
-                ExpansionLevel = 0.9f,
-                ActiveGoals = new List<string> { "control_trade", "expand_economic_influence", "form_trade_alliances" },
-                ThreatPerception = 0.4f,
-                OpportunityPerception = 0.9f
-            };
-
-            _factionAIs["AshCloud"] = new FactionAI
-            {
-                FactionId = "AshCloud",
+                FactionId = GameIds.Faction.AshConfederacy,
                 Personality = AIPersonality.Aggressive,
                 AggressionLevel = 0.7f,
                 DefenseLevel = 0.5f,
@@ -272,7 +266,7 @@ namespace EventideAge.Systems.G
 
         private float CalculateEconomicStrength(string factionId)
         {
-            var resource = State.GetResource("GoldLeaf");
+            var resource = State.GetResource(GameIds.Resource.GoldLeaf);
             float strength = 100f;
 
             if (resource != null)
@@ -311,30 +305,33 @@ namespace EventideAge.Systems.G
         {
             ai.HostileFactions.Clear();
             ai.AlliedFactions.Clear();
+            string aiFactionId = GameIds.ResolveFactionId(ai.FactionId);
 
             foreach (var faction in State.Factions)
             {
-                if (faction.FactionId == ai.FactionId) continue;
+                string factionId = GameIds.ResolveFactionId(faction.FactionId);
+                if (factionId == aiFactionId) continue;
 
                 int relation = faction.RelationshipWithPlayer;
 
                 if (relation < -30)
-                    ai.HostileFactions.Add(faction.FactionId);
+                    ai.HostileFactions.Add(factionId);
                 else if (relation > 30)
-                    ai.AlliedFactions.Add(faction.FactionId);
+                    ai.AlliedFactions.Add(factionId);
             }
         }
 
         private List<string> GetControlledNodes(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             var nodes = new List<string>();
             foreach (var region in State.Map.Regions)
             {
                 foreach (var node in region.Nodes)
                 {
-                    if (node.ControllingFactionId == factionId)
+                    if (GameIds.ResolveFactionId(node.ControllingFactionId) == factionId)
                     {
-                        nodes.Add(node.NodeId);
+                        nodes.Add(GameIds.ResolveNodeId(node.NodeId));
                     }
                 }
             }
@@ -387,7 +384,7 @@ namespace EventideAge.Systems.G
 
         private bool ShouldAIAct(FactionAI ai)
         {
-            var goldLeaf = State.GetResource("GoldLeaf");
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             if (goldLeaf == null || goldLeaf.Amount < MinGoldLeafForAttack)
             {
                 return false;
@@ -475,18 +472,22 @@ namespace EventideAge.Systems.G
         {
             var nodes = new List<string>();
             var controlled = GetControlledNodes(ai.FactionId);
+            string aiFactionId = GameIds.ResolveFactionId(ai.FactionId);
 
             foreach (var region in State.Map.Regions)
             {
                 foreach (var node in region.Nodes)
                 {
-                    if (node.ControllingFactionId != ai.FactionId &&
-                        !ai.HostileFactions.Contains(node.ControllingFactionId) &&
-                        !ai.AlliedFactions.Contains(node.ControllingFactionId))
+                    string controller = GameIds.ResolveFactionId(node.ControllingFactionId);
+                    string nodeId = GameIds.ResolveNodeId(node.NodeId);
+
+                    if (controller != aiFactionId &&
+                        !ai.HostileFactions.Contains(controller) &&
+                        !ai.AlliedFactions.Contains(controller))
                     {
-                        if (IsNodeAdjacentToFriendly(node.NodeId, controlled))
+                        if (IsNodeAdjacentToFriendly(nodeId, controlled))
                         {
-                            nodes.Add(node.NodeId);
+                            nodes.Add(nodeId);
                         }
                     }
                 }
@@ -496,7 +497,55 @@ namespace EventideAge.Systems.G
 
         private bool IsNodeAdjacentToFriendly(string nodeId, List<string> friendlyNodes)
         {
-            return true;
+            nodeId = GameIds.ResolveNodeId(nodeId);
+            if (string.IsNullOrEmpty(nodeId) || friendlyNodes == null || friendlyNodes.Count == 0)
+                return false;
+
+            var canonicalFriendlyNodes = new List<string>(friendlyNodes.Count);
+            for (int i = 0; i < friendlyNodes.Count; i++)
+            {
+                canonicalFriendlyNodes.Add(GameIds.ResolveNodeId(friendlyNodes[i]));
+            }
+
+            foreach (var friendly in canonicalFriendlyNodes)
+            {
+                if (friendly == nodeId)
+                    return true;
+            }
+
+            if (NodeNetworkSystem != null)
+            {
+                foreach (var friendly in canonicalFriendlyNodes)
+                {
+                    if (NodeNetworkSystem.AreAdjacent(nodeId, friendly))
+                        return true;
+                }
+            }
+
+            if (_nodeAdjacency.Count == 0)
+            {
+                BuildNodeAdjacency();
+            }
+
+            if (_nodeAdjacency.TryGetValue(nodeId, out var neighbors))
+            {
+                foreach (var friendly in canonicalFriendlyNodes)
+                {
+                    if (neighbors.Contains(friendly))
+                        return true;
+                }
+            }
+
+            if (_nodeRegionLookup.TryGetValue(nodeId, out var regionId))
+            {
+                foreach (var friendly in canonicalFriendlyNodes)
+                {
+                    if (_nodeRegionLookup.TryGetValue(friendly, out var friendlyRegion) && friendlyRegion == regionId)
+                        return true;
+                }
+            }
+
+            return false;
         }
 
         private bool ShouldAttackNode(FactionAI ai, string nodeId)
@@ -512,6 +561,7 @@ namespace EventideAge.Systems.G
 
         private AIDecision EvaluateMilitaryAction(FactionAI ai, string targetNodeId)
         {
+            targetNodeId = GameIds.ResolveNodeId(targetNodeId);
             var node = State.GetNode(targetNodeId);
             if (node == null) return null;
 
@@ -544,6 +594,7 @@ namespace EventideAge.Systems.G
 
         private float CalculateNodeDefense(string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             var node = State.GetNode(nodeId);
             if (node == null) return 50f;
 
@@ -590,13 +641,14 @@ namespace EventideAge.Systems.G
                 priority += 0.15f;
             }
 
-            if (ai.HostileFactions.Contains(target.ControllingFactionId))
+            string targetController = GameIds.ResolveFactionId(target.ControllingFactionId);
+            if (ai.HostileFactions.Contains(targetController))
             {
                 priority += 0.2f;
             }
 
-            var vashidRelation = State.GetFaction("Vashid")?.RelationshipWithPlayer ?? 0;
-            if (target.ControllingFactionId == "Vashid")
+            var vashidRelation = State.GetFaction(GameIds.Faction.Vashid)?.RelationshipWithPlayer ?? 0;
+            if (targetController == GameIds.Faction.Vashid)
             {
                 priority += (vashidRelation < 0 ? 0.15f : -0.1f);
             }
@@ -662,17 +714,19 @@ namespace EventideAge.Systems.G
         private List<string> GetPotentialAllies(FactionAI ai)
         {
             var allies = new List<string>();
+            string aiFactionId = GameIds.ResolveFactionId(ai.FactionId);
 
             foreach (var faction in State.Factions)
             {
-                if (faction.FactionId == ai.FactionId) continue;
-                if (ai.HostileFactions.Contains(faction.FactionId)) continue;
-                if (ai.AlliedFactions.Contains(faction.FactionId)) continue;
+                string factionId = GameIds.ResolveFactionId(faction.FactionId);
+                if (factionId == aiFactionId) continue;
+                if (ai.HostileFactions.Contains(factionId)) continue;
+                if (ai.AlliedFactions.Contains(factionId)) continue;
 
                 int relation = faction.RelationshipWithPlayer;
                 if (relation > 20)
                 {
-                    allies.Add(faction.FactionId);
+                    allies.Add(factionId);
                 }
             }
 
@@ -681,6 +735,7 @@ namespace EventideAge.Systems.G
 
         private AIDecision EvaluateDiplomaticAction(FactionAI ai, string targetFaction)
         {
+            targetFaction = GameIds.ResolveFactionId(targetFaction);
             var option = new AIDecision
             {
                 FactionId = ai.FactionId,
@@ -751,9 +806,10 @@ namespace EventideAge.Systems.G
             }
 
             var tradeNodes = GetTradeNodes(ai);
+            var controlledNodes = GetControlledNodes(ai.FactionId);
             foreach (var node in tradeNodes)
             {
-                if (!GetControlledNodes(ai.FactionId).Contains(node))
+                if (!controlledNodes.Contains(node))
                 {
                     var option = EvaluateTradeNodeAction(ai, node);
                     if (option != null)
@@ -768,12 +824,13 @@ namespace EventideAge.Systems.G
 
         private List<string> GetTradeNodes(FactionAI ai)
         {
-            var tradeNodes = new List<string> { "Hormuz", "GulfPort", "Basra" };
+            var tradeNodes = new List<string> { GameIds.Node.Hormuz, GameIds.Node.Bushehr, GameIds.Node.TradeHub };
             return tradeNodes;
         }
 
         private AIDecision EvaluateTradeNodeAction(FactionAI ai, string nodeId)
         {
+            nodeId = GameIds.ResolveNodeId(nodeId);
             var node = State.GetNode(nodeId);
             if (node == null) return null;
 
@@ -851,27 +908,38 @@ namespace EventideAge.Systems.G
 
         private void ExecuteMilitaryDecision(FactionAI ai, AIDecision decision)
         {
+            string targetNodeId = GameIds.ResolveNodeId(decision.TargetId);
             var d1System = FindSystem<D1.MilitaryOperationsSystem>();
             var d2System = FindSystem<D2.MilitaryPoliticalLinkageSystem>();
+            var d5System = FindSystem<D5.WarResolutionSystem>();
 
-            if (d1System == null || d2System == null)
+            if (d1System == null)
             {
                 Debug.LogWarning($"[FactionAI] Military systems not found for {ai.FactionId}");
                 return;
             }
 
-            var goldLeaf = State.GetResource("GoldLeaf");
-            if (goldLeaf != null && goldLeaf.Amount >= decision.CostGold)
+            MilitaryActionType actionType = ResolveMilitaryActionType(decision, ai);
+            bool executed = d1System.ExecuteActionForAI(actionType, targetNodeId);
+
+            if (executed && d2System != null)
             {
-                goldLeaf.Amount -= decision.CostGold;
-                Debug.Log($"[FactionAI] {ai.FactionId} spent {decision.CostGold} GoldLeaf on military action");
+                d2System.StartNodeDigestion(targetNodeId);
             }
 
-            Debug.Log($"[FactionAI] {ai.FactionId} executed military action: {decision.ActionId} on {decision.TargetId}");
+            if (executed && d5System != null && actionType == MilitaryActionType.TotalWar)
+            {
+                d5System.CheckWarConclusion(targetNodeId);
+            }
+
+            Events.ActionLogAdded("G", $"{ai.FactionId} military action {actionType} on {targetNodeId}: {(executed ? "executed" : "failed")}", executed ? FeedbackSeverity.Warning : FeedbackSeverity.Info);
+            Debug.Log($"[FactionAI] {ai.FactionId} executed military action: {actionType} on {targetNodeId}");
         }
 
         private void ExecuteDiplomaticDecision(FactionAI ai, AIDecision decision)
         {
+            string fromFactionId = GameIds.ResolveFactionId(ai.FactionId);
+            string targetFactionId = GameIds.ResolveFactionId(decision.TargetId);
             var c2System = FindSystem<C2.DiplomaticProtocolsSystem>();
 
             if (c2System == null)
@@ -882,48 +950,200 @@ namespace EventideAge.Systems.G
 
             if (decision.ActionId == "ProposeProtocol")
             {
-                Debug.Log($"[FactionAI] {ai.FactionId} proposes diplomatic protocol to {decision.TargetId}");
+                if (string.IsNullOrEmpty(targetFactionId) || targetFactionId == fromFactionId)
+                {
+                    Debug.LogWarning($"[FactionAI] Invalid diplomatic target for {ai.FactionId}");
+                    return;
+                }
+
+                ProtocolType type = ResolveProtocolType(ai, decision);
+                var proposal = c2System.ProposeProtocol(fromFactionId, targetFactionId, type);
+                if (proposal != null)
+                {
+                    c2System.SignProtocol(proposal.ProtocolId);
+                    Events.ActionLogAdded("G", $"{fromFactionId} signed {type} with {targetFactionId}", FeedbackSeverity.Info);
+                }
             }
 
-            Debug.Log($"[FactionAI] {ai.FactionId} executed diplomatic action: {decision.ActionId} with {decision.TargetId}");
+            Debug.Log($"[FactionAI] {fromFactionId} executed diplomatic action: {decision.ActionId} with {targetFactionId}");
         }
 
         private void ExecuteEconomicDecision(FactionAI ai, AIDecision decision)
         {
+            string targetNodeId = GameIds.ResolveNodeId(decision.TargetId);
             if (decision.ActionId == "ApplyBlockade")
             {
                 var blockadeSystem = FindSystem<B2.BlockadeSystem>();
                 if (blockadeSystem != null)
                 {
-                    Debug.Log($"[FactionAI] {ai.FactionId} applies blockade");
+                    var blockadeType = ResolveBlockadeType(ai);
+                    blockadeSystem.ActivateBlockade(blockadeType);
+                    Events.ActionLogAdded("G", $"{ai.FactionId} activates blockade: {blockadeType}", FeedbackSeverity.Warning);
                 }
             }
             else if (decision.ActionId == "FocusOnEconomy")
             {
-                Debug.Log($"[FactionAI] {ai.FactionId} focuses on internal economy");
+                var tradeSystem = FindSystem<B3.TradeNetworkSystem>();
+                if (tradeSystem != null)
+                {
+                    tradeSystem.RecalculateAllRoutes();
+                }
+
+                var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
+                if (goldLeaf != null)
+                {
+                    int oldAmount = goldLeaf.Amount;
+                    int bonus = Mathf.Max(5, Mathf.RoundToInt(10f * ai.DiplomaticLevel));
+                    goldLeaf.Amount = Mathf.Clamp(goldLeaf.Amount + bonus, 0, goldLeaf.MaxCapacity);
+                    Events.ResourceChanged(GameIds.Resource.GoldLeaf, oldAmount, goldLeaf.Amount);
+                }
+
+                Events.ActionLogAdded("G", $"{ai.FactionId} focuses on economy and recalculates trade network", FeedbackSeverity.Info);
             }
             else if (decision.ActionId == "SecureTradeNode")
             {
-                Debug.Log($"[FactionAI] {ai.FactionId} attempts to secure trade node {decision.TargetId}");
+                var d1System = FindSystem<D1.MilitaryOperationsSystem>();
+                var tradeSystem = FindSystem<B3.TradeNetworkSystem>();
+                if (d1System != null)
+                {
+                    bool executed = d1System.ExecuteActionForAI(MilitaryActionType.ChokepointThreat, targetNodeId);
+                    Events.ActionLogAdded("G", $"{ai.FactionId} secure-trade attempt on {targetNodeId}: {(executed ? "executed" : "failed")}", executed ? FeedbackSeverity.Warning : FeedbackSeverity.Info);
+                }
+
+                if (tradeSystem != null)
+                {
+                    tradeSystem.RecalculateAllRoutes();
+                }
             }
 
             Debug.Log($"[FactionAI] {ai.FactionId} executed economic action: {decision.ActionId}");
         }
 
+        private void BuildNodeAdjacency()
+        {
+            _nodeAdjacency.Clear();
+            _nodeRegionLookup.Clear();
+
+            if (State?.Map?.Regions == null)
+                return;
+
+            foreach (var region in State.Map.Regions)
+            {
+                if (region?.Nodes == null)
+                    continue;
+
+                for (int i = 0; i < region.Nodes.Length; i++)
+                {
+                    var node = region.Nodes[i];
+                    if (node == null || string.IsNullOrEmpty(node.NodeId))
+                        continue;
+
+                    string canonicalNodeId = GameIds.ResolveNodeId(node.NodeId);
+                    EnsureNodeKey(canonicalNodeId);
+                    _nodeRegionLookup[canonicalNodeId] = region.RegionId;
+                }
+
+                for (int i = 0; i < region.Nodes.Length; i++)
+                {
+                    var nodeA = region.Nodes[i];
+                    if (nodeA == null || string.IsNullOrEmpty(nodeA.NodeId))
+                        continue;
+
+                    for (int j = i + 1; j < region.Nodes.Length; j++)
+                    {
+                        var nodeB = region.Nodes[j];
+                        if (nodeB == null || string.IsNullOrEmpty(nodeB.NodeId))
+                            continue;
+
+                        AddBidirectionalEdge(GameIds.ResolveNodeId(nodeA.NodeId), GameIds.ResolveNodeId(nodeB.NodeId));
+                    }
+                }
+            }
+        }
+
+        private void EnsureNodeKey(string nodeId)
+        {
+            nodeId = GameIds.ResolveNodeId(nodeId);
+            if (!_nodeAdjacency.ContainsKey(nodeId))
+            {
+                _nodeAdjacency[nodeId] = new HashSet<string>();
+            }
+        }
+
+        private void AddBidirectionalEdge(string nodeA, string nodeB)
+        {
+            nodeA = GameIds.ResolveNodeId(nodeA);
+            nodeB = GameIds.ResolveNodeId(nodeB);
+            EnsureNodeKey(nodeA);
+            EnsureNodeKey(nodeB);
+            _nodeAdjacency[nodeA].Add(nodeB);
+            _nodeAdjacency[nodeB].Add(nodeA);
+        }
+
+        private MilitaryActionType ResolveMilitaryActionType(AIDecision decision, FactionAI ai)
+        {
+            if (decision.ActionId == "SecureTradeNode")
+                return MilitaryActionType.ChokepointThreat;
+
+            if (ai.Personality == AIPersonality.Defensive)
+                return MilitaryActionType.AsymmetricDefense;
+
+            if (ai.Personality == AIPersonality.Aggressive && decision.Priority > 0.75f)
+                return MilitaryActionType.SpecialForces;
+
+            return MilitaryActionType.Proxy;
+        }
+
+        private ProtocolType ResolveProtocolType(FactionAI ai, AIDecision decision)
+        {
+            if (ai.Personality == AIPersonality.Diplomatic)
+                return ProtocolType.TradeAgreement;
+
+            if (ai.Personality == AIPersonality.Defensive)
+                return ProtocolType.NonAggression;
+
+            return ProtocolType.Neutrality;
+        }
+
+        private B1.BlockadeType ResolveBlockadeType(FactionAI ai)
+        {
+            if (ai.Personality == AIPersonality.Aggressive)
+                return B1.BlockadeType.NavalBlockade;
+
+            if (ai.Personality == AIPersonality.Defensive)
+                return B1.BlockadeType.FinancialBlockade;
+
+            return B1.BlockadeType.SecondaryBlockade;
+        }
+
         private T FindSystem<T>() where T : GameSystem
         {
-            if (GameManager.Instance == null) return null;
+            if (GameManager.Instance != null)
+            {
+                foreach (var system in GameManager.Instance.Systems)
+                {
+                    if (system is T typedSystem)
+                        return typedSystem;
+                }
+            }
 
-            foreach (var system in GameManager.Instance.Systems)
+            var local = GetComponentInParent<T>();
+            if (local != null && local != this)
+                return local;
+
+            var allSystems = FindObjectsOfType<GameSystem>(true);
+            foreach (var system in allSystems)
             {
                 if (system is T typedSystem)
                     return typedSystem;
             }
+
             return null;
         }
 
         public FactionAI GetAI(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             if (_factionAIs.TryGetValue(factionId, out var ai))
                 return ai;
             return null;
@@ -936,6 +1156,7 @@ namespace EventideAge.Systems.G
 
         public List<AIDecision> GetCurrentDecisions(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             var ai = GetAI(factionId);
             if (ai == null) return new List<AIDecision>();
 

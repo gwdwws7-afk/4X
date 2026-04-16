@@ -6,6 +6,9 @@ namespace EventideAge.UI
 {
     public class UIManager : GameSystem
     {
+        private EventideAge.Systems.A5.GameClock _gameClock;
+        private bool _loggedClockFallback;
+
         [Header("UI Panels")]
         public GameObject MainMenuPanel;
         public GameObject GameHUDPanel;
@@ -19,6 +22,13 @@ namespace EventideAge.UI
         public GameObject TechTreePanel;
         public GameObject NuclearStatusPanel;
         public GameObject ProxyAffairsPanel;
+        public GameObject ActionLogPanel;
+        public GameObject ConsequencePanel;
+        public GameObject GlobalAlertPanel;
+        public GameObject NotificationPanel;
+        public GameObject AlertPanel;
+        public GameObject EventPanel;
+        public GameObject IntelPanel;
         
         [Header("HUD Elements")]
         public Text TurnText;
@@ -33,6 +43,8 @@ namespace EventideAge.UI
         public override void Initialize(GameState state, GameEvents events)
         {
             base.Initialize(state, events);
+            _gameClock = FindSystem<EventideAge.Systems.A5.GameClock>();
+            _loggedClockFallback = false;
             Events.OnTurnChanged += HandleTurnChanged;
             Events.OnPhaseChanged += HandlePhaseChanged;
             Events.OnActionPointsChanged += HandleAPChanged;
@@ -73,6 +85,7 @@ namespace EventideAge.UI
         private void HandleTurnChanged(int oldTurn, int newTurn)
         {
             UpdateTurnDisplay();
+            UpdateTimeDisplay();
         }
         
         private void HandlePhaseChanged(int newPhaseIndex)
@@ -93,6 +106,7 @@ namespace EventideAge.UI
         private void UpdateAllUI()
         {
             UpdateTurnDisplay();
+            UpdateTimeDisplay();
             UpdatePhaseDisplay();
             UpdateAPDisplay();
         }
@@ -103,6 +117,31 @@ namespace EventideAge.UI
                 TurnText.text = $"回合 {State.CurrentTurn}";
         }
         
+        private void UpdateTimeDisplay()
+        {
+            if (TimeText == null)
+                return;
+
+            if (_gameClock == null)
+            {
+                _gameClock = FindSystem<EventideAge.Systems.A5.GameClock>();
+            }
+
+            if (_gameClock != null)
+            {
+                TimeText.text = _gameClock.GetCurrentTimeDisplay();
+                return;
+            }
+
+            if (!_loggedClockFallback)
+            {
+                Debug.LogWarning("[UIManager] GameClock not found. Falling back to A5 static time formatter.");
+                _loggedClockFallback = true;
+            }
+
+            TimeText.text = EventideAge.Systems.A5.GameClock.FormatTurnAsHalfYear(State.CurrentTurn);
+        }
+
         private void UpdatePhaseDisplay()
         {
             if (PhaseText != null && State.Config?.PhaseConfigs != null)
@@ -118,7 +157,7 @@ namespace EventideAge.UI
         {
             if (ActionPointsText != null)
             {
-                ActionPointsText.text = $"AP: {State.ActionPointsRemaining}";
+                ActionPointsText.text = $"AP: {State.ActionPointsRemaining} (Phase {State.CurrentPhaseActionPointsRemaining}, Universal {State.UniversalActionPointsRemaining})";
             }
         }
         
@@ -215,6 +254,104 @@ namespace EventideAge.UI
         {
             if (ProxyAffairsPanel != null)
                 ProxyAffairsPanel.SetActive(false);
+        }
+
+        public void ShowActionLog()
+        {
+            if (ActionLogPanel != null)
+                ActionLogPanel.SetActive(true);
+        }
+
+        public void HideActionLog()
+        {
+            if (ActionLogPanel != null)
+                ActionLogPanel.SetActive(false);
+        }
+
+        public void ShowConsequencePanel()
+        {
+            if (ConsequencePanel != null)
+                ConsequencePanel.SetActive(true);
+        }
+
+        public void HideConsequencePanel()
+        {
+            if (ConsequencePanel != null)
+                ConsequencePanel.SetActive(false);
+        }
+
+        public void ShowGlobalAlert()
+        {
+            if (GlobalAlertPanel != null)
+                GlobalAlertPanel.SetActive(true);
+        }
+
+        public void HideGlobalAlert()
+        {
+            if (GlobalAlertPanel != null)
+                GlobalAlertPanel.SetActive(false);
+        }
+
+        public void ShowNotificationPanel()
+        {
+            if (NotificationPanel != null)
+                NotificationPanel.SetActive(true);
+        }
+
+        public void HideNotificationPanel()
+        {
+            if (NotificationPanel != null)
+                NotificationPanel.SetActive(false);
+        }
+
+        public void ShowAlertPanel()
+        {
+            if (AlertPanel != null)
+                AlertPanel.SetActive(true);
+        }
+
+        public void HideAlertPanel()
+        {
+            if (AlertPanel != null)
+                AlertPanel.SetActive(false);
+        }
+
+        public void ShowEventPanel()
+        {
+            if (EventPanel != null)
+                EventPanel.SetActive(true);
+        }
+
+        public void HideEventPanel()
+        {
+            if (EventPanel != null)
+                EventPanel.SetActive(false);
+        }
+
+        public void ShowIntelPanel()
+        {
+            if (IntelPanel != null)
+                IntelPanel.SetActive(true);
+        }
+
+        public void HideIntelPanel()
+        {
+            if (IntelPanel != null)
+                IntelPanel.SetActive(false);
+        }
+
+        private T FindSystem<T>() where T : GameSystem
+        {
+            if (GameManager.Instance == null)
+                return null;
+
+            foreach (var system in GameManager.Instance.Systems)
+            {
+                if (system is T typedSystem)
+                    return typedSystem;
+            }
+
+            return null;
         }
     }
 }

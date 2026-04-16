@@ -10,7 +10,9 @@ namespace EventideAge.Core
         [Header("Turn Info")]
         public int CurrentTurn = 1;
         public int CurrentPhaseIndex = 0;
-        public int ActionPointsRemaining = 11;
+        public int ActionPointsRemaining = GameConfig.kTotalActionPoints;
+        public int CurrentPhaseActionPointsRemaining = 0;
+        public int UniversalActionPointsRemaining = GameConfig.kUniversalActionPoints;
         
         [Header("Factions")]
         public FactionState[] Factions;
@@ -28,10 +30,84 @@ namespace EventideAge.Core
         {
             CurrentTurn = 1;
             CurrentPhaseIndex = 0;
-            ActionPointsRemaining = GameConfig.kTotalActionPoints;
+            ResetTurnActionPoints();
+            PreparePhaseActionPoints(CurrentPhaseIndex);
             InitializeFactions();
             InitializeResources();
             InitializeMap();
+        }
+
+        public void ResetTurnActionPoints()
+        {
+            ActionPointsRemaining = GameConfig.kTotalActionPoints;
+            UniversalActionPointsRemaining = GameConfig.kUniversalActionPoints;
+            CurrentPhaseActionPointsRemaining = 0;
+        }
+
+        public void PreparePhaseActionPoints(int phaseIndex)
+        {
+            CurrentPhaseActionPointsRemaining = GetPhaseBaseActionPoints(phaseIndex);
+        }
+
+        public void ExpireCurrentPhaseActionPoints()
+        {
+            if (CurrentPhaseActionPointsRemaining <= 0)
+            {
+                CurrentPhaseActionPointsRemaining = 0;
+                return;
+            }
+
+            ActionPointsRemaining = Mathf.Max(0, ActionPointsRemaining - CurrentPhaseActionPointsRemaining);
+            CurrentPhaseActionPointsRemaining = 0;
+        }
+
+        public bool CanSpendActionPoints(int cost)
+        {
+            if (cost <= 0) return true;
+            if (CurrentPhaseIndex == GameConfig.kAiResponsePhaseIndex) return false;
+
+            int immediatelyAvailable = CurrentPhaseActionPointsRemaining + UniversalActionPointsRemaining;
+            return cost <= immediatelyAvailable && cost <= ActionPointsRemaining;
+        }
+
+        public bool TrySpendActionPoints(int cost)
+        {
+            if (!CanSpendActionPoints(cost))
+                return false;
+
+            int spendFromPhase = Mathf.Min(cost, CurrentPhaseActionPointsRemaining);
+            CurrentPhaseActionPointsRemaining -= spendFromPhase;
+
+            int spendFromUniversal = cost - spendFromPhase;
+            if (spendFromUniversal > 0)
+            {
+                UniversalActionPointsRemaining -= spendFromUniversal;
+            }
+
+            ActionPointsRemaining = Mathf.Max(0, ActionPointsRemaining - cost);
+            return true;
+        }
+
+        public bool TrySpendUniversalActionPoints(int amount)
+        {
+            if (amount <= 0) return true;
+            if (CurrentPhaseIndex == GameConfig.kAiResponsePhaseIndex) return false;
+            if (UniversalActionPointsRemaining < amount) return false;
+
+            UniversalActionPointsRemaining -= amount;
+            ActionPointsRemaining = Mathf.Max(0, ActionPointsRemaining - amount);
+            return true;
+        }
+
+        private int GetPhaseBaseActionPoints(int phaseIndex)
+        {
+            if (Config?.PhaseConfigs == null)
+                return 0;
+
+            if (phaseIndex < 0 || phaseIndex >= Config.PhaseConfigs.Length)
+                return 0;
+
+            return Mathf.Max(0, Config.PhaseConfigs[phaseIndex].BaseActionPoints);
         }
         
         private void InitializeFactions()
@@ -104,23 +180,56 @@ namespace EventideAge.Core
         
         public FactionState GetFaction(string factionId)
         {
-            foreach (var f in Factions)
-                if (f.FactionId == factionId) return f;
+            if (Factions == null) return null;
+
+            var candidates = GameIds.GetFactionIdCandidates(factionId);
+            foreach (var candidate in candidates)
+            {
+                foreach (var faction in Factions)
+                {
+                    if (faction != null && faction.FactionId == candidate)
+                        return faction;
+                }
+            }
+
             return null;
         }
         
         public ResourceState GetResource(string resourceId)
         {
-            foreach (var r in Resources)
-                if (r.ResourceId == resourceId) return r;
+            if (Resources == null) return null;
+
+            var candidates = GameIds.GetResourceIdCandidates(resourceId);
+            foreach (var candidate in candidates)
+            {
+                foreach (var resource in Resources)
+                {
+                    if (resource != null && resource.ResourceId == candidate)
+                        return resource;
+                }
+            }
+
             return null;
         }
         
         public NodeState GetNode(string nodeId)
         {
-            foreach (var region in Map.Regions)
-                foreach (var node in region.Nodes)
-                    if (node.NodeId == nodeId) return node;
+            if (Map == null || Map.Regions == null) return null;
+
+            var candidates = GameIds.GetNodeIdCandidates(nodeId);
+            foreach (var candidate in candidates)
+            {
+                foreach (var region in Map.Regions)
+                {
+                    if (region == null || region.Nodes == null) continue;
+                    foreach (var node in region.Nodes)
+                    {
+                        if (node != null && node.NodeId == candidate)
+                            return node;
+                    }
+                }
+            }
+
             return null;
         }
     }

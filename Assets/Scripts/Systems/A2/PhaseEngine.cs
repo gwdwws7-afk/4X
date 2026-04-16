@@ -5,8 +5,6 @@ namespace EventideAge.Systems.A2
 {
     public class PhaseEngine : GameSystem
     {
-        private int _universalPointsUsed = 0;
-        
         public override void Initialize(GameState state, GameEvents events)
         {
             base.Initialize(state, events);
@@ -15,32 +13,37 @@ namespace EventideAge.Systems.A2
         
         public override void OnTurnStarted(int turnNumber)
         {
-            _universalPointsUsed = 0;
             ResetToPhase0();
-            Events.PhaseChanged(0);
+            Debug.Log($"[PhaseEngine] Turn {turnNumber} started");
         }
         
         public override void OnPhaseEntered(int phaseIndex)
         {
-            _universalPointsUsed = 0;
             Debug.Log($"[PhaseEngine] Entered Phase {phaseIndex}: {GetPhaseName(phaseIndex)}");
         }
         
         public override void OnPhaseExited(int phaseIndex)
         {
-            int baseAP = GetPhaseBaseAP(phaseIndex);
-            Debug.Log($"[PhaseEngine] Exited Phase {phaseIndex}, Base AP spent: {baseAP}, Universal used: {_universalPointsUsed}");
+            Debug.Log($"[PhaseEngine] Exited Phase {phaseIndex}, Remaining phase AP expired");
         }
         
         public void AdvanceToNextPhase()
         {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.AdvancePhase();
+                return;
+            }
+
             int currentPhase = State.CurrentPhaseIndex;
             int totalPhases = State.Config.PhaseConfigs != null ? State.Config.PhaseConfigs.Length : 6;
-            
+
+            State.ExpireCurrentPhaseActionPoints();
+            Events.ActionPointsChanged(State.ActionPointsRemaining);
             Events.PhaseExited(currentPhase);
-            
+
             int nextPhase = (currentPhase + 1) % totalPhases;
-            
+
             if (nextPhase == 0)
             {
                 int oldTurn = State.CurrentTurn;
@@ -48,29 +51,31 @@ namespace EventideAge.Systems.A2
                 State.CurrentTurn++;
                 Events.TurnChanged(oldTurn, State.CurrentTurn);
             }
-            
+
             State.CurrentPhaseIndex = nextPhase;
-            _universalPointsUsed = 0;
             Events.PhaseChanged(nextPhase);
         }
         
         public void ResetToPhase0()
         {
             State.CurrentPhaseIndex = 0;
-            _universalPointsUsed = 0;
         }
         
         public bool CanUseUniversalPoints(int cost, int phaseBaseAP)
         {
-            int remainingPhaseAP = phaseBaseAP - GetPhaseBaseAP(State.CurrentPhaseIndex);
-            int neededFromUniversal = Mathf.Max(0, cost - (GetPhaseBaseAP(State.CurrentPhaseIndex) - remainingPhaseAP));
-            int universalAvailable = Core.GameConfig.kUniversalActionPoints - _universalPointsUsed;
-            return universalAvailable >= neededFromUniversal;
+            return State.CurrentPhaseIndex != Core.GameConfig.kAiResponsePhaseIndex
+                && cost <= State.UniversalActionPointsRemaining;
         }
         
         public void UseUniversalPoints(int amount)
         {
-            _universalPointsUsed = Mathf.Min(_universalPointsUsed + amount, Core.GameConfig.kUniversalActionPoints);
+            if (!State.TrySpendUniversalActionPoints(amount))
+            {
+                Debug.LogWarning($"[PhaseEngine] Cannot spend universal AP: requested {amount}, remaining {State.UniversalActionPointsRemaining}");
+                return;
+            }
+
+            Events.ActionPointsChanged(State.ActionPointsRemaining);
         }
         
         public int GetPhaseBaseAP(int phaseIndex)
@@ -95,7 +100,7 @@ namespace EventideAge.Systems.A2
             return $"Phase_{phaseIndex}";
         }
         
-        public int GetUniversalPointsUsed() => _universalPointsUsed;
-        public int GetUniversalPointsRemaining() => Core.GameConfig.kUniversalActionPoints - _universalPointsUsed;
+        public int GetUniversalPointsUsed() => Core.GameConfig.kUniversalActionPoints - State.UniversalActionPointsRemaining;
+        public int GetUniversalPointsRemaining() => State.UniversalActionPointsRemaining;
     }
 }

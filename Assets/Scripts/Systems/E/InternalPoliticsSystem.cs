@@ -97,7 +97,7 @@ namespace EventideAge.Systems.E
         
         private void UpdateFactionSatisfaction()
         {
-            var socialValue = State.GetResource("SocialValue");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             int socialFactor = socialValue?.Amount ?? 50;
             
             foreach (var faction in _internalFactions)
@@ -113,15 +113,15 @@ namespace EventideAge.Systems.E
             switch (faction.Lean)
             {
                 case FactionPoliticalLean.Hawks:
-                    int militaryFactor = (State.GetResource("Arms")?.Amount ?? 0) / 10;
+                    int militaryFactor = (State.GetResource(GameIds.Resource.Arms)?.Amount ?? 0) / 10;
                     return Mathf.Clamp(40 + militaryFactor + socialFactor / 5, 0, 100);
                     
                 case FactionPoliticalLean.Moderates:
-                    int diplomaticFactor = (State.GetResource("TradeToken")?.Amount ?? 0) / 5;
+                    int diplomaticFactor = (State.GetResource(GameIds.Resource.TradeToken)?.Amount ?? 0) / 5;
                     return Mathf.Clamp(50 + diplomaticFactor + socialFactor / 4, 0, 100);
                     
                 case FactionPoliticalLean.Pragmatists:
-                    int economicFactor = (State.GetResource("GoldLeaf")?.Amount ?? 0) / 20;
+                    int economicFactor = (State.GetResource(GameIds.Resource.GoldLeaf)?.Amount ?? 0) / 20;
                     return Mathf.Clamp(45 + economicFactor + socialFactor / 3, 0, 100);
                     
                 default:

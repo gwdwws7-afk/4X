@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using EventideAge.Core;
+using EventideAge.Systems.H3;
 
 namespace EventideAge.Systems.F1
 {
@@ -32,6 +33,8 @@ namespace EventideAge.Systems.F1
     
     public class IntelligenceSystem : GameSystem
     {
+        public TerrainVisionSystem TerrainVisionSystem { get; set; }
+
         [Header("Action Costs")]
         public int ReconnaissanceCost = 10;
         public int CounterIntelligenceCost = 15;
@@ -68,12 +71,13 @@ namespace EventideAge.Systems.F1
         private void HandleTurnEnded(int turnNumber)
         {
             DecayIntelligenceReliability();
+            TerrainVisionSystem?.RecalculateVision();
         }
         
         public bool CanExecuteAction(IntelligenceActionType type)
         {
             int cost = GetActionCost(type);
-            var goldLeaf = State.GetResource("GoldLeaf");
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             return goldLeaf != null && goldLeaf.Amount >= cost;
         }
         
@@ -83,9 +87,13 @@ namespace EventideAge.Systems.F1
                 return null;
             
             int cost = GetActionCost(type);
-            var goldLeaf = State.GetResource("GoldLeaf");
+            var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             if (goldLeaf != null)
+            {
+                int oldAmount = goldLeaf.Amount;
                 goldLeaf.Amount -= cost;
+                Events.ResourceChanged(GameIds.Resource.GoldLeaf, oldAmount, goldLeaf.Amount);
+            }
             
             float reliability = CalculateReliability(type);
             bool isDeceptive = CheckDeception(type);
@@ -100,6 +108,7 @@ namespace EventideAge.Systems.F1
             };
             
             _reports[targetId] = report;
+            TerrainVisionSystem?.ApplyIntelligenceReport(targetId, report.FogLevel, report.Reliability);
             
             Debug.Log($"[Intelligence] {type} on {targetId}: reliability {reliability:P}, fog {report.FogLevel}");
             
@@ -110,7 +119,7 @@ namespace EventideAge.Systems.F1
         {
             float baseRel = BaseReliability;
             
-            var ashWill = State.GetResource("AshWill");
+            var ashWill = State.GetResource(GameIds.Resource.AshWill);
             if (ashWill != null)
             {
                 baseRel *= (1 + ashWill.Amount / 200f);
@@ -176,6 +185,20 @@ namespace EventideAge.Systems.F1
         {
             if (_reports.TryGetValue(nodeId, out var report))
                 return report.FogLevel;
+
+            if (TerrainVisionSystem != null)
+            {
+                var vision = TerrainVisionSystem.GetVisionLevel(nodeId);
+                switch (vision)
+                {
+                    case VisionLevel.Controlled:
+                    case VisionLevel.Observed:
+                        return FogLevel.Clear;
+                    case VisionLevel.Detected:
+                        return FogLevel.Partial;
+                }
+            }
+
             return FogLevel.Unknown;
         }
         

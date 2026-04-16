@@ -21,9 +21,7 @@ namespace EventideAge.Systems.A5
         
         public string GetCurrentTimeDisplay()
         {
-            int year = Core.GameConfig.kStartingYear;
-            float timeValue = State.CurrentTurn * 0.5f;
-            return $"{year + (int)timeValue}.{(State.CurrentTurn % 2 == 0 ? 0 : 5)}";
+            return FormatTurnAsHalfYear(State.CurrentTurn);
         }
         
         public float GetGameProgress()
@@ -45,19 +43,21 @@ namespace EventideAge.Systems.A5
         {
             if (turnNumber >= Core.GameConfig.kMaxTurns)
             {
-                Debug.Log($"[GameClock] Max turns reached ({Core.GameConfig.kMaxTurns}). Game ending due to time.");
-                Events.GameEnded("time_limit_reached");
+                Debug.Log($"[GameClock] Max turns reached ({Core.GameConfig.kMaxTurns}). Timeout ownership is handled by VictoryDefeatSystem.");
             }
         }
         
         private void HandleTurnChanged(int oldTurn, int newTurn)
         {
             Debug.Log($"[GameClock] Turn changed: {oldTurn} → {newTurn}, Time: {GetCurrentTimeDisplay()}");
-            
-            if (newTurn >= Core.GameConfig.kMaxTurns)
-            {
-                Events.GameEnded("time_limit_reached");
-            }
+        }
+
+        public static string FormatTurnAsHalfYear(int turn)
+        {
+            int safeTurn = Mathf.Max(1, turn);
+            int year = Core.GameConfig.kStartingYear + ((safeTurn - 1) / 2);
+            string half = (safeTurn % 2 == 1) ? "H1" : "H2";
+            return $"{year} {half}";
         }
     }
 }

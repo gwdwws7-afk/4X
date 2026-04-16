@@ -41,10 +41,12 @@ namespace EventideAge.Core
                 return;
             }
             
-            if (Systems == null || Systems.Count == 0)
+            if (Systems == null)
             {
-                DiscoverSystemsFromChildren();
+                Systems = new List<GameSystem>();
             }
+
+            DiscoverSystemsFromChildren();
             
             State.Config = Config;
             State.Initialize();
@@ -59,12 +61,18 @@ namespace EventideAge.Core
             Events.OnTurnChanged += HandleTurnChanged;
             Events.OnPhaseChanged += HandlePhaseChanged;
             Events.OnActionPointsChanged += HandleAPChanged;
+
+            Events.ActionLogAdded("Core", "Game initialized", FeedbackSeverity.Info);
             
             Debug.Log($"[GameManager] Initialized. Turn {State.CurrentTurn}, Phase {State.CurrentPhaseIndex}");
         }
         
         private void HandleTurnChanged(int oldTurn, int newTurn)
         {
+            State.ResetTurnActionPoints();
+            Events.ActionPointsChanged(State.ActionPointsRemaining);
+            Events.ActionLogAdded("Core", $"Turn advanced: {oldTurn} -> {newTurn}", FeedbackSeverity.Info);
+
             foreach (var system in Systems)
             {
                 system.OnTurnStarted(newTurn);
@@ -73,6 +81,10 @@ namespace EventideAge.Core
         
         private void HandlePhaseChanged(int newPhaseIndex)
         {
+            State.PreparePhaseActionPoints(newPhaseIndex);
+            Events.ActionPointsChanged(State.ActionPointsRemaining);
+            Events.ActionLogAdded("Core", $"Phase entered: {newPhaseIndex}", FeedbackSeverity.Info);
+
             foreach (var system in Systems)
             {
                 system.OnPhaseEntered(newPhaseIndex);
@@ -86,26 +98,33 @@ namespace EventideAge.Core
         
         public bool SpendActionPoints(int cost)
         {
-            if (cost > State.ActionPointsRemaining)
+            if (!State.TrySpendActionPoints(cost))
             {
-                Debug.LogWarning($"[GameManager] Not enough AP: need {cost}, have {State.ActionPointsRemaining}");
+                int immediate = State.CurrentPhaseActionPointsRemaining + State.UniversalActionPointsRemaining;
+                Debug.LogWarning($"[GameManager] Not enough AP: need {cost}, immediate {immediate}, turn-remaining {State.ActionPointsRemaining}");
                 return false;
             }
-            
-            State.ActionPointsRemaining -= cost;
+
             Events.ActionPointsChanged(State.ActionPointsRemaining);
             return true;
+        }
+
+        public bool CanSpendActionPoints(int cost)
+        {
+            return State != null && State.CanSpendActionPoints(cost);
         }
         
         public void AdvancePhase()
         {
             int currentPhase = State.CurrentPhaseIndex;
             int totalPhases = State.Config?.PhaseConfigs?.Length ?? 6;
-            
+
+            State.ExpireCurrentPhaseActionPoints();
+            Events.ActionPointsChanged(State.ActionPointsRemaining);
             Events.PhaseExited(currentPhase);
-            
+
             int nextPhase = (currentPhase + 1) % totalPhases;
-            
+
             if (nextPhase == 0)
             {
                 int oldTurn = State.CurrentTurn;

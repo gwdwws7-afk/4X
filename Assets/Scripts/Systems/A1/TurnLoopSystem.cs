@@ -20,14 +20,16 @@ namespace EventideAge.Systems.A1
         
         public override void OnTurnStarted(int turnNumber)
         {
-            State.ActionPointsRemaining = Core.GameConfig.kTotalActionPoints;
-            Events.ActionPointsChanged(State.ActionPointsRemaining);
-            Debug.Log($"[TurnLoop] Turn {turnNumber} started. AP reset to {State.ActionPointsRemaining}");
+            Debug.Log($"[TurnLoop] Turn {turnNumber} started. Turn AP {State.ActionPointsRemaining}, Phase AP {State.CurrentPhaseActionPointsRemaining}, Universal AP {State.UniversalActionPointsRemaining}");
         }
         
         public override bool CanExecuteAction(GameAction action)
         {
-            if (State.ActionPointsRemaining < action.Cost)
+            bool canSpend = GameManager.Instance != null
+                ? GameManager.Instance.CanSpendActionPoints(action.Cost)
+                : State.CanSpendActionPoints(action.Cost);
+
+            if (!canSpend)
                 return false;
             
             foreach (int phase in action.ValidPhases)
@@ -46,9 +48,15 @@ namespace EventideAge.Systems.A1
                 return;
             }
             
-            if (GameManager.Instance.SpendActionPoints(action.Cost))
+            bool spent = GameManager.Instance != null
+                ? GameManager.Instance.SpendActionPoints(action.Cost)
+                : State.TrySpendActionPoints(action.Cost);
+
+            if (spent)
             {
-                Debug.Log($"[TurnLoop] Executed {action.ActionId}, Cost: {action.Cost}, Remaining AP: {State.ActionPointsRemaining}");
+                if (GameManager.Instance == null)
+                    Events.ActionPointsChanged(State.ActionPointsRemaining);
+                Debug.Log($"[TurnLoop] Executed {action.ActionId}, Cost: {action.Cost}, Remaining AP: {State.ActionPointsRemaining} (Phase {State.CurrentPhaseActionPointsRemaining}, Universal {State.UniversalActionPointsRemaining})");
             }
         }
         

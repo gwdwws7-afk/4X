@@ -9,26 +9,47 @@ namespace EventideAge.Config
         public static GameConfig CreateDefault()
         {
             var config = ScriptableObject.CreateInstance<DefaultGameConfig>();
+            config.ApplyDefaultsToBaseFields(force: true);
             return config;
         }
 
+        private void OnEnable()
+        {
+            ApplyDefaultsToBaseFields(force: false);
+        }
+
+        private void ApplyDefaultsToBaseFields(bool force)
+        {
+            if (force || PhaseConfigs == null || PhaseConfigs.Length == 0)
+                PhaseConfigs = _defaultPhaseConfigs;
+
+            if (force || FactionConfigs == null || FactionConfigs.Length == 0)
+                FactionConfigs = _defaultFactionConfigs;
+
+            if (force || ResourceConfigs == null || ResourceConfigs.Length == 0)
+                ResourceConfigs = _defaultResourceConfigs;
+
+            if (force || RegionConfigs == null || RegionConfigs.Length == 0)
+                RegionConfigs = _defaultRegionConfigs;
+        }
+
         [Header("Phases")]
-        public PhaseConfig[] PhaseConfigs = new PhaseConfig[]
+        [SerializeField] private PhaseConfig[] _defaultPhaseConfigs = new PhaseConfig[]
         {
             new PhaseConfig { PhaseName = "外交", BaseActionPoints = 2, SortOrder = 0 },
             new PhaseConfig { PhaseName = "战略", BaseActionPoints = 2, SortOrder = 1 },
-            new PhaseConfig { PhaseName = "作战", BaseActionPoints = 2, SortOrder = 2 },
+            new PhaseConfig { PhaseName = "作战", BaseActionPoints = 3, SortOrder = 2 },
             new PhaseConfig { PhaseName = "后勤", BaseActionPoints = 1, SortOrder = 3 },
             new PhaseConfig { PhaseName = "情报", BaseActionPoints = 1, SortOrder = 4 },
             new PhaseConfig { PhaseName = "AI响应", BaseActionPoints = 0, SortOrder = 5 }
         };
         
         [Header("Factions")]
-        public FactionConfig[] FactionConfigs = new FactionConfig[]
+        [SerializeField] private FactionConfig[] _defaultFactionConfigs = new FactionConfig[]
         {
             new FactionConfig 
             { 
-                FactionId = "Vashid", 
+                FactionId = GameIds.Faction.Vashid, 
                 FactionName = "瓦希德帝国", 
                 IsPlayerControlled = true, 
                 InitialControlledPoints = 100, 
@@ -36,7 +57,7 @@ namespace EventideAge.Config
             },
             new FactionConfig 
             { 
-                FactionId = "Aurean", 
+                FactionId = GameIds.Faction.Aurean, 
                 FactionName = "黄金领", 
                 IsPlayerControlled = false, 
                 InitialControlledPoints = 100, 
@@ -44,7 +65,7 @@ namespace EventideAge.Config
             },
             new FactionConfig 
             { 
-                FactionId = "SacredFire", 
+                FactionId = GameIds.Faction.SacredFire, 
                 FactionName = "圣火序", 
                 IsPlayerControlled = false, 
                 InitialControlledPoints = 50, 
@@ -52,7 +73,7 @@ namespace EventideAge.Config
             },
             new FactionConfig 
             { 
-                FactionId = "GoldenHord", 
+                FactionId = GameIds.Faction.GoldenHord, 
                 FactionName = "金帐合众", 
                 IsPlayerControlled = false, 
                 InitialControlledPoints = 80, 
@@ -60,7 +81,7 @@ namespace EventideAge.Config
             },
             new FactionConfig 
             { 
-                FactionId = "Ash Confederacy", 
+                FactionId = GameIds.Faction.AshConfederacy, 
                 FactionName = "灰烬众", 
                 IsPlayerControlled = false, 
                 InitialControlledPoints = 30, 
@@ -69,19 +90,19 @@ namespace EventideAge.Config
         };
         
         [Header("Resources")]
-        public ResourceConfig[] ResourceConfigs = new ResourceConfig[]
+        [SerializeField] private ResourceConfig[] _defaultResourceConfigs = new ResourceConfig[]
         {
-            new ResourceConfig { ResourceId = "Arms", ResourceName = "战械", InitialAmount = 50, MaxCapacity = 100, ResourceType = ResourceType.Consumable },
-            new ResourceConfig { ResourceId = "FireOil", ResourceName = "火油", InitialAmount = 80, MaxCapacity = 200, ResourceType = ResourceType.Accumulative },
-            new ResourceConfig { ResourceId = "GoldLeaf", ResourceName = "金叶", InitialAmount = 60, MaxCapacity = 150, ResourceType = ResourceType.Accumulative },
-            new ResourceConfig { ResourceId = "TradeToken", ResourceName = "商盟券", InitialAmount = 30, MaxCapacity = 100, ResourceType = ResourceType.Accumulative },
-            new ResourceConfig { ResourceId = "SocialValue", ResourceName = "社稷值", InitialAmount = 100, MaxCapacity = 100, ResourceType = ResourceType.Ratio },
-            new ResourceConfig { ResourceId = "AshWill", ResourceName = "灰烬志", InitialAmount = 50, MaxCapacity = 100, ResourceType = ResourceType.Ratio },
-            new ResourceConfig { ResourceId = "TributeOrder", ResourceName = "朝贡序", InitialAmount = 0, MaxCapacity = 100, ResourceType = ResourceType.Ratio }
+            new ResourceConfig { ResourceId = GameIds.Resource.Arms, ResourceName = "战械", InitialAmount = 50, MaxCapacity = 100, ResourceType = ResourceType.Consumable },
+            new ResourceConfig { ResourceId = GameIds.Resource.FireOil, ResourceName = "火油", InitialAmount = 80, MaxCapacity = 200, ResourceType = ResourceType.Accumulative },
+            new ResourceConfig { ResourceId = GameIds.Resource.GoldLeaf, ResourceName = "金叶", InitialAmount = 60, MaxCapacity = 150, ResourceType = ResourceType.Accumulative },
+            new ResourceConfig { ResourceId = GameIds.Resource.TradeToken, ResourceName = "商盟券", InitialAmount = 30, MaxCapacity = 100, ResourceType = ResourceType.Accumulative },
+            new ResourceConfig { ResourceId = GameIds.Resource.SocialValue, ResourceName = "社稷值", InitialAmount = 100, MaxCapacity = 100, ResourceType = ResourceType.Ratio },
+            new ResourceConfig { ResourceId = GameIds.Resource.AshWill, ResourceName = "灰烬志", InitialAmount = 50, MaxCapacity = 100, ResourceType = ResourceType.Ratio },
+            new ResourceConfig { ResourceId = GameIds.Resource.TributeOrder, ResourceName = "朝贡序", InitialAmount = 0, MaxCapacity = 100, ResourceType = ResourceType.Ratio }
         };
         
         [Header("Regions & Nodes")]
-        public RegionConfig[] RegionConfigs = new RegionConfig[]
+        [SerializeField] private RegionConfig[] _defaultRegionConfigs = new RegionConfig[]
         {
             new RegionConfig
             {
@@ -89,8 +110,8 @@ namespace EventideAge.Config
                 RegionName = "波斯湾",
                 NodeConfigs = new NodeConfig[]
                 {
-                    new NodeConfig { NodeId = "Hormuz", NodeName = "霍尔木兹", NodeType = NodeType.Chokepoint, DefenseBonus = 30, InitialController = "Vashid", InitialControlPoints = 100, MaxControlPoints = 100 },
-                    new NodeConfig { NodeId = "Bushehr", NodeName = "布什尔", NodeType = NodeType.Port, DefenseBonus = 20, InitialController = "Vashid", InitialControlPoints = 80, MaxControlPoints = 100 }
+                    new NodeConfig { NodeId = GameIds.Node.Hormuz, NodeName = "霍尔木兹", NodeType = NodeType.Chokepoint, DefenseBonus = 30, InitialController = GameIds.Faction.Vashid, InitialControlPoints = 100, MaxControlPoints = 100 },
+                    new NodeConfig { NodeId = GameIds.Node.Bushehr, NodeName = "布什尔", NodeType = NodeType.Port, DefenseBonus = 20, InitialController = GameIds.Faction.Vashid, InitialControlPoints = 80, MaxControlPoints = 100 }
                 }
             },
             new RegionConfig
@@ -99,8 +120,8 @@ namespace EventideAge.Config
                 RegionName = "西线",
                 NodeConfigs = new NodeConfig[]
                 {
-                    new NodeConfig { NodeId = "IraqBorder", NodeName = "伊拉克边境", NodeType = NodeType.Chokepoint, DefenseBonus = 25, InitialController = "Ash Confederacy", InitialControlPoints = 60, MaxControlPoints = 100 },
-                    new NodeConfig { NodeId = "SyriaZone", NodeName = "叙利亚区域", NodeType = NodeType.City, DefenseBonus = 15, InitialController = "Ash Confederacy", InitialControlPoints = 50, MaxControlPoints = 100 }
+                    new NodeConfig { NodeId = GameIds.Node.IraqBorder, NodeName = "伊拉克边境", NodeType = NodeType.Chokepoint, DefenseBonus = 25, InitialController = GameIds.Faction.AshConfederacy, InitialControlPoints = 60, MaxControlPoints = 100 },
+                    new NodeConfig { NodeId = GameIds.Node.SyriaZone, NodeName = "叙利亚区域", NodeType = NodeType.City, DefenseBonus = 15, InitialController = GameIds.Faction.AshConfederacy, InitialControlPoints = 50, MaxControlPoints = 100 }
                 }
             },
             new RegionConfig
@@ -109,8 +130,8 @@ namespace EventideAge.Config
                 RegionName = "北境",
                 NodeConfigs = new NodeConfig[]
                 {
-                    new NodeConfig { NodeId = "Caspian", NodeName = "里海油田", NodeType = NodeType.ResourceNode, DefenseBonus = 10, InitialController = "Vashid", InitialControlPoints = 70, MaxControlPoints = 100 },
-                    new NodeConfig { NodeId = "Caucasus", NodeName = "高加索通道", NodeType = NodeType.Chokepoint, DefenseBonus = 35, InitialController = "Neutral", InitialControlPoints = 30, MaxControlPoints = 100 }
+                    new NodeConfig { NodeId = GameIds.Node.Caspian, NodeName = "里海油田", NodeType = NodeType.ResourceNode, DefenseBonus = 10, InitialController = GameIds.Faction.Vashid, InitialControlPoints = 70, MaxControlPoints = 100 },
+                    new NodeConfig { NodeId = GameIds.Node.Caucasus, NodeName = "高加索通道", NodeType = NodeType.Chokepoint, DefenseBonus = 35, InitialController = GameIds.Faction.Neutral, InitialControlPoints = 30, MaxControlPoints = 100 }
                 }
             },
             new RegionConfig
@@ -119,8 +140,8 @@ namespace EventideAge.Config
                 RegionName = "阿拉伯半岛",
                 NodeConfigs = new NodeConfig[]
                 {
-                    new NodeConfig { NodeId = "RedSea", NodeName = "红海通道", NodeType = NodeType.Chokepoint, DefenseBonus = 30, InitialController = "GoldenHord", InitialControlPoints = 80, MaxControlPoints = 100 },
-                    new NodeConfig { NodeId = "GulfBase", NodeName = "海湾基地", NodeType = NodeType.Port, DefenseBonus = 20, InitialController = "Aurean", InitialControlPoints = 90, MaxControlPoints = 100 }
+                    new NodeConfig { NodeId = GameIds.Node.RedSea, NodeName = "红海通道", NodeType = NodeType.Chokepoint, DefenseBonus = 30, InitialController = GameIds.Faction.GoldenHord, InitialControlPoints = 80, MaxControlPoints = 100 },
+                    new NodeConfig { NodeId = GameIds.Node.GulfBase, NodeName = "海湾基地", NodeType = NodeType.Port, DefenseBonus = 20, InitialController = GameIds.Faction.Aurean, InitialControlPoints = 90, MaxControlPoints = 100 }
                 }
             },
             new RegionConfig
@@ -129,8 +150,8 @@ namespace EventideAge.Config
                 RegionName = "黎凡特",
                 NodeConfigs = new NodeConfig[]
                 {
-                    new NodeConfig { NodeId = "Mediterranean", NodeName = "地中海东岸", NodeType = NodeType.Chokepoint, DefenseBonus = 25, InitialController = "SacredFire", InitialControlPoints = 70, MaxControlPoints = 100 },
-                    new NodeConfig { NodeId = "IsraelCore", NodeName = "以色列核心", NodeType = NodeType.City, DefenseBonus = 40, InitialController = "SacredFire", InitialControlPoints = 100, MaxControlPoints = 100 }
+                    new NodeConfig { NodeId = GameIds.Node.Mediterranean, NodeName = "地中海东岸", NodeType = NodeType.Chokepoint, DefenseBonus = 25, InitialController = GameIds.Faction.SacredFire, InitialControlPoints = 70, MaxControlPoints = 100 },
+                    new NodeConfig { NodeId = GameIds.Node.IsraelCore, NodeName = "以色列核心", NodeType = NodeType.City, DefenseBonus = 40, InitialController = GameIds.Faction.SacredFire, InitialControlPoints = 100, MaxControlPoints = 100 }
                 }
             },
             new RegionConfig
@@ -139,8 +160,8 @@ namespace EventideAge.Config
                 RegionName = "中亚",
                 NodeConfigs = new NodeConfig[]
                 {
-                    new NodeConfig { NodeId = "Afghanistan", NodeName = "阿富汗走廊", NodeType = NodeType.Chokepoint, DefenseBonus = 20, InitialController = "Neutral", InitialControlPoints = 40, MaxControlPoints = 100 },
-                    new NodeConfig { NodeId = "TradeHub", NodeName = "贸易枢纽", NodeType = NodeType.ResourceNode, DefenseBonus = 10, InitialController = "Neutral", InitialControlPoints = 50, MaxControlPoints = 100 }
+                    new NodeConfig { NodeId = GameIds.Node.Afghanistan, NodeName = "阿富汗走廊", NodeType = NodeType.Chokepoint, DefenseBonus = 20, InitialController = GameIds.Faction.Neutral, InitialControlPoints = 40, MaxControlPoints = 100 },
+                    new NodeConfig { NodeId = GameIds.Node.TradeHub, NodeName = "贸易枢纽", NodeType = NodeType.ResourceNode, DefenseBonus = 10, InitialController = GameIds.Faction.Neutral, InitialControlPoints = 50, MaxControlPoints = 100 }
                 }
             }
         };

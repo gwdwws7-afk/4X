@@ -2,10 +2,10 @@
 
 ## 项目状态
 
-这是一个Unity 6回合制4X策略游戏项目，位于 `C:\test\4X`。
+这是一个基于 Unity 2022.3（2022.3.62f1）的回合制4X策略游戏项目，位于 `C:\test\4X`。
 
 ### 已完成
-- ✅ 30个游戏系统全部实现 (A1-J)
+- ✅ 34个系统口径已统一 (A1-L4，待 Alpha 联调验证)
 - ✅ 4个UI组件框架 (VictoryProgressUI, MilitaryTechUI, NuclearDeterrenceUI, ProxyAffairsUI)
 - ✅ 测试框架 (StandaloneTest, IntegrationTest)
 - ✅ 配置数据生成器 (DefaultGameConfig)
@@ -62,7 +62,7 @@ C:\test\4X\
 ├── Assets\
 │   ├── Scripts\
 │   │   ├── Core\           # GameState, GameEvents, GameManager, GameSystem, GameConfig
-│   │   ├── Systems\        # A1-J 全部30个系统
+│   │   ├── Systems\        # A1-L4 共34个系统（含K/L）
 │   │   │   ├── A1\TurnLoopSystem.cs
 │   │   │   ├── B1\FinanceSystem.cs
 │   │   │   ├── D1\MilitaryOperationsSystem.cs

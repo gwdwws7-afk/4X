@@ -12,7 +12,7 @@ C:\test\4X\
 │   ├── ScriptableObjects\           # ScriptableObject资产
 │   └── Resources\                   # 运行时资源
 ├── design\                          # 游戏设计文档
-│   └── gdd\                         # 30个GDD文件
+│   └── gdd\                         # 34系统设计文档与统一总纲
 │       ├── a2-phase-engine.md
 │       ├── d1-military-operations.md
 │       ├── j-victory-defeat.md

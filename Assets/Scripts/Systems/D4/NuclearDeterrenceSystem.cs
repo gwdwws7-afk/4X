@@ -112,14 +112,22 @@ namespace EventideAge.Systems.D4
             _deterrenceState.IsFullWarLockActive = true;
             _deterrenceState.FullWarLockTurnsRemaining = 2;
 
+            Events.ActionLogAdded("D4", "Deterrence display executed", FeedbackSeverity.Warning);
+            Events.ConsequenceAdded(
+                "D1.NuclearDeterrence.Display",
+                "Deterrence posture active; full-war lock enforced for 1 turn window.",
+                1,
+                false);
+            Events.GlobalAlertRaised("Nuclear deterrence posture escalated.", FeedbackSeverity.Critical);
+
             Debug.Log($"[NuclearDeterrence] Deterrence display executed. Level: {_deterrenceState.CapabilityLevel}");
             return true;
         }
 
         private bool SpendDisplayCosts()
         {
-            var ashWill = State.GetResource("AshWill");
-            var tradeToken = State.GetResource("TradeToken");
+            var ashWill = State.GetResource(GameIds.Resource.AshWill);
+            var tradeToken = State.GetResource(GameIds.Resource.TradeToken);
 
             int ashCost = 0;
             int tradeCost = 0;
@@ -153,14 +161,14 @@ namespace EventideAge.Systems.D4
             {
                 int old = ashWill.Amount;
                 ashWill.Amount -= ashCost;
-                Events.ResourceChanged("AshWill", old, ashWill.Amount);
+                Events.ResourceChanged(GameIds.Resource.AshWill, old, ashWill.Amount);
             }
 
             if (tradeToken != null)
             {
                 int old = tradeToken.Amount;
                 tradeToken.Amount -= tradeCost;
-                Events.ResourceChanged("TradeToken", old, tradeToken.Amount);
+                Events.ResourceChanged(GameIds.Resource.TradeToken, old, tradeToken.Amount);
             }
 
             return true;

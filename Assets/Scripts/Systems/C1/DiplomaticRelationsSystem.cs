@@ -68,11 +68,12 @@ namespace EventideAge.Systems.C1
             
             foreach (var faction in State.Factions)
             {
-                if (faction.FactionId == "Vashid") continue;
-                
-                _relations[faction.FactionId] = new FactionRelation
+                string canonicalFactionId = GameIds.ResolveFactionId(faction.FactionId);
+                if (canonicalFactionId == GameIds.Faction.Vashid) continue;
+
+                _relations[canonicalFactionId] = new FactionRelation
                 {
-                    FactionId = faction.FactionId,
+                    FactionId = canonicalFactionId,
                     FactionName = faction.FactionName,
                     RelationValue = faction.RelationshipWithPlayer,
                     Level = GetRelationLevel(faction.RelationshipWithPlayer),
@@ -80,12 +81,13 @@ namespace EventideAge.Systems.C1
                     ActivePolicies = new List<string>()
                 };
                 
-                _factionIsolationTurns[faction.FactionId] = 0;
+                _factionIsolationTurns[canonicalFactionId] = 0;
             }
         }
         
         public bool ModifyRelation(string factionId, int delta, string reason = "")
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             if (!_relations.ContainsKey(factionId))
                 return false;
             
@@ -103,7 +105,7 @@ namespace EventideAge.Systems.C1
             
             relation.CooldownTurns = CalculateCooldown(oldValue, relation.RelationValue);
             
-            Events.RelationshipChanged(factionId, delta);
+            Events.RelationshipChanged(relation.FactionId, delta);
             
             Debug.Log($"[DiplomaticRelations] {factionId}: {oldValue} → {relation.RelationValue} ({delta:+#;-#;0}) - {reason}");
             
@@ -174,6 +176,7 @@ namespace EventideAge.Systems.C1
         
         public FactionRelation GetRelation(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             if (_relations.TryGetValue(factionId, out var relation))
                 return relation;
             return null;
@@ -181,6 +184,7 @@ namespace EventideAge.Systems.C1
         
         public RelationLevel GetRelationLevel(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             if (_relations.TryGetValue(factionId, out var relation))
                 return relation.Level;
             return RelationLevel.Neutral;
@@ -188,6 +192,7 @@ namespace EventideAge.Systems.C1
         
         public int GetRelationValue(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             if (_relations.TryGetValue(factionId, out var relation))
                 return relation.RelationValue;
             return 0;
@@ -195,6 +200,7 @@ namespace EventideAge.Systems.C1
         
         public bool CanNegotiate(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             if (!_relations.ContainsKey(factionId))
                 return false;
             return _relations[factionId].CooldownTurns == 0;
@@ -212,6 +218,7 @@ namespace EventideAge.Systems.C1
         
         public void AddPolicy(string factionId, string policy)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             if (_relations.TryGetValue(factionId, out var relation))
             {
                 if (!relation.ActivePolicies.Contains(policy))
@@ -223,6 +230,7 @@ namespace EventideAge.Systems.C1
         
         public void RemovePolicy(string factionId, string policy)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             if (_relations.TryGetValue(factionId, out var relation))
             {
                 relation.ActivePolicies.Remove(policy);
@@ -231,6 +239,7 @@ namespace EventideAge.Systems.C1
         
         public bool HasPolicy(string factionId, string policy)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             if (_relations.TryGetValue(factionId, out var relation))
             {
                 return relation.ActivePolicies.Contains(policy);
@@ -240,6 +249,7 @@ namespace EventideAge.Systems.C1
         
         public int GetDiplomaticSuccessBonus(string factionId)
         {
+            factionId = GameIds.ResolveFactionId(factionId);
             if (_relations.TryGetValue(factionId, out var relation))
             {
                 return Mathf.RoundToInt(relation.RelationValue / 5f);

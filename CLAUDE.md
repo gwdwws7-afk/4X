@@ -3,7 +3,7 @@
 ## 项目概述
 
 **游戏类型**: 回合制4X策略游戏
-**引擎**: Unity 6 (6000.x)
+**引擎**: Unity 2022.3 LTS (2022.3.62f1)
 **语言**: C#
 **架构**: ScriptableObject + Event-Driven
 
@@ -18,20 +18,22 @@
 - **GameManager**: MonoBehaviour单例，管理回合循环和系统协调
 - **GameSystem**: 所有系统的基类
 
-### 30系统实现状态
+### 34系统原型基线状态（待Alpha验证）
 
 | 类别 | 系统 | 状态 |
 |------|------|------|
-| A (核心) | A1-A5 | ✅ 完成 |
-| B (经济) | B1-B5 | ✅ 完成 |
-| C (外交) | C1-C5 | ✅ 完成 |
-| D (军事) | D1-D6 | ✅ 完成 |
-| E | InternalPolitics | ✅ 完成 |
-| F | Intelligence | ✅ 完成 |
-| G | FactionAI | ✅ 完成 |
-| H | StrategicMap | ✅ 完成 |
-| I | Events | ✅ 完成 |
-| J | VictoryDefeat | ✅ 完成 |
+| A (核心) | A1-A5 | ⚙️ 原型已实现（待验证） |
+| B (经济) | B1-B5 | ⚙️ 原型已实现（待验证） |
+| C (外交) | C1-C5 | ⚙️ 原型已实现（待验证） |
+| D (军事) | D1-D6 | ⚙️ 原型已实现（待验证） |
+| E | InternalPolitics | ⚙️ 原型已实现（待验证） |
+| F | Intelligence | ⚙️ 原型已实现（待验证） |
+| G | FactionAI | ⚙️ 原型已实现（待验证） |
+| H | StrategicMap | ⚙️ 原型已实现（待验证） |
+| I | Events | ⚙️ 原型已实现（待验证） |
+| J | VictoryDefeat | ⚙️ 原型已实现（待验证） |
+| K | UI Framework | ⚙️ 原型已实现（待验证） |
+| L | Meta (L1-L4) | ⚙️ 部分原型实现（待验证） |
 
 ## Unity Editor 操作指南
 
@@ -122,7 +124,7 @@ Events.ResourceChanged("GoldLeaf", oldAmount, newAmount);
 ```
 Assets/Scripts/
 ├── Core/           # GameState, GameEvents, GameManager, GameSystem, GameConfig
-├── Systems/        # A1-J 所有30个系统
+├── Systems/        # A1-L4 共34个系统（含K/L）
 ├── UI/             # UIManager 和各系统UI组件
 └── Tests/          # StandaloneTest, IntegrationTest
 
@@ -138,5 +140,5 @@ Assets/ScriptableObjects/   # 运行时生成 (需先执行菜单)
 
 - `@SETUP_GUIDE.md` - 详细Unity设置指南
 - `@QUICKREF.md` - 快速参考
-- `@design/gdd/` - 30个GDD设计文档
+- `@design/gdd/` - 34系统设计文档与统一总纲
 - `@production/` - 冲刺计划和阶段记录

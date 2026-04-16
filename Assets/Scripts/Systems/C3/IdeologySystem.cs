@@ -88,7 +88,7 @@ namespace EventideAge.Systems.C3
         
         private void SpreadIdeology()
         {
-            var ashWill = State.GetResource("AshWill");
+            var ashWill = State.GetResource(GameIds.Resource.AshWill);
             if (ashWill == null) return;
             
             float infectionRate = BaseInfectionRate * (1 + ashWill.Amount / 200f);
@@ -101,14 +101,15 @@ namespace EventideAge.Systems.C3
         
         public bool CanExecuteAction(IdeologyActionType type, string targetFaction)
         {
+            targetFaction = GameIds.ResolveFactionId(targetFaction);
             if (_factionCooldowns.TryGetValue(targetFaction, out var cooldown) && cooldown > 0)
                 return false;
             
             var action = GetActionTemplate(type);
             if (action == null) return false;
             
-            var ashWill = State.GetResource("AshWill");
-            var socialValue = State.GetResource("SocialValue");
+            var ashWill = State.GetResource(GameIds.Resource.AshWill);
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             
             if (ashWill != null && ashWill.Amount < action.CostAshWill)
                 return false;
@@ -121,14 +122,15 @@ namespace EventideAge.Systems.C3
         
         public bool ExecuteAction(IdeologyActionType type, string targetFaction)
         {
+            targetFaction = GameIds.ResolveFactionId(targetFaction);
             if (!CanExecuteAction(type, targetFaction))
                 return false;
             
             var action = GetActionTemplate(type);
             if (action == null) return false;
             
-            var ashWill = State.GetResource("AshWill");
-            var socialValue = State.GetResource("SocialValue");
+            var ashWill = State.GetResource(GameIds.Resource.AshWill);
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             
             if (ashWill != null)
                 ashWill.Amount -= action.CostAshWill;
@@ -157,18 +159,19 @@ namespace EventideAge.Systems.C3
         
         private float CalculateSuccessRate(IdeologyActionType type, string targetFaction)
         {
+            targetFaction = GameIds.ResolveFactionId(targetFaction);
             var action = GetActionTemplate(type);
             if (action == null) return 0f;
             
             float rate = action.BaseSuccessRate;
             
-            var ashWill = State.GetResource("AshWill");
+            var ashWill = State.GetResource(GameIds.Resource.AshWill);
             if (ashWill != null)
             {
                 rate *= (1 + ashWill.Amount / 200f);
             }
             
-            var socialValue = State.GetResource("SocialValue");
+            var socialValue = State.GetResource(GameIds.Resource.SocialValue);
             if (socialValue != null)
             {
                 rate *= (socialValue.Amount / 100f);

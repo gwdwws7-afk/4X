@@ -63,11 +63,11 @@ namespace EventideAge.Systems.H1
             string controller = _nodeState.ControllingFactionId;
             Color color;
             
-            if (string.IsNullOrEmpty(controller) || controller == "Neutral")
+            if (string.IsNullOrEmpty(controller) || controller == GameIds.Faction.Neutral)
             {
                 color = NeutralColor;
             }
-            else if (controller == "Vashid")
+            else if (controller == GameIds.Faction.Vashid)
             {
                 color = PlayerColor;
             }

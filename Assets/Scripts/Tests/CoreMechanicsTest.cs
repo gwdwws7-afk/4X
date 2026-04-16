@@ -94,13 +94,16 @@ namespace EventideAge.Tests
         {
             int initialAP = _state.ActionPointsRemaining;
             
-            _state.ActionPointsRemaining -= 3;
+            bool spent = _state.TrySpendActionPoints(3);
+            Assert("Can spend 3 AP in phase 0", spent);
             Assert("AP can be spent", _state.ActionPointsRemaining == initialAP - 3);
+            Assert("Phase AP consumed first", _state.CurrentPhaseActionPointsRemaining == 0);
+            Assert("Universal AP used for shortfall", _state.UniversalActionPointsRemaining == 1);
             
-            bool canSpend = _state.ActionPointsRemaining >= 3;
-            Assert("Can spend if enough AP", canSpend);
+            bool canSpend = _state.CanSpendActionPoints(1);
+            Assert("Can spend if enough immediate AP", canSpend);
             
-            bool cannotOverspend = _state.ActionPointsRemaining < 100;
+            bool cannotOverspend = !_state.CanSpendActionPoints(2);
             Assert("Cannot overspend", cannotOverspend);
         }
         
@@ -115,6 +118,7 @@ namespace EventideAge.Tests
             _state.CurrentPhaseIndex = 5;
             nextPhase = (_state.CurrentPhaseIndex + 1) % 6;
             _state.CurrentPhaseIndex = nextPhase;
+            if (nextPhase == 0) _state.CurrentTurn++;
             Assert("Phase wraps from 5 to 0", _state.CurrentPhaseIndex == 0);
             Assert("Turn increments on phase wrap", _state.CurrentTurn == 2);
         }

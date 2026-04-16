@@ -132,6 +132,7 @@ namespace EventideAge.Systems.B2
             
             UpdateFinanceSystem();
             NotifyFactionRelations();
+            EmitBlockadeActivatedFeedback(type);
             
             Debug.Log($"[BlockadeSystem] {type} activated");
         }
@@ -142,6 +143,7 @@ namespace EventideAge.Systems.B2
             _blockadePressures[type] = 0f;
             
             UpdateFinanceSystem();
+            EmitBlockadeDeactivatedFeedback(type);
             
             Debug.Log($"[BlockadeSystem] {type} deactivated");
         }
@@ -197,12 +199,27 @@ namespace EventideAge.Systems.B2
         
         private T FindSystem<T>() where T : GameSystem
         {
-            foreach (var system in GameManager.Instance.Systems)
+            if (GameManager.Instance != null && GameManager.Instance.Systems != null)
             {
-                if (system is T)
-                    return (T)system;
+                foreach (var system in GameManager.Instance.Systems)
+                {
+                    if (system is T typedSystem)
+                        return typedSystem;
+                }
             }
-            return default(T);
+
+            var parentSystem = GetComponentInParent<T>();
+            if (parentSystem != null)
+                return parentSystem;
+
+            var allSystems = FindObjectsOfType<GameSystem>(true);
+            foreach (var system in allSystems)
+            {
+                if (system is T typedSystem)
+                    return typedSystem;
+            }
+
+            return null;
         }
         
         private void NotifyFactionRelations()
@@ -211,7 +228,7 @@ namespace EventideAge.Systems.B2
             
             if (totalPressure >= MultiBlockadeThreshold)
             {
-                Events.RelationshipChanged("Aurean", -10);
+                Events.RelationshipChanged(GameIds.Faction.Aurean, -10);
             }
         }
         
@@ -263,8 +280,63 @@ namespace EventideAge.Systems.B2
             
             UpdateFinanceSystem();
             
+            Events.ActionLogAdded("B2", "Blockade structure collapsed and all blockade channels reset", FeedbackSeverity.Info);
+            Events.ConsequenceAdded("B2.BlockadeCollapse", "All active blockades removed; pressure reset.", 1, true);
+            Events.GlobalAlertRaised("Blockade system collapsed. Strategic windows reopened.", FeedbackSeverity.Warning);
+
             Debug.Log("[BlockadeSystem] Blockade collapse triggered!");
             Events.GameEnded("blockade_collapse");
+        }
+
+        private void EmitBlockadeActivatedFeedback(B1.BlockadeType type)
+        {
+            float pressure = _blockadePressures[type];
+            string actionId = GetCanonicalActionId(type);
+            int duration = GetConsequenceDuration(type);
+
+            Events.ActionLogAdded("B2", $"{type} activated (pressure +{pressure:F0})", FeedbackSeverity.Warning);
+            Events.ConsequenceAdded(actionId, $"{type} active: export/settlement channels under pressure.", duration, true);
+            Events.NotificationAdded("B2.Blockade", $"{type} activated.", FeedbackSeverity.Warning);
+
+            if (type == B1.BlockadeType.NavalBlockade)
+            {
+                Events.GlobalAlertRaised("Naval blockade activated. Main route throughput is critically constrained.", FeedbackSeverity.Critical);
+            }
+            else if (GetTotalPressure() >= MultiBlockadeThreshold)
+            {
+                Events.GlobalAlertRaised("Multilateral blockade pressure is now active.", FeedbackSeverity.Warning);
+            }
+        }
+
+        private void EmitBlockadeDeactivatedFeedback(B1.BlockadeType type)
+        {
+            Events.ActionLogAdded("B2", $"{type} deactivated", FeedbackSeverity.Info);
+            Events.ConsequenceAdded(GetCanonicalActionId(type), $"{type} pressure relieved.", 1, true);
+            Events.NotificationAdded("B2.Blockade", $"{type} deactivated.", FeedbackSeverity.Info);
+        }
+
+        private string GetCanonicalActionId(B1.BlockadeType type)
+        {
+            switch (type)
+            {
+                case B1.BlockadeType.EnergyEmbargo: return "B2.EnergyEmbargo.Upgrade";
+                case B1.BlockadeType.FinancialBlockade: return "B2.FinancialBlockade.Upgrade";
+                case B1.BlockadeType.SecondaryBlockade: return "B2.SecondaryBlockade.Upgrade";
+                case B1.BlockadeType.MilitaryEmbargo: return "B2.MilitaryEmbargo.Upgrade";
+                case B1.BlockadeType.NavalBlockade: return "B2.NavalBlockade.Upgrade";
+                default: return "B2.Blockade.Unknown";
+            }
+        }
+
+        private int GetConsequenceDuration(B1.BlockadeType type)
+        {
+            switch (type)
+            {
+                case B1.BlockadeType.NavalBlockade:
+                    return 3;
+                default:
+                    return -1;
+            }
         }
         
         public B1.BlockadeLevel GetBlockadeLevel()
@@ -353,6 +425,15 @@ namespace EventideAge.Systems.B2
             if (_countermeasures.ContainsKey(channel))
             {
                 _countermeasures[channel].IsTargeted = true;
+                if (channel == CountermeasureChannel.GreyMarket)
+                {
+                    Events.NotificationAdded(
+                        "B2.Countermeasure.GreyMarket",
+                        "Grey-market channel targeted by secondary blockade; stability reduced.",
+                        FeedbackSeverity.Warning);
+                }
+
+                Events.AlertAdded("B2.SecondaryBlockade.Upgrade", $"{channel} channel was targeted by secondary blockade.", FeedbackSeverity.Warning);
                 Debug.Log($"[BlockadeSystem] {channel} targeted by secondary blockade");
             }
         }

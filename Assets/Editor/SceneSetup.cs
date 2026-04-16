@@ -29,6 +29,8 @@ using EventideAge.Systems.E;
 using EventideAge.Systems.F1;
 using EventideAge.Systems.G;
 using EventideAge.Systems.H1;
+using EventideAge.Systems.H2;
+using EventideAge.Systems.H3;
 using EventideAge.Systems.I1;
 using EventideAge.Systems.J;
 using EventideAge.UI;
@@ -37,68 +39,136 @@ namespace EventideAge.Editor
 {
     public class SceneSetup : EditorWindow
     {
-        private string _configPath = "Assets/ScriptableObjects/GameConfig_Default.asset";
-        private string _statePath = "Assets/ScriptableObjects/GameState.asset";
-        private string _eventsPath = "Assets/ScriptableObjects/GameEvents.asset";
-        private string _prefabPath = "Assets/Prefabs/GameManager.prefab";
+        private const string kDefaultConfigPath = "Assets/ScriptableObjects/GameConfig_Default.asset";
+        private const string kDefaultStatePath = "Assets/ScriptableObjects/GameState.asset";
+        private const string kDefaultEventsPath = "Assets/ScriptableObjects/GameEvents.asset";
+        private const string kDefaultPrefabPath = "Assets/Prefabs/GameManager.prefab";
+
+        private string _configPath = kDefaultConfigPath;
+        private string _statePath = kDefaultStatePath;
+        private string _eventsPath = kDefaultEventsPath;
+        private string _prefabPath = kDefaultPrefabPath;
 
         [MenuItem("EventideAge/Setup Complete Scene")]
+        public static void SetupCompleteSceneQuick()
+        {
+            RunOneClickSetup();
+        }
+
+        [MenuItem("EventideAge/Setup Complete Scene (Window)")]
         public static void ShowWindow()
         {
             var window = GetWindow<SceneSetup>("Scene Setup");
-            window.minSize = new Vector2(400, 300);
+            window.minSize = new Vector2(420, 320);
+        }
+
+        public static void RunOneClickSetup()
+        {
+            var setup = CreateInstance<SceneSetup>();
+            setup._configPath = kDefaultConfigPath;
+            setup._statePath = kDefaultStatePath;
+            setup._eventsPath = kDefaultEventsPath;
+            setup._prefabPath = kDefaultPrefabPath;
+
+            try
+            {
+                setup.CreateScriptableObjects();
+                setup.CreateGameManagerInScene(false);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+                Debug.Log("[SceneSetup] One-click setup completed in current scene.");
+            }
+            finally
+            {
+                DestroyImmediate(setup);
+            }
         }
 
         public void OnGUI()
         {
-            GUILayout.Label("EventideAge 场景设置工具", EditorStyles.boldLabel);
+            GUILayout.Label("EventideAge Scene Setup", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
-            GUILayout.Label("资源路径设置:", EditorStyles.boldLabel);
-            _configPath = EditorGUILayout.TextField("GameConfig 路径:", _configPath);
-            _statePath = EditorGUILayout.TextField("GameState 路径:", _statePath);
-            _eventsPath = EditorGUILayout.TextField("GameEvents 路径:", _eventsPath);
-            _prefabPath = EditorGUILayout.TextField("预制体路径:", _prefabPath);
+            GUILayout.Label("Asset Paths", EditorStyles.boldLabel);
+            _configPath = EditorGUILayout.TextField("GameConfig Path", _configPath);
+            _statePath = EditorGUILayout.TextField("GameState Path", _statePath);
+            _eventsPath = EditorGUILayout.TextField("GameEvents Path", _eventsPath);
+            _prefabPath = EditorGUILayout.TextField("Prefab Path", _prefabPath);
 
             EditorGUILayout.Space();
 
-            if (GUILayout.Button("1. 创建 ScriptableObject 资产", GUILayout.Height(30)))
+            if (GUILayout.Button("1. Create/Update ScriptableObjects", GUILayout.Height(30)))
             {
                 CreateScriptableObjects();
             }
 
-            if (GUILayout.Button("2. 创建 GameManager 预制体", GUILayout.Height(30)))
+            if (GUILayout.Button("2. Create/Update GameManager Prefab", GUILayout.Height(30)))
             {
                 CreateGameManagerPrefab();
             }
 
-            if (GUILayout.Button("3. 在当前场景中创建 GameManager", GUILayout.Height(30)))
+            if (GUILayout.Button("3. Create/Replace GameManager In Current Scene", GUILayout.Height(30)))
             {
-                CreateGameManagerInScene();
+                CreateGameManagerInScene(true);
+            }
+
+            if (GUILayout.Button("Run One-Click Setup (Recommended)", GUILayout.Height(34)))
+            {
+                CreateScriptableObjects();
+                CreateGameManagerInScene(true);
             }
 
             EditorGUILayout.Space();
-            GUILayout.Label("执行顺序: 1 -> 2 -> 3", EditorStyles.helpBox);
+            EditorGUILayout.HelpBox(
+                "Recommended path:\n" +
+                "1) EventideAge -> Setup Complete Scene (one click)\n" +
+                "2) EventideAge -> Run All Tests\n" +
+                "This window remains available for fine-grained setup.",
+                MessageType.Info);
         }
 
         private void CreateScriptableObjects()
         {
             EnsureDirectoryExists("Assets/ScriptableObjects");
 
-            var config = DefaultGameConfig.CreateDefault();
-            SaveAsset(config, _configPath);
+            var config = AssetDatabase.LoadAssetAtPath<GameConfig>(_configPath);
+            if (config == null)
+            {
+                config = DefaultGameConfig.CreateDefault();
+                SaveAsset(config, _configPath);
+            }
+            else
+            {
+                EditorUtility.SetDirty(config);
+            }
 
-            var state = ScriptableObject.CreateInstance<GameState>();
+            var state = AssetDatabase.LoadAssetAtPath<GameState>(_statePath);
+            if (state == null)
+            {
+                state = ScriptableObject.CreateInstance<GameState>();
+                SaveAsset(state, _statePath);
+            }
+
             state.Config = config;
             state.Initialize();
-            SaveAsset(state, _statePath);
+            EditorUtility.SetDirty(state);
 
-            var events = ScriptableObject.CreateInstance<GameEvents>();
-            SaveAsset(events, _eventsPath);
+            var events = AssetDatabase.LoadAssetAtPath<GameEvents>(_eventsPath);
+            if (events == null)
+            {
+                events = ScriptableObject.CreateInstance<GameEvents>();
+                SaveAsset(events, _eventsPath);
+            }
+            else
+            {
+                EditorUtility.SetDirty(events);
+            }
 
-            Selection.activeObject = config;
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Selection.activeObject = state;
             EditorUtility.FocusProjectWindow();
-            Debug.Log("[SceneSetup] ScriptableObjects created successfully");
+            Debug.Log("[SceneSetup] ScriptableObjects ready (GameConfig/GameState/GameEvents).");
         }
 
         private void CreateGameManagerPrefab()
@@ -112,23 +182,32 @@ namespace EventideAge.Editor
             {
                 Selection.activeObject = prefab;
                 EditorUtility.FocusProjectWindow();
-                Debug.Log($"[SceneSetup] GameManager prefab created at: {_prefabPath}");
+                Debug.Log($"[SceneSetup] GameManager prefab updated: {_prefabPath}");
             }
             else
             {
-                Debug.LogError("[SceneSetup] Failed to create prefab");
+                Debug.LogError("[SceneSetup] Failed to create/update GameManager prefab.");
             }
 
             DestroyImmediate(gameManagerGO);
         }
 
-        private void CreateGameManagerInScene()
+        private void CreateGameManagerInScene(bool askBeforeReplace)
         {
             var existing = GameObject.Find("GameManager");
             if (existing != null)
             {
-                if (!EditorUtility.DisplayDialog("警告", "场景中已存在 GameManager。是否替换?", "替换", "取消"))
-                    return;
+                if (askBeforeReplace)
+                {
+                    bool replace = EditorUtility.DisplayDialog(
+                        "Replace Existing GameManager?",
+                        "A GameManager already exists in this scene. Replace it with a fresh one?",
+                        "Replace",
+                        "Cancel");
+                    if (!replace)
+                        return;
+                }
+
                 DestroyImmediate(existing);
             }
 
@@ -137,7 +216,7 @@ namespace EventideAge.Editor
 
             Selection.activeObject = gameManagerGO;
             SceneView.lastActiveSceneView?.Focus();
-            Debug.Log("[SceneSetup] GameManager created in scene");
+            Debug.Log("[SceneSetup] GameManager created in current scene.");
         }
 
         private GameObject CreateGameManagerGameObject()
@@ -152,7 +231,7 @@ namespace EventideAge.Editor
 
             if (config == null || state == null || events == null)
             {
-                Debug.LogError("[SceneSetup] ScriptableObjects not found. Run 'Create ScriptableObject Assets' first.");
+                Debug.LogError("[SceneSetup] Missing ScriptableObjects. Create assets first.");
                 return go;
             }
 
@@ -195,6 +274,8 @@ namespace EventideAge.Editor
             AddSystemChild<FactionAISystem>(systemsGO, systemsList);
 
             AddSystemChild<StrategicMapSystem>(systemsGO, systemsList);
+            AddSystemChild<NodeNetworkSystem>(systemsGO, systemsList);
+            AddSystemChild<TerrainVisionSystem>(systemsGO, systemsList);
 
             AddSystemChild<EventSystem>(systemsGO, systemsList);
             AddSystemChild<VictoryDefeatSystem>(systemsGO, systemsList);
@@ -205,10 +286,19 @@ namespace EventideAge.Editor
 
             var uiGO = new GameObject("UI");
             uiGO.transform.SetParent(go.transform);
-            var uiManager = uiGO.AddComponent<UIManager>();
-            uiManager.Initialize(state, events);
+            AddSystemChild<UIManager>(uiGO, systemsList);
+            AddSystemChild<ActionLogUI>(uiGO, systemsList);
+            AddSystemChild<ConsequencePanelUI>(uiGO, systemsList);
+            AddSystemChild<GlobalAlertUI>(uiGO, systemsList);
+            AddSystemChild<ActionPanelUI>(uiGO, systemsList);
+            AddSystemChild<DiplomacyPanelUI>(uiGO, systemsList);
+            AddSystemChild<MapPanelUI>(uiGO, systemsList);
+            AddSystemChild<NotificationPanelUI>(uiGO, systemsList);
+            AddSystemChild<AlertPanelUI>(uiGO, systemsList);
+            AddSystemChild<EventPanelUI>(uiGO, systemsList);
+            AddSystemChild<IntelPanelUI>(uiGO, systemsList);
 
-            Debug.Log($"[SceneSetup] GameManager created with {systemsList.Count} systems");
+            Debug.Log($"[SceneSetup] GameManager graph built with {systemsList.Count} systems/components.");
             return go;
         }
 
@@ -224,11 +314,15 @@ namespace EventideAge.Editor
         {
             var d1 = gameManager.GetComponentInChildren<MilitaryOperationsSystem>()?.GetComponent<MilitaryOperationsSystem>();
             var d2 = gameManager.GetComponentInChildren<MilitaryPoliticalLinkageSystem>()?.GetComponent<MilitaryPoliticalLinkageSystem>();
-            var d4 = gameManager.GetComponentInChildren<NuclearDeterrenceSystem>()?.GetComponent<NuclearDeterrenceSystem>();
             var d5 = gameManager.GetComponentInChildren<WarResolutionSystem>()?.GetComponent<WarResolutionSystem>();
             var d6 = gameManager.GetComponentInChildren<MilitaryTechSystem>()?.GetComponent<MilitaryTechSystem>();
             var j = gameManager.GetComponentInChildren<VictoryDefeatSystem>()?.GetComponent<VictoryDefeatSystem>();
             var b2 = gameManager.GetComponentInChildren<BlockadeSystem>()?.GetComponent<BlockadeSystem>();
+            var g = gameManager.GetComponentInChildren<FactionAISystem>()?.GetComponent<FactionAISystem>();
+            var h1 = gameManager.GetComponentInChildren<StrategicMapSystem>()?.GetComponent<StrategicMapSystem>();
+            var h2 = gameManager.GetComponentInChildren<NodeNetworkSystem>()?.GetComponent<NodeNetworkSystem>();
+            var h3 = gameManager.GetComponentInChildren<TerrainVisionSystem>()?.GetComponent<TerrainVisionSystem>();
+            var f1 = gameManager.GetComponentInChildren<IntelligenceSystem>()?.GetComponent<IntelligenceSystem>();
 
             if (d1 != null)
             {
@@ -247,7 +341,28 @@ namespace EventideAge.Editor
                 b2.VictoryDefeatSystem = j;
             }
 
-            Debug.Log("[SceneSetup] System references wired");
+            if (g != null)
+            {
+                g.NodeNetworkSystem = h2;
+            }
+
+            if (h1 != null)
+            {
+                h1.NodeNetworkSystem = h2;
+            }
+
+            if (h3 != null)
+            {
+                h3.NodeNetworkSystem = h2;
+                h3.IntelligenceSystem = f1;
+            }
+
+            if (f1 != null)
+            {
+                f1.TerrainVisionSystem = h3;
+            }
+
+            Debug.Log("[SceneSetup] Cross-system references wired.");
         }
 
         private void SaveAsset(Object obj, string path)
@@ -256,28 +371,37 @@ namespace EventideAge.Editor
             {
                 EditorUtility.SetDirty(obj);
                 AssetDatabase.SaveAssets();
+                return;
             }
-            else
+
+            var existing = AssetDatabase.LoadMainAssetAtPath(path);
+            if (existing != null)
             {
-                AssetDatabase.CreateAsset(obj, path);
+                Object.DestroyImmediate(obj);
+                EditorUtility.SetDirty(existing);
                 AssetDatabase.SaveAssets();
+                return;
             }
+
+            AssetDatabase.CreateAsset(obj, path);
+            AssetDatabase.SaveAssets();
         }
 
         private void EnsureDirectoryExists(string path)
         {
-            if (!AssetDatabase.IsValidFolder(path))
+            if (AssetDatabase.IsValidFolder(path))
+                return;
+
+            var parts = path.Split('/');
+            string current = parts[0];
+            for (int i = 1; i < parts.Length; i++)
             {
-                var parts = path.Split('/');
-                string current = parts[0];
-                for (int i = 1; i < parts.Length; i++)
+                if (!AssetDatabase.IsValidFolder(current + "/" + parts[i]))
                 {
-                    if (!AssetDatabase.IsValidFolder(current + "/" + parts[i]))
-                    {
-                        AssetDatabase.CreateFolder(current, parts[i]);
-                    }
-                    current += "/" + parts[i];
+                    AssetDatabase.CreateFolder(current, parts[i]);
                 }
+
+                current += "/" + parts[i];
             }
         }
     }
