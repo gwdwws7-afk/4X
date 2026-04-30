@@ -1,0 +1,56 @@
+{
+  "specVersion": "R4-UI-SPEC-2026-04-23.v1",
+  "stage": "R4",
+  "task": "R4-01",
+  "status": "REVIEW_READY",
+  "surfaces": [
+    {
+      "id": "map",
+      "script": "Assets/Scripts/UI/MapPanelUI.cs",
+      "goals": [
+        "node ownership and control trend readability",
+        "route integrity and blockade impact visibility",
+        "cross-surface navigation to diplomacy/events"
+      ]
+    },
+    {
+      "id": "diplomacy",
+      "script": "Assets/Scripts/UI/DiplomacyPanelUI.cs",
+      "goals": [
+        "relation trend and agreement clarity",
+        "action cost and lock reason transparency",
+        "impact and risk explainability"
+      ]
+    },
+    {
+      "id": "battle_report",
+      "script": "Assets/Scripts/UI/ActionLogUI.cs",
+      "goals": [
+        "priority-based outcome scanning",
+        "delta/source traceability",
+        "jump-back links to origin context"
+      ]
+    },
+    {
+      "id": "event",
+      "script": "Assets/Scripts/UI/EventPanelUI.cs",
+      "goals": [
+        "option consequence readability before commit",
+        "expiration and fallback behavior visibility",
+        "post-selection feedback propagation"
+      ]
+    }
+  ],
+  "statusVocabulary": [
+    "Stable",
+    "Warning",
+    "Critical",
+    "Locked"
+  ],
+  "acceptanceGates": [
+    "all four surfaces satisfy R4-01 acceptance checklists",
+    "cross-surface status semantics remain consistent",
+    "action feedback includes delta, reason, and next hint"
+  ],
+  "source": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-01-ui-spec-v1.md"
+}

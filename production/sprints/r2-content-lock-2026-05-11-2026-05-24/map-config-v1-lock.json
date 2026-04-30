@@ -1,0 +1,168 @@
+{
+  "lockVersion": "R2-MAP-V1-2026-04-16",
+  "source": {
+    "regionsAndNodes": "Assets/Config/DefaultGameConfig.cs",
+    "adjacencyLinks": "Assets/Scripts/Systems/H2/NodeNetworkSystem.cs"
+  },
+  "summary": {
+    "regions": 6,
+    "nodes": 12,
+    "resourceOutputNodes": 2,
+    "adjacencyEdges": 13
+  },
+  "regions": [
+    {
+      "regionId": "PersianGulf",
+      "nodes": [
+        {
+          "nodeId": "Hormuz",
+          "nodeType": "Chokepoint",
+          "defenseBonus": 30,
+          "initialController": "Vashid",
+          "initialControlPoints": 100,
+          "maxControlPoints": 100,
+          "output": null
+        },
+        {
+          "nodeId": "Bushehr",
+          "nodeType": "Port",
+          "defenseBonus": 20,
+          "initialController": "Vashid",
+          "initialControlPoints": 80,
+          "maxControlPoints": 100,
+          "output": null
+        }
+      ]
+    },
+    {
+      "regionId": "WesternFront",
+      "nodes": [
+        {
+          "nodeId": "IraqBorder",
+          "nodeType": "Chokepoint",
+          "defenseBonus": 25,
+          "initialController": "Ash Confederacy",
+          "initialControlPoints": 60,
+          "maxControlPoints": 100,
+          "output": null
+        },
+        {
+          "nodeId": "SyriaZone",
+          "nodeType": "City",
+          "defenseBonus": 15,
+          "initialController": "Ash Confederacy",
+          "initialControlPoints": 50,
+          "maxControlPoints": 100,
+          "output": null
+        }
+      ]
+    },
+    {
+      "regionId": "NorthernTerritory",
+      "nodes": [
+        {
+          "nodeId": "Caspian",
+          "nodeType": "ResourceNode",
+          "defenseBonus": 10,
+          "initialController": "Vashid",
+          "initialControlPoints": 70,
+          "maxControlPoints": 100,
+          "output": "FireOil"
+        },
+        {
+          "nodeId": "Caucasus",
+          "nodeType": "Chokepoint",
+          "defenseBonus": 35,
+          "initialController": "Neutral",
+          "initialControlPoints": 30,
+          "maxControlPoints": 100,
+          "output": null
+        }
+      ]
+    },
+    {
+      "regionId": "ArabianPeninsula",
+      "nodes": [
+        {
+          "nodeId": "RedSea",
+          "nodeType": "Chokepoint",
+          "defenseBonus": 30,
+          "initialController": "GoldenHord",
+          "initialControlPoints": 80,
+          "maxControlPoints": 100,
+          "output": null
+        },
+        {
+          "nodeId": "GulfBase",
+          "nodeType": "Port",
+          "defenseBonus": 20,
+          "initialController": "Aurean",
+          "initialControlPoints": 90,
+          "maxControlPoints": 100,
+          "output": null
+        }
+      ]
+    },
+    {
+      "regionId": "Levant",
+      "nodes": [
+        {
+          "nodeId": "Mediterranean",
+          "nodeType": "Chokepoint",
+          "defenseBonus": 25,
+          "initialController": "SacredFire",
+          "initialControlPoints": 70,
+          "maxControlPoints": 100,
+          "output": null
+        },
+        {
+          "nodeId": "IsraelCore",
+          "nodeType": "City",
+          "defenseBonus": 40,
+          "initialController": "SacredFire",
+          "initialControlPoints": 100,
+          "maxControlPoints": 100,
+          "output": null
+        }
+      ]
+    },
+    {
+      "regionId": "CentralAsia",
+      "nodes": [
+        {
+          "nodeId": "Afghanistan",
+          "nodeType": "Chokepoint",
+          "defenseBonus": 20,
+          "initialController": "Neutral",
+          "initialControlPoints": 40,
+          "maxControlPoints": 100,
+          "output": null
+        },
+        {
+          "nodeId": "TradeHub",
+          "nodeType": "ResourceNode",
+          "defenseBonus": 10,
+          "initialController": "Neutral",
+          "initialControlPoints": 50,
+          "maxControlPoints": 100,
+          "output": "TradeToken"
+        }
+      ]
+    }
+  ],
+  "adjacencyEdges": [
+    ["Hormuz", "Bushehr"],
+    ["IraqBorder", "SyriaZone"],
+    ["Caspian", "Caucasus"],
+    ["RedSea", "GulfBase"],
+    ["Mediterranean", "IsraelCore"],
+    ["Afghanistan", "TradeHub"],
+    ["Hormuz", "IraqBorder"],
+    ["Bushehr", "Caucasus"],
+    ["Caspian", "IraqBorder"],
+    ["SyriaZone", "Mediterranean"],
+    ["Mediterranean", "RedSea"],
+    ["GulfBase", "TradeHub"],
+    ["Afghanistan", "Caucasus"]
+  ]
+}

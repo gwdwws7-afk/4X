@@ -1,0 +1,56 @@
+{
+  "lockVersion": "R2-05-TUTORIAL-FLOW-V1",
+  "generatedOn": "2026-04-16",
+  "source": "Assets/Scripts/Systems/I1/TutorialFlowConfig.cs::CreateDefaultSteps",
+  "targetWindow": {
+    "turnStart": 1,
+    "turnEnd": 5
+  },
+  "steps": [
+    {
+      "stepId": "tutorial_turn1_map",
+      "title": "Tutorial 1/5 - Map Recon",
+      "trigger": {
+        "type": "TurnBased",
+        "turn": 1
+      },
+      "narrative": "Open the map panel and review node controllers around SyriaZone and IraqBorder."
+    },
+    {
+      "stepId": "tutorial_turn2_diplomacy",
+      "title": "Tutorial 2/5 - Diplomacy Read",
+      "trigger": {
+        "type": "ConditionBased",
+        "condition": "turn>=2&&resource:GoldLeaf>=0"
+      },
+      "narrative": "Check diplomacy panel deltas before committing AP-heavy military actions."
+    },
+    {
+      "stepId": "tutorial_turn3_battle_report",
+      "title": "Tutorial 3/5 - Battle Report",
+      "trigger": {
+        "type": "TurnBased",
+        "turn": 3
+      },
+      "narrative": "Review battle/action logs and confirm control-point changes after each operation."
+    },
+    {
+      "stepId": "tutorial_turn4_event_panel",
+      "title": "Tutorial 4/5 - Event Reading",
+      "trigger": {
+        "type": "ConditionBased",
+        "condition": "turn>=4&&node_control:SyriaZone=Aurean"
+      },
+      "narrative": "Use the event panel to separate story events from system alerts and spot critical entries first."
+    },
+    {
+      "stepId": "tutorial_turn5_loop_sync",
+      "title": "Tutorial 5/5 - Turn Loop Sync",
+      "trigger": {
+        "type": "ConditionBased",
+        "condition": "turn>=5&&relation:Aurean<=0"
+      },
+      "narrative": "Before ending turn: validate AP, resources, diplomacy, and event feedback for a complete decision loop."
+    }
+  ]
+}

@@ -97,7 +97,10 @@ EventideAge/
 ├── Generate GameState with Default Config
 ├── Create Boot Scene
 ├── Create Main Game Scene
-├── Setup Complete Scene → [3个子选项]
+├── Setup Complete Scene (one click)
+├── Setup Complete Scene (Window)
+├── Setup Project (alias, same pipeline)
+├── Setup Project (Window)
 └── Run All Tests
 ```
 
@@ -106,7 +109,7 @@ EventideAge/
 ## 下一步
 
 1. **打开Unity Editor** 加载 `C:\test\4X`
-2. **执行 Setup Complete Scene**
+2. **执行 Setup Complete Scene**（或 `Setup Project`，两者同一管线）
 3. **检查Console** 是否有编译错误
 4. **运行测试** EventideAge → Run All Tests
 5. **报告结果**

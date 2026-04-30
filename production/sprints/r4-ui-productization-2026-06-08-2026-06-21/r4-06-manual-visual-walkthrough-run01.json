@@ -1,0 +1,27 @@
+﻿{
+  "docVersion": "R4-06-MANUAL-WALKTHROUGH-RUN01-2026-04-30.v1",
+  "stage": "R4",
+  "task": "R4-06",
+  "runId": "R4-06-MANUAL-RUN01",
+  "status": "PENDING_MANUAL_SIGNOFF",
+  "executionDate": "2026-04-30",
+  "precheck": {
+    "autoLayoutAudit": "PASS",
+    "source": "production/evidence/r4/validation/20260430_141636_R4-06_UX_VISUAL_AUDIT_RUN01.csv"
+  },
+  "resolutions": ["1280x720", "1920x1080", "2560x1440"],
+  "surfaces": ["map", "diplomacy", "battle_report", "event"],
+  "manualChecklist": {
+    "textReadability": "TODO",
+    "statusExplainability": "TODO",
+    "interactionFeedback": "TODO",
+    "chainWalkthrough": "TODO"
+  },
+  "defects": [],
+  "signoff": {
+    "qa": "TODO",
+    "design": "TODO",
+    "producer": "TODO",
+    "tech": "TODO"
+  }
+}

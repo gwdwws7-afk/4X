@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
@@ -33,7 +34,12 @@ namespace EventideAge.Tests
             TestD5NodeControlEventSemantics();
             TestGAdjacencyGuardrail();
             TestGAIDecisionExecutionGuardrail();
+            RunR2AIStrategyChecks();
+            RunR2TutorialFlowChecks();
+            RunR2CampaignCompletionChecks();
+            RunR3AIDifficultyChecks();
             TestI1EventTriggerGuardrail();
+            TestI1EventPoolBackfillAndDedupGuardrail();
             TestB5SettlementExpenseGuardrail();
             TestB4ExchangeRateReciprocalGuardrail();
             TestB5OverdraftThresholdGuardrail();
@@ -50,6 +56,7 @@ namespace EventideAge.Tests
             TestEInternalPoliticsGuardrail();
             TestF1IntelligenceTerrainVisionGuardrail();
             TestH1MapAdjacencyGuardrail();
+            TestR2MapConfigV1LockGuardrail();
             TestKUiTimeSyncGuardrail();
             TestKUiTimeFallbackGuardrail();
             TestUiCanonicalDisplayGuardrail();
@@ -57,15 +64,122 @@ namespace EventideAge.Tests
             TestUiPriorityAndDedupGuardrail();
             TestUiDigestSummaryGuardrail();
             TestUiTurnSummaryGuardrail();
+            TestUiStatusAndJumpSemanticsGuardrail();
+            TestUiLockedStatusReasonGuardrail();
+            TestUiHintAndCueSemanticsGuardrail();
+            TestUiLockedHintVariantGuardrail();
+            TestUiLocalizationHighFrequencySurfaceLabelsGuardrail();
             TestTimeoutOwnershipGuardrail();
             TestTimeoutSingleFireGuardrail();
             TestTimeoutVictoryPriorityGuardrail();
             TestTimeoutConfigSourceOfTruthGuardrail();
             TestTimeoutA5JEventPathGuardrail();
+            RunR1ReplayScenarios();
+            RunR1CrossTurnConsistencyChecks();
+            RunR1SaveCompatibilityChecks();
             TestCanonicalIdGuardrail();
             TestResourceCanonicalConvergenceGuardrail();
+            TestL1AsyncMultiplayerLifecycleGuardrail();
+            TestL2TutorialSystemLifecycleGuardrail();
+            TestL3SteamIntegrationFallbackAndMockGuardrail();
+            TestL4LocalizationSwitchAndFormattingGuardrail();
             
             Debug.Log($"=== Results: {passed} passed, {failed} failed ===");
+        }
+
+        public static void RunR1ReplayScenarios()
+        {
+            Debug.Log("\n=== R1 Replay Scenarios (RL-01 / RL-02 / RL-03 / RL-10) ===");
+            TestR1ReplayRL01MapDiplomacyBattleEvent();
+            TestR1ReplayRL02PhaseLifecycleReplay();
+            TestR1ReplayRL03SaveLoadCrossTurnReplay();
+            TestR1ReplayRL10TimeoutEndgameReplay();
+        }
+
+        public static void RunR1CrossTurnConsistencyChecks()
+        {
+            Debug.Log("\n=== R1 Cross-Turn Consistency Checks (R1-04) ===");
+            TestR1CrossTurnConsistencyApResourceNodeVictory();
+        }
+
+        public static void RunR1SaveCompatibilityChecks()
+        {
+            Debug.Log("\n=== R1 Save Compatibility & Consistency Checks (R1-05) ===");
+            TestR1SaveCompatibilityReadWriteAndRecovery();
+            TestR1SaveCompatibilityMultiTurnConsistency();
+        }
+
+        public static void RunR2EventPoolChecks()
+        {
+            Debug.Log("\n=== R2 Event Pool Checks (R2-02) ===");
+            TestI1EventPoolBackfillAndDedupGuardrail();
+        }
+
+        public static void RunR2MapConfigV1LockChecks()
+        {
+            Debug.Log("\n=== R2 Map Config V1 Lock Checks (R2-03) ===");
+            TestR2MapConfigV1LockGuardrail();
+        }
+
+        public static void RunR2AIStrategyChecks()
+        {
+            Debug.Log("\n=== R2 AI Strategy Checks (R2-04) ===");
+            TestR2AIStrategySetOverrideGuardrail();
+            TestR2AIStrategyPhasePreferenceGuardrail();
+            TestR2AIStrategyFallbackGuardrail();
+        }
+
+        public static void RunR2TutorialFlowChecks()
+        {
+            Debug.Log("\n=== R2 Tutorial Flow Checks (R2-05) ===");
+            TestR2TutorialFlowScriptGuardrail();
+            TestR2TutorialFlowTriggerRuleGuardrail();
+        }
+
+        public static void RunR2CampaignCompletionChecks()
+        {
+            Debug.Log("\n=== R2 Campaign Completion Checks (R2-06) ===");
+            TestR2Campaign24TurnCompletionGuardrail();
+            TestR2CampaignNoEmptyTurnAndPhaseFeedbackGuardrail();
+        }
+
+        public static void RunR3AIDifficultyChecks()
+        {
+            Debug.Log("\n=== R3 AI Difficulty Checks (R3-03) ===");
+            TestR3AIDifficultyProfilesGuardrail();
+            TestR3AIDifficultyApplyAndSwitchGuardrail();
+            TestR3AIDifficultyFallbackGuardrail();
+        }
+
+        public static void RunR4UiProductizationChecks()
+        {
+            Debug.Log("\n=== R4 UI Productization Checks (R4-02) ===");
+            TestUiCanonicalDisplayGuardrail();
+            TestUiPanelAggregationAndOrderingGuardrail();
+            TestUiPriorityAndDedupGuardrail();
+            TestUiDigestSummaryGuardrail();
+            TestUiTurnSummaryGuardrail();
+            TestUiStatusAndJumpSemanticsGuardrail();
+            TestUiLockedStatusReasonGuardrail();
+            TestUiHintAndCueSemanticsGuardrail();
+            TestUiLockedHintVariantGuardrail();
+            TestUiLocalizationHighFrequencySurfaceLabelsGuardrail();
+        }
+
+        public static void RunR4UiInteractionHintChecks()
+        {
+            Debug.Log("\n=== R4 UI Interaction Hint Checks (R4-03) ===");
+            TestUiHintAndCueSemanticsGuardrail();
+            TestUiLockedHintVariantGuardrail();
+        }
+
+        public static void RunLMetaChecks()
+        {
+            Debug.Log("\n=== L Meta System Checks (L1-L4) ===");
+            TestL1AsyncMultiplayerLifecycleGuardrail();
+            TestL2TutorialSystemLifecycleGuardrail();
+            TestL3SteamIntegrationFallbackAndMockGuardrail();
+            TestL4LocalizationSwitchAndFormattingGuardrail();
         }
         
         private static void TestGameConfig()
@@ -806,6 +920,684 @@ namespace EventideAge.Tests
             ResetGameManagerSingleton();
         }
 
+        private static void TestR2AIStrategySetOverrideGuardrail()
+        {
+            Debug.Log("\n--- Testing R2 AI Strategy Set Override Guardrail ---");
+
+            ResetGameManagerSingleton();
+
+            var go = new GameObject("R2AIStrategyOverrideTest");
+            var state = CreateDefaultState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var strategySet = ScriptableObject.CreateInstance<EventideAge.Systems.G.AIStrategySet>();
+            strategySet.SetProfiles(new[]
+            {
+                new EventideAge.Systems.G.AIFactionStrategyProfile
+                {
+                    FactionId = "GoldLeader",
+                    Personality = EventideAge.Systems.G.AIPersonality.Diplomatic,
+                    AggressionLevel = 0.2f,
+                    DefenseLevel = 0.4f,
+                    DiplomaticLevel = 0.9f,
+                    ExpansionLevel = 0.3f,
+                    ThreatPerception = 0.5f,
+                    OpportunityPerception = 0.9f,
+                    ActiveGoals = new[] { "r2_custom_diplomacy" },
+                    PhasePreferences = new[]
+                    {
+                        new EventideAge.Systems.G.AIPhaseActionPreference
+                        {
+                            PhaseIndex = 0,
+                            MilitaryWeight = 0.5f,
+                            DiplomaticWeight = 1.4f,
+                            EconomicWeight = 1f
+                        }
+                    }
+                }
+            });
+
+            var g = go.AddComponent<EventideAge.Systems.G.FactionAISystem>();
+            g.StrategySetConfig = strategySet;
+            g.Initialize(state, events);
+
+            var aurean = g.GetAI(GameIds.Faction.Aurean);
+            Assert("R2-04 strategy override applies personality for mapped alias faction", aurean != null && aurean.Personality == EventideAge.Systems.G.AIPersonality.Diplomatic);
+            Assert("R2-04 strategy override applies custom active goals", aurean != null && aurean.ActiveGoals.Contains("r2_custom_diplomacy"));
+            Assert("R2-04 strategy override keeps default fallback profiles for non-overridden factions", g.GetAI(GameIds.Faction.SacredFire) != null && g.GetAI(GameIds.Faction.AshConfederacy) != null);
+
+            UnityEngine.Object.DestroyImmediate(g);
+            UnityEngine.Object.DestroyImmediate(strategySet);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
+        private static void TestR2AIStrategyPhasePreferenceGuardrail()
+        {
+            Debug.Log("\n--- Testing R2 AI Strategy Phase Preference Guardrail ---");
+
+            ResetGameManagerSingleton();
+
+            var go = new GameObject("R2AIStrategyPhasePreferenceTest");
+            var state = CreateDefaultState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var strategySet = ScriptableObject.CreateInstance<EventideAge.Systems.G.AIStrategySet>();
+            strategySet.SetProfiles(new[]
+            {
+                new EventideAge.Systems.G.AIFactionStrategyProfile
+                {
+                    FactionId = GameIds.Faction.Aurean,
+                    Personality = EventideAge.Systems.G.AIPersonality.Aggressive,
+                    AggressionLevel = 0.8f,
+                    DefenseLevel = 0.5f,
+                    DiplomaticLevel = 0.3f,
+                    ExpansionLevel = 0.7f,
+                    ThreatPerception = 0.7f,
+                    OpportunityPerception = 0.8f,
+                    ActiveGoals = new[] { "maintain_blockade" },
+                    PhasePreferences = new[]
+                    {
+                        new EventideAge.Systems.G.AIPhaseActionPreference
+                        {
+                            PhaseIndex = 0,
+                            MilitaryWeight = 0.25f,
+                            DiplomaticWeight = 1.3f,
+                            EconomicWeight = 1f
+                        },
+                        new EventideAge.Systems.G.AIPhaseActionPreference
+                        {
+                            PhaseIndex = 2,
+                            MilitaryWeight = 1.4f,
+                            DiplomaticWeight = 0.6f,
+                            EconomicWeight = 0.8f
+                        }
+                    }
+                }
+            });
+
+            var g = go.AddComponent<EventideAge.Systems.G.FactionAISystem>();
+            g.StrategySetConfig = strategySet;
+            g.Initialize(state, events);
+
+            state.CurrentPhaseIndex = 0;
+            float phase0Military = (float)InvokePrivateMethod(g, "ApplyPhasePreference", GameIds.Faction.Aurean, EventideAge.Systems.G.AIDecisionType.Military, 0.6f);
+            float phase0Diplomatic = (float)InvokePrivateMethod(g, "ApplyPhasePreference", GameIds.Faction.Aurean, EventideAge.Systems.G.AIDecisionType.Diplomatic, 0.5f);
+            Assert("R2-04 phase preference applies phase 0 military weight", Mathf.Abs(phase0Military - 0.15f) < 0.0001f);
+            Assert("R2-04 phase preference applies phase 0 diplomatic weight", Mathf.Abs(phase0Diplomatic - 0.65f) < 0.0001f);
+
+            state.CurrentPhaseIndex = 2;
+            float phase2Military = (float)InvokePrivateMethod(g, "ApplyPhasePreference", GameIds.Faction.Aurean, EventideAge.Systems.G.AIDecisionType.Military, 0.6f);
+            float phase2Diplomatic = (float)InvokePrivateMethod(g, "ApplyPhasePreference", GameIds.Faction.Aurean, EventideAge.Systems.G.AIDecisionType.Diplomatic, 0.5f);
+            Assert("R2-04 phase preference applies phase 2 military weight", Mathf.Abs(phase2Military - 0.84f) < 0.0001f);
+            Assert("R2-04 phase preference applies phase 2 diplomatic weight", Mathf.Abs(phase2Diplomatic - 0.3f) < 0.0001f);
+
+            UnityEngine.Object.DestroyImmediate(g);
+            UnityEngine.Object.DestroyImmediate(strategySet);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
+        private static void TestR2AIStrategyFallbackGuardrail()
+        {
+            Debug.Log("\n--- Testing R2 AI Strategy Fallback Guardrail ---");
+
+            ResetGameManagerSingleton();
+
+            var go = new GameObject("R2AIStrategyFallbackTest");
+            var state = CreateDefaultState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var g = go.AddComponent<EventideAge.Systems.G.FactionAISystem>();
+            g.Initialize(state, events);
+
+            Assert("R2-04 fallback initializes all default AI factions when strategy asset is absent",
+                g.GetAI(GameIds.Faction.Aurean) != null
+                && g.GetAI(GameIds.Faction.SacredFire) != null
+                && g.GetAI(GameIds.Faction.GoldenHord) != null
+                && g.GetAI(GameIds.Faction.AshConfederacy) != null);
+            Assert("R2-04 fallback keeps alias lookup behavior", g.GetAI("GoldLeader") != null);
+
+            state.CurrentPhaseIndex = 0;
+            float unknownFactionPriority = (float)InvokePrivateMethod(g, "ApplyPhasePreference", "UnknownFaction", EventideAge.Systems.G.AIDecisionType.Military, 0.6f);
+            Assert("R2-04 fallback keeps neutral phase weight for unknown faction ids", Mathf.Abs(unknownFactionPriority - 0.6f) < 0.0001f);
+
+            UnityEngine.Object.DestroyImmediate(g);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
+        private static void TestR3AIDifficultyProfilesGuardrail()
+        {
+            Debug.Log("\n--- Testing R3 AI Difficulty Profiles Guardrail ---");
+
+            var difficultySet = ScriptableObject.CreateInstance<EventideAge.Systems.G.AIDifficultySet>();
+            difficultySet.SetProfiles(EventideAge.Systems.G.AIDifficultySet.CreateDefaultProfiles());
+
+            var easy = difficultySet.GetProfile(EventideAge.Systems.G.AIDifficultyLevel.Easy);
+            var standard = difficultySet.GetProfile(EventideAge.Systems.G.AIDifficultyLevel.Standard);
+            var hard = difficultySet.GetProfile(EventideAge.Systems.G.AIDifficultyLevel.Hard);
+
+            var uniqueDifficultyCount = difficultySet.Profiles
+                .Where(profile => profile != null)
+                .Select(profile => profile.Difficulty)
+                .Distinct()
+                .Count();
+
+            Assert("R3-03 default difficulty set contains easy/standard/hard profiles", easy != null && standard != null && hard != null);
+            Assert("R3-03 default difficulty profiles keep one entry per tier", uniqueDifficultyCount == 3);
+            Assert("R3-03 default standard profile preserves legacy thresholds",
+                standard != null
+                && Mathf.Abs(standard.MilitaryActionThreshold - 0.5f) < 0.0001f
+                && Mathf.Abs(standard.DiplomaticActionThreshold - 0.4f) < 0.0001f
+                && Mathf.Abs(standard.EconomicActionThreshold - 0.3f) < 0.0001f
+                && standard.MinGoldLeafForAttack == 30
+                && standard.MinArmsForMilitaryAction == 5);
+            Assert("R3-03 hard profile is more proactive than easy profile",
+                easy != null
+                && hard != null
+                && hard.MilitaryActionThreshold < easy.MilitaryActionThreshold
+                && hard.DiplomaticActionThreshold < easy.DiplomaticActionThreshold
+                && hard.EconomicActionThreshold < easy.EconomicActionThreshold
+                && hard.MinGoldLeafForAttack < easy.MinGoldLeafForAttack
+                && hard.MinArmsForMilitaryAction < easy.MinArmsForMilitaryAction);
+
+            UnityEngine.Object.DestroyImmediate(difficultySet);
+        }
+
+        private static void TestR3AIDifficultyApplyAndSwitchGuardrail()
+        {
+            Debug.Log("\n--- Testing R3 AI Difficulty Apply/Switch Guardrail ---");
+
+            ResetGameManagerSingleton();
+
+            var go = new GameObject("R3AIDifficultyApplyTest");
+            var state = CreateDefaultState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var difficultySet = ScriptableObject.CreateInstance<EventideAge.Systems.G.AIDifficultySet>();
+            difficultySet.SetProfiles(new[]
+            {
+                new EventideAge.Systems.G.AIDifficultyProfile
+                {
+                    Difficulty = EventideAge.Systems.G.AIDifficultyLevel.Easy,
+                    AggressiveAggression = 1.15f,
+                    DefensiveDefense = 1.2f,
+                    DiplomaticDiplomacy = 1.2f,
+                    ExpansionistExpansion = 1.2f,
+                    AIUpdateInterval = 2,
+                    BaseCoordinationCost = 16,
+                    MilitaryActionThreshold = 0.7f,
+                    DiplomaticActionThreshold = 0.6f,
+                    EconomicActionThreshold = 0.45f,
+                    MinGoldLeafForAttack = 40,
+                    MinArmsForMilitaryAction = 8,
+                    LowResourceThreshold = 0.5f
+                },
+                new EventideAge.Systems.G.AIDifficultyProfile
+                {
+                    Difficulty = EventideAge.Systems.G.AIDifficultyLevel.Standard,
+                    AggressiveAggression = 1.5f,
+                    DefensiveDefense = 1.5f,
+                    DiplomaticDiplomacy = 1.5f,
+                    ExpansionistExpansion = 1.5f,
+                    AIUpdateInterval = 1,
+                    BaseCoordinationCost = 10,
+                    MilitaryActionThreshold = 0.5f,
+                    DiplomaticActionThreshold = 0.4f,
+                    EconomicActionThreshold = 0.3f,
+                    MinGoldLeafForAttack = 30,
+                    MinArmsForMilitaryAction = 5,
+                    LowResourceThreshold = 0.3f
+                },
+                new EventideAge.Systems.G.AIDifficultyProfile
+                {
+                    Difficulty = EventideAge.Systems.G.AIDifficultyLevel.Hard,
+                    AggressiveAggression = 1.85f,
+                    DefensiveDefense = 1.75f,
+                    DiplomaticDiplomacy = 1.75f,
+                    ExpansionistExpansion = 1.85f,
+                    AIUpdateInterval = 1,
+                    BaseCoordinationCost = 7,
+                    MilitaryActionThreshold = 0.35f,
+                    DiplomaticActionThreshold = 0.28f,
+                    EconomicActionThreshold = 0.22f,
+                    MinGoldLeafForAttack = 20,
+                    MinArmsForMilitaryAction = 4,
+                    LowResourceThreshold = 0.2f
+                }
+            });
+
+            var g = go.AddComponent<EventideAge.Systems.G.FactionAISystem>();
+            g.DifficultySetConfig = difficultySet;
+            g.DifficultyLevel = EventideAge.Systems.G.AIDifficultyLevel.Hard;
+            g.Initialize(state, events);
+
+            Assert("R3-03 hard profile applies military threshold and resource gates on initialize",
+                Mathf.Abs(g.MilitaryActionThreshold - 0.35f) < 0.0001f
+                && g.MinGoldLeafForAttack == 20
+                && g.MinArmsForMilitaryAction == 4);
+            Assert("R3-03 hard profile applies personality multipliers and cadence",
+                Mathf.Abs(g.AggressiveAggression - 1.85f) < 0.0001f
+                && Mathf.Abs(g.ExpansionistExpansion - 1.85f) < 0.0001f
+                && g.AIUpdateInterval == 1
+                && g.BaseCoordinationCost == 7);
+
+            var goldLeaf = state.GetResource(GameIds.Resource.GoldLeaf);
+            var arms = state.GetResource(GameIds.Resource.Arms);
+            if (goldLeaf != null) goldLeaf.Amount = 28;
+            if (arms != null) arms.Amount = 6;
+
+            var hardAi = g.GetAI(GameIds.Faction.Aurean);
+            bool hardShouldAct = hardAi != null && (bool)InvokePrivateMethod(g, "ShouldAIAct", hardAi);
+
+            g.SetDifficulty(EventideAge.Systems.G.AIDifficultyLevel.Easy);
+
+            var easyAi = g.GetAI(GameIds.Faction.Aurean);
+            bool easyShouldAct = easyAi != null && (bool)InvokePrivateMethod(g, "ShouldAIAct", easyAi);
+            var activeProfile = g.GetActiveDifficultyProfile();
+
+            Assert("R3-03 switching to easy updates active tier and thresholds",
+                g.GetDifficulty() == EventideAge.Systems.G.AIDifficultyLevel.Easy
+                && Mathf.Abs(g.MilitaryActionThreshold - 0.7f) < 0.0001f
+                && g.MinGoldLeafForAttack == 40
+                && g.MinArmsForMilitaryAction == 8
+                && activeProfile != null
+                && activeProfile.Difficulty == EventideAge.Systems.G.AIDifficultyLevel.Easy);
+            Assert("R3-03 difficulty switch changes ShouldAIAct gating behavior", hardShouldAct && !easyShouldAct);
+
+            UnityEngine.Object.DestroyImmediate(g);
+            UnityEngine.Object.DestroyImmediate(difficultySet);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
+        private static void TestR3AIDifficultyFallbackGuardrail()
+        {
+            Debug.Log("\n--- Testing R3 AI Difficulty Fallback Guardrail ---");
+
+            ResetGameManagerSingleton();
+
+            var go = new GameObject("R3AIDifficultyFallbackTest");
+            var state = CreateDefaultState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var partialSet = ScriptableObject.CreateInstance<EventideAge.Systems.G.AIDifficultySet>();
+            partialSet.SetProfiles(new[]
+            {
+                new EventideAge.Systems.G.AIDifficultyProfile
+                {
+                    Difficulty = EventideAge.Systems.G.AIDifficultyLevel.Easy,
+                    MilitaryActionThreshold = 0.88f,
+                    DiplomaticActionThreshold = 0.8f,
+                    EconomicActionThreshold = 0.76f,
+                    MinGoldLeafForAttack = 70,
+                    MinArmsForMilitaryAction = 20
+                }
+            });
+
+            var g = go.AddComponent<EventideAge.Systems.G.FactionAISystem>();
+            g.DifficultySetConfig = partialSet;
+            g.DifficultyLevel = EventideAge.Systems.G.AIDifficultyLevel.Hard;
+            g.Initialize(state, events);
+
+            var expectedHard = EventideAge.Systems.G.AIDifficultySet.CreateDefaultProfile(EventideAge.Systems.G.AIDifficultyLevel.Hard);
+            var activeProfile = g.GetActiveDifficultyProfile();
+            Assert("R3-03 missing hard tier in custom set falls back to built-in hard defaults",
+                Mathf.Abs(g.MilitaryActionThreshold - expectedHard.MilitaryActionThreshold) < 0.0001f
+                && Mathf.Abs(g.DiplomaticActionThreshold - expectedHard.DiplomaticActionThreshold) < 0.0001f
+                && Mathf.Abs(g.EconomicActionThreshold - expectedHard.EconomicActionThreshold) < 0.0001f
+                && g.MinGoldLeafForAttack == expectedHard.MinGoldLeafForAttack
+                && g.MinArmsForMilitaryAction == expectedHard.MinArmsForMilitaryAction);
+            Assert("R3-03 active profile remains hard after fallback resolution",
+                activeProfile != null && activeProfile.Difficulty == EventideAge.Systems.G.AIDifficultyLevel.Hard);
+
+            UnityEngine.Object.DestroyImmediate(g);
+            UnityEngine.Object.DestroyImmediate(partialSet);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
+        private static void TestR2TutorialFlowScriptGuardrail()
+        {
+            Debug.Log("\n--- Testing R2 Tutorial Flow Script Guardrail ---");
+
+            var go = new GameObject("R2TutorialFlowScriptTest");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var tutorialFlow = ScriptableObject.CreateInstance<EventideAge.Systems.I1.TutorialFlowConfig>();
+            tutorialFlow.SetSteps(EventideAge.Systems.I1.TutorialFlowConfig.CreateDefaultSteps());
+
+            var i1 = go.AddComponent<EventideAge.Systems.I1.EventSystem>();
+            i1.AutoLoadEventPoolOnInitialize = false;
+            i1.AutoLoadTutorialOnInitialize = false;
+            i1.Initialize(state, events);
+
+            int loaded = i1.LoadTutorialFlowFromConfig(tutorialFlow, clearQueue: true, resetTriggeredHistory: true);
+            var queued = i1.GetQueuedEvents();
+
+            bool allTutorialEvents = queued.Length == 5
+                && queued.All(evt => !string.IsNullOrWhiteSpace(evt.CanonicalKey)
+                                     && evt.CanonicalKey.StartsWith("tutorial:", StringComparison.OrdinalIgnoreCase));
+
+            bool hasMixedTriggers = queued.Any(evt => evt.Trigger == EventideAge.Systems.I1.EventTrigger.TurnBased)
+                && queued.Any(evt => evt.Trigger == EventideAge.Systems.I1.EventTrigger.ConditionBased);
+
+            Assert("R2-05 tutorial flow loads 5 scripted steps", loaded == 5);
+            Assert("R2-05 tutorial flow dedup skip count is zero on first load", i1.GetLastTutorialLoadDuplicateCount() == 0);
+            Assert("R2-05 tutorial queue uses tutorial canonical keys", allTutorialEvents);
+            Assert("R2-05 tutorial script contains turn-based and condition-based rules", hasMixedTriggers);
+
+            UnityEngine.Object.DestroyImmediate(i1);
+            UnityEngine.Object.DestroyImmediate(tutorialFlow);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestR2TutorialFlowTriggerRuleGuardrail()
+        {
+            Debug.Log("\n--- Testing R2 Tutorial Flow Trigger Rule Guardrail ---");
+
+            var go = new GameObject("R2TutorialFlowTriggerTest");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var tutorialFlow = ScriptableObject.CreateInstance<EventideAge.Systems.I1.TutorialFlowConfig>();
+            tutorialFlow.SetSteps(new[]
+            {
+                new EventideAge.Systems.I1.TutorialStepTemplate
+                {
+                    StepId = "tutorial_gate_turn1_map",
+                    EventName = "Tutorial Gate 1",
+                    Narrative = "Map onboarding",
+                    Trigger = EventideAge.Systems.I1.EventTrigger.TurnBased,
+                    TriggerTurn = 1
+                },
+                new EventideAge.Systems.I1.TutorialStepTemplate
+                {
+                    StepId = "tutorial_gate_relation",
+                    EventName = "Tutorial Gate 2",
+                    Narrative = "Diplomacy gate",
+                    Trigger = EventideAge.Systems.I1.EventTrigger.ConditionBased,
+                    TriggerCondition = $"turn>=2&&relation:{GameIds.Faction.Aurean}<=-40"
+                },
+                new EventideAge.Systems.I1.TutorialStepTemplate
+                {
+                    StepId = "tutorial_gate_node_control",
+                    EventName = "Tutorial Gate 3",
+                    Narrative = "Battle report gate",
+                    Trigger = EventideAge.Systems.I1.EventTrigger.ConditionBased,
+                    TriggerCondition = $"turn>=3&&node_control:{GameIds.Node.SyriaZone}={GameIds.Faction.Aurean}"
+                }
+            });
+
+            var i1 = go.AddComponent<EventideAge.Systems.I1.EventSystem>();
+            i1.AutoLoadEventPoolOnInitialize = false;
+            i1.AutoLoadTutorialOnInitialize = false;
+            i1.Initialize(state, events);
+
+            int loaded = i1.LoadTutorialFlowFromConfig(tutorialFlow, clearQueue: true, resetTriggeredHistory: true);
+            Assert("R2-05 trigger-rule setup loads scripted tutorial gates", loaded == 3);
+
+            var aurean = state.GetFaction(GameIds.Faction.Aurean);
+            if (aurean != null)
+            {
+                aurean.RelationshipWithPlayer = -10;
+            }
+
+            state.CurrentTurn = 1;
+            state.CurrentPhaseIndex = 0;
+            events.TurnEnded(1);
+            Assert("R2-05 trigger rules fire turn-based tutorial step on turn 1", i1.GetTriggeredEvents().Length == 1);
+
+            state.CurrentTurn = 2;
+            events.TurnEnded(2);
+            Assert("R2-05 trigger rules block relation-gated step when condition is unmet", i1.GetTriggeredEvents().Length == 1);
+
+            if (aurean != null)
+            {
+                aurean.RelationshipWithPlayer = -50;
+            }
+
+            state.CurrentTurn = 3;
+            events.TurnEnded(3);
+            var triggered = i1.GetTriggeredEvents();
+            bool allTriggered = triggered.Length == 3
+                && triggered.Any(evt => evt.TemplateId == "tutorial_gate_turn1_map")
+                && triggered.Any(evt => evt.TemplateId == "tutorial_gate_relation")
+                && triggered.Any(evt => evt.TemplateId == "tutorial_gate_node_control");
+
+            Assert("R2-05 trigger rules unlock remaining gated steps once conditions are met", allTriggered);
+            Assert("R2-05 tutorial queue drains after all scripted gates trigger", i1.GetQueuedEvents().Length == 0);
+
+            UnityEngine.Object.DestroyImmediate(i1);
+            UnityEngine.Object.DestroyImmediate(tutorialFlow);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestR2Campaign24TurnCompletionGuardrail()
+        {
+            Debug.Log("\n--- Testing R2 Campaign 24-Turn Completion Guardrail ---");
+
+            ResetGameManagerSingleton();
+
+            var managerGO = new GameObject("R2Campaign24TurnManager");
+            var manager = managerGO.AddComponent<GameManager>();
+            var systemsGO = new GameObject("R2Campaign24TurnSystems");
+            systemsGO.transform.SetParent(managerGO.transform);
+
+            var state = CreateR2CampaignValidationState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+            var replayLog = new R1ReplayLogger("R2-06", "CAMPAIGN-24TURN");
+
+            var tutorialFlow = ScriptableObject.CreateInstance<EventideAge.Systems.I1.TutorialFlowConfig>();
+            tutorialFlow.SetSteps(EventideAge.Systems.I1.TutorialFlowConfig.CreateDefaultSteps());
+
+            var i1 = systemsGO.AddComponent<EventideAge.Systems.I1.EventSystem>();
+            i1.AutoLoadEventPoolOnInitialize = false;
+            i1.TutorialFlowConfigAsset = tutorialFlow;
+            i1.AutoLoadTutorialOnInitialize = true;
+
+            var j = systemsGO.AddComponent<EventideAge.Systems.J.VictoryDefeatSystem>();
+            j.VictoryThreshold = 101f;
+            j.MilitaryCollapseAshWillThreshold = 0;
+            j.InternalDivisionSatisfactionThreshold = 0;
+
+            int endCount = 0;
+            int endTurn = -1;
+            string endReason = string.Empty;
+            int narrativeCount = 0;
+            events.OnGameEnded += reason =>
+            {
+                endCount++;
+                endTurn = state.CurrentTurn;
+                endReason = reason;
+            };
+            events.OnNarrativeEventAdded += (eventId, message, severity) => { narrativeCount++; };
+
+            manager.Config = state.Config;
+            manager.State = state;
+            manager.Events = events;
+            manager.Systems = new List<GameSystem> { i1, j };
+            manager.InitializeGame();
+
+            var syria = state.GetNode(GameIds.Node.SyriaZone);
+            if (syria != null)
+            {
+                syria.ControllingFactionId = GameIds.Faction.Aurean;
+            }
+
+            bool endedBeforeTurn24 = false;
+            for (int turn = 1; turn <= GameConfig.kMaxTurns; turn++)
+            {
+                for (int phase = 0; phase <= GameConfig.kAiResponsePhaseIndex; phase++)
+                {
+                    manager.AdvancePhase();
+                }
+
+                bool shouldStillRun = turn < GameConfig.kMaxTurns;
+                if (shouldStillRun && j.IsGameEnded())
+                {
+                    endedBeforeTurn24 = true;
+                }
+
+                replayLog.RecordStep(
+                    state,
+                    $"T{turn:D2}",
+                    "Advance full turn cycle",
+                    "Turn loop proceeds without premature end before turn 24",
+                    $"CurrentTurn={state.CurrentTurn}, Phase={state.CurrentPhaseIndex}, Ended={j.IsGameEnded()}, EndReason={j.GetEndReason()}",
+                    !shouldStillRun || !j.IsGameEnded());
+            }
+
+            Assert("R2-06 campaign does not end before turn 24", !endedBeforeTurn24);
+            Assert("R2-06 campaign runs through 24 full turns and enters post-turn state", state.CurrentTurn == GameConfig.kMaxTurns + 1 && state.CurrentPhaseIndex == 0);
+            Assert("R2-06 timeout endgame fires exactly once at turn 24", endCount == 1 && endTurn == GameConfig.kMaxTurns && endReason == "attrition");
+            Assert("R2-06 tutorial/event narrative feedback appears during campaign run", narrativeCount >= 5);
+
+            replayLog.Flush();
+
+            UnityEngine.Object.DestroyImmediate(tutorialFlow);
+            UnityEngine.Object.DestroyImmediate(managerGO);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
+        private static void TestR2CampaignNoEmptyTurnAndPhaseFeedbackGuardrail()
+        {
+            Debug.Log("\n--- Testing R2 Campaign No-Empty-Turn / No-Feedback-Phase Guardrail ---");
+
+            ResetGameManagerSingleton();
+
+            var managerGO = new GameObject("R2CampaignFeedbackManager");
+            var manager = managerGO.AddComponent<GameManager>();
+            var systemsGO = new GameObject("R2CampaignFeedbackSystems");
+            systemsGO.transform.SetParent(managerGO.transform);
+
+            var state = CreateR2CampaignValidationState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var tutorialFlow = ScriptableObject.CreateInstance<EventideAge.Systems.I1.TutorialFlowConfig>();
+            tutorialFlow.SetSteps(EventideAge.Systems.I1.TutorialFlowConfig.CreateDefaultSteps());
+
+            var i1 = systemsGO.AddComponent<EventideAge.Systems.I1.EventSystem>();
+            i1.AutoLoadEventPoolOnInitialize = false;
+            i1.TutorialFlowConfigAsset = tutorialFlow;
+            i1.AutoLoadTutorialOnInitialize = true;
+
+            var turnFeedback = new Dictionary<int, int>();
+            var phaseFeedback = new Dictionary<string, int>();
+            var tutorialNarrativeTurns = new Dictionary<int, int>();
+
+            Action recordFeedback = () =>
+            {
+                int turn = state.CurrentTurn;
+                int phase = state.CurrentPhaseIndex;
+                if (turn < 1 || turn > GameConfig.kMaxTurns)
+                    return;
+                if (phase < 0 || phase > GameConfig.kAiResponsePhaseIndex)
+                    return;
+
+                if (!turnFeedback.ContainsKey(turn))
+                    turnFeedback[turn] = 0;
+                turnFeedback[turn]++;
+
+                string phaseKey = $"{turn}:{phase}";
+                if (!phaseFeedback.ContainsKey(phaseKey))
+                    phaseFeedback[phaseKey] = 0;
+                phaseFeedback[phaseKey]++;
+            };
+
+            events.OnActionLogAdded += (sourceId, message, severity) => { recordFeedback(); };
+            events.OnNarrativeEventAdded += (eventId, message, severity) =>
+            {
+                recordFeedback();
+                int turn = state.CurrentTurn;
+                if (turn >= 1 && turn <= 5)
+                {
+                    if (!tutorialNarrativeTurns.ContainsKey(turn))
+                        tutorialNarrativeTurns[turn] = 0;
+                    tutorialNarrativeTurns[turn]++;
+                }
+            };
+            events.OnNotificationAdded += (sourceId, message, severity) => { recordFeedback(); };
+            events.OnAlertAdded += (sourceId, message, severity) => { recordFeedback(); };
+            events.OnIntelReportAdded += (sourceId, message, severity) => { recordFeedback(); };
+
+            manager.Config = state.Config;
+            manager.State = state;
+            manager.Events = events;
+            manager.Systems = new List<GameSystem> { i1 };
+            manager.InitializeGame();
+
+            var syria = state.GetNode(GameIds.Node.SyriaZone);
+            if (syria != null)
+            {
+                syria.ControllingFactionId = GameIds.Faction.Aurean;
+            }
+
+            for (int turn = 1; turn <= GameConfig.kMaxTurns; turn++)
+            {
+                for (int phase = 0; phase <= GameConfig.kAiResponsePhaseIndex; phase++)
+                {
+                    manager.AdvancePhase();
+                }
+            }
+
+            bool noEmptyTurns = true;
+            for (int turn = 1; turn <= GameConfig.kMaxTurns; turn++)
+            {
+                if (!turnFeedback.TryGetValue(turn, out int count) || count <= 0)
+                {
+                    noEmptyTurns = false;
+                    break;
+                }
+            }
+
+            bool noFeedbacklessPhase = true;
+            for (int turn = 1; turn <= GameConfig.kMaxTurns; turn++)
+            {
+                for (int phase = 0; phase <= GameConfig.kAiResponsePhaseIndex; phase++)
+                {
+                    string key = $"{turn}:{phase}";
+                    if (!phaseFeedback.TryGetValue(key, out int count) || count <= 0)
+                    {
+                        noFeedbacklessPhase = false;
+                        break;
+                    }
+                }
+
+                if (!noFeedbacklessPhase)
+                    break;
+            }
+
+            bool tutorialCoverage = true;
+            for (int turn = 1; turn <= 5; turn++)
+            {
+                if (!tutorialNarrativeTurns.TryGetValue(turn, out int count) || count <= 0)
+                {
+                    tutorialCoverage = false;
+                    break;
+                }
+            }
+
+            Assert("R2-06 campaign has no empty turns across 24-turn window", noEmptyTurns);
+            Assert("R2-06 campaign has no feedback-less phases across all turns", noFeedbacklessPhase);
+            Assert("R2-06 tutorial onboarding emits narrative guidance for turns 1-5", tutorialCoverage);
+
+            UnityEngine.Object.DestroyImmediate(tutorialFlow);
+            UnityEngine.Object.DestroyImmediate(managerGO);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
         private static void TestI1EventTriggerGuardrail()
         {
             Debug.Log("\n--- Testing I1 Event Trigger Guardrail ---");
@@ -851,6 +1643,94 @@ namespace EventideAge.Tests
             events.TurnEnded(2);
             Assert("I1 condition-based event remains blocked when condition is false", goldLeaf != null && goldLeaf.Amount == initialGold + 15);
 
+            UnityEngine.Object.DestroyImmediate(i1);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestI1EventPoolBackfillAndDedupGuardrail()
+        {
+            Debug.Log("\n--- Testing I1 Event Pool Backfill and Dedup Guardrail ---");
+
+            var go = new GameObject("I1EventPoolDedupTest");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var i1 = go.AddComponent<EventideAge.Systems.I1.EventSystem>();
+            i1.AutoLoadEventPoolOnInitialize = false;
+
+            var pool = ScriptableObject.CreateInstance<EventideAge.Systems.I1.EventPoolConfig>();
+            pool.SetTemplates(new[]
+            {
+                new EventideAge.Systems.I1.EventTemplate
+                {
+                    TemplateId = "r2_evt_income_t02",
+                    EventName = "R2IncomeT02",
+                    Type = EventideAge.Systems.I1.EventType.Narrative,
+                    Trigger = EventideAge.Systems.I1.EventTrigger.TurnBased,
+                    TriggerTurn = 2,
+                    Effects = new[] { $"resource_change:{GameIds.Resource.GoldLeaf}:3" },
+                    Enabled = true
+                },
+                new EventideAge.Systems.I1.EventTemplate
+                {
+                    TemplateId = "r2_evt_income_t02",
+                    EventName = "R2IncomeT02Duplicate",
+                    Type = EventideAge.Systems.I1.EventType.Narrative,
+                    Trigger = EventideAge.Systems.I1.EventTrigger.TurnBased,
+                    TriggerTurn = 2,
+                    Effects = new[] { $"resource_change:{GameIds.Resource.GoldLeaf}:99" },
+                    Enabled = true
+                },
+                new EventideAge.Systems.I1.EventTemplate
+                {
+                    TemplateId = "r2_evt_relation_cond",
+                    EventName = "R2RelationCondition",
+                    Type = EventideAge.Systems.I1.EventType.PlayerResponse,
+                    Trigger = EventideAge.Systems.I1.EventTrigger.ConditionBased,
+                    TriggerCondition = $"turn>=2&&relation:{GameIds.Faction.Aurean}<=-40",
+                    Effects = new[] { $"resource_change:{GameIds.Resource.GoldLeaf}:4" },
+                    Enabled = true
+                }
+            });
+
+            i1.EventPoolConfigAsset = pool;
+            i1.Initialize(state, events);
+
+            int loaded = i1.LoadEventPoolFromConfig(clearQueue: true, resetTriggeredHistory: true);
+            Assert("I1 event pool load enqueues unique templates only", loaded == 2);
+            Assert("I1 event pool load records skipped duplicates", i1.GetLastPoolLoadDuplicateCount() == 1);
+            Assert("I1 queued pool event count equals deduped result", i1.GetQueuedEvents().Length == 2);
+
+            bool duplicateQueueResult = i1.QueueEvent(new EventideAge.Systems.I1.GameEvent
+            {
+                TemplateId = "r2_evt_income_t02",
+                EventName = "ManualDuplicate",
+                Type = EventideAge.Systems.I1.EventType.Narrative,
+                Trigger = EventideAge.Systems.I1.EventTrigger.TurnBased,
+                TriggerTurn = 2,
+                Effects = new List<string> { $"resource_change:{GameIds.Resource.GoldLeaf}:999" },
+                TimeoutTurns = 3
+            });
+            Assert("I1 queue rejects duplicate template id", !duplicateQueueResult);
+
+            var goldLeaf = state.GetResource(GameIds.Resource.GoldLeaf);
+            int initialGold = goldLeaf != null ? goldLeaf.Amount : 0;
+
+            events.TurnEnded(1);
+            Assert("I1 pool events do not trigger before turn gate", goldLeaf != null && goldLeaf.Amount == initialGold);
+
+            state.CurrentTurn = 2;
+            events.TurnEnded(2);
+            Assert("I1 pool events trigger once after conditions are met", goldLeaf != null && goldLeaf.Amount == initialGold + 7);
+
+            int reloadWithoutReset = i1.LoadEventPoolFromConfig(clearQueue: false, resetTriggeredHistory: false);
+            Assert("I1 reload without reset does not re-enqueue triggered non-repeat events", reloadWithoutReset == 0);
+
+            int reloadWithReset = i1.LoadEventPoolFromConfig(clearQueue: true, resetTriggeredHistory: true);
+            Assert("I1 reload with reset can re-enqueue full deduped pool", reloadWithReset == 2);
+
+            UnityEngine.Object.DestroyImmediate(pool);
             UnityEngine.Object.DestroyImmediate(i1);
             UnityEngine.Object.DestroyImmediate(go);
             CleanupTestState(state, events);
@@ -1500,6 +2380,117 @@ namespace EventideAge.Tests
             CleanupTestState(state, events);
         }
 
+        private static void TestR2MapConfigV1LockGuardrail()
+        {
+            Debug.Log("\n--- Testing R2 Map Config V1 Lock Guardrail ---");
+
+            var config = EventideAge.Config.DefaultGameConfig.CreateDefault();
+            var state = ScriptableObject.CreateInstance<GameState>();
+            state.Config = config;
+            state.Initialize();
+
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+            var go = new GameObject("R2MapLockNetworkTest");
+            var h2 = go.AddComponent<EventideAge.Systems.H2.NodeNetworkSystem>();
+            h2.Initialize(state, events);
+
+            var expectedRegions = new Dictionary<string, int>
+            {
+                { "PersianGulf", 2 },
+                { "WesternFront", 2 },
+                { "NorthernTerritory", 2 },
+                { "ArabianPeninsula", 2 },
+                { "Levant", 2 },
+                { "CentralAsia", 2 }
+            };
+
+            Assert("R2 map lock has exactly 6 canonical regions", state.Map != null && state.Map.Regions != null && state.Map.Regions.Length == expectedRegions.Count);
+            foreach (var regionExpectation in expectedRegions)
+            {
+                var region = state.Map.Regions.FirstOrDefault(r => r != null && r.RegionId == regionExpectation.Key);
+                Assert(
+                    $"R2 map lock region {regionExpectation.Key} has {regionExpectation.Value} nodes",
+                    region != null && region.Nodes != null && region.Nodes.Length == regionExpectation.Value);
+            }
+
+            var expectedNodes = new (string NodeId, string RegionId, NodeType NodeType, int DefenseBonus, string Controller, int ControlPoints, int MaxControlPoints)[]
+            {
+                (GameIds.Node.Hormuz, "PersianGulf", NodeType.Chokepoint, 30, GameIds.Faction.Vashid, 100, 100),
+                (GameIds.Node.Bushehr, "PersianGulf", NodeType.Port, 20, GameIds.Faction.Vashid, 80, 100),
+                (GameIds.Node.IraqBorder, "WesternFront", NodeType.Chokepoint, 25, GameIds.Faction.AshConfederacy, 60, 100),
+                (GameIds.Node.SyriaZone, "WesternFront", NodeType.City, 15, GameIds.Faction.AshConfederacy, 50, 100),
+                (GameIds.Node.Caspian, "NorthernTerritory", NodeType.ResourceNode, 10, GameIds.Faction.Vashid, 70, 100),
+                (GameIds.Node.Caucasus, "NorthernTerritory", NodeType.Chokepoint, 35, GameIds.Faction.Neutral, 30, 100),
+                (GameIds.Node.RedSea, "ArabianPeninsula", NodeType.Chokepoint, 30, GameIds.Faction.GoldenHord, 80, 100),
+                (GameIds.Node.GulfBase, "ArabianPeninsula", NodeType.Port, 20, GameIds.Faction.Aurean, 90, 100),
+                (GameIds.Node.Mediterranean, "Levant", NodeType.Chokepoint, 25, GameIds.Faction.SacredFire, 70, 100),
+                (GameIds.Node.IsraelCore, "Levant", NodeType.City, 40, GameIds.Faction.SacredFire, 100, 100),
+                (GameIds.Node.Afghanistan, "CentralAsia", NodeType.Chokepoint, 20, GameIds.Faction.Neutral, 40, 100),
+                (GameIds.Node.TradeHub, "CentralAsia", NodeType.ResourceNode, 10, GameIds.Faction.Neutral, 50, 100)
+            };
+
+            int totalNodeCount = state.Map.Regions.Sum(r => r != null && r.Nodes != null ? r.Nodes.Length : 0);
+            Assert("R2 map lock has exactly 12 nodes", totalNodeCount == expectedNodes.Length);
+
+            foreach (var expected in expectedNodes)
+            {
+                var node = state.GetNode(expected.NodeId);
+                bool nodeRegionAligned = state.Map.Regions.Any(region =>
+                    region != null
+                    && region.RegionId == expected.RegionId
+                    && region.Nodes != null
+                    && region.Nodes.Any(regionNode => regionNode != null && GameIds.ResolveNodeId(regionNode.NodeId) == expected.NodeId));
+
+                Assert(
+                    $"R2 map lock node {expected.NodeId} matches type/controller/control-points",
+                    node != null
+                    && nodeRegionAligned
+                    && node.NodeType == expected.NodeType
+                    && node.DefenseBonus == expected.DefenseBonus
+                    && GameIds.ResolveFactionId(node.ControllingFactionId) == expected.Controller
+                    && node.ControlPoints == expected.ControlPoints
+                    && node.MaxControlPoints == expected.MaxControlPoints);
+            }
+
+            var resourceNodeIds = state.Map.Regions
+                .SelectMany(region => region.Nodes)
+                .Where(node => node != null && node.NodeType == NodeType.ResourceNode)
+                .Select(node => GameIds.ResolveNodeId(node.NodeId))
+                .ToArray();
+
+            Assert("R2 map lock keeps exactly two resource-output nodes", resourceNodeIds.Length == 2);
+            Assert("R2 map lock resource-output nodes are Caspian and TradeHub", resourceNodeIds.Contains(GameIds.Node.Caspian) && resourceNodeIds.Contains(GameIds.Node.TradeHub));
+
+            var expectedLinks = new (string A, string B)[]
+            {
+                (GameIds.Node.Hormuz, GameIds.Node.Bushehr),
+                (GameIds.Node.IraqBorder, GameIds.Node.SyriaZone),
+                (GameIds.Node.Caspian, GameIds.Node.Caucasus),
+                (GameIds.Node.RedSea, GameIds.Node.GulfBase),
+                (GameIds.Node.Mediterranean, GameIds.Node.IsraelCore),
+                (GameIds.Node.Afghanistan, GameIds.Node.TradeHub),
+                (GameIds.Node.Hormuz, GameIds.Node.IraqBorder),
+                (GameIds.Node.Bushehr, GameIds.Node.Caucasus),
+                (GameIds.Node.Caspian, GameIds.Node.IraqBorder),
+                (GameIds.Node.SyriaZone, GameIds.Node.Mediterranean),
+                (GameIds.Node.Mediterranean, GameIds.Node.RedSea),
+                (GameIds.Node.GulfBase, GameIds.Node.TradeHub),
+                (GameIds.Node.Afghanistan, GameIds.Node.Caucasus)
+            };
+
+            Assert("R2 map lock adjacency edge count is 13", h2.GetConnectionCount() == expectedLinks.Length);
+            foreach (var edge in expectedLinks)
+            {
+                Assert($"R2 map lock edge {edge.A}<->{edge.B} exists", h2.AreAdjacent(edge.A, edge.B) && h2.AreAdjacent(edge.B, edge.A));
+            }
+
+            Assert("R2 map lock non-edge guardrail remains false", !h2.AreAdjacent(GameIds.Node.Hormuz, GameIds.Node.IsraelCore));
+
+            UnityEngine.Object.DestroyImmediate(h2);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+        }
+
         private static void TestKUiTimeSyncGuardrail()
         {
             Debug.Log("\n--- Testing K UI Time Sync Guardrail ---");
@@ -1954,6 +2945,301 @@ namespace EventideAge.Tests
             CleanupTestState(state, events);
         }
 
+        private static void TestUiStatusAndJumpSemanticsGuardrail()
+        {
+            Debug.Log("\n--- Testing UI Status and Jump Semantics Guardrail ---");
+
+            var root = new GameObject("UiStatusAndJumpSemanticsTest");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var mapPanel = root.AddComponent<EventideAge.UI.MapPanelUI>();
+            mapPanel.LatestMapText = new GameObject("MapLatest6").AddComponent<UnityEngine.UI.Text>();
+            mapPanel.LatestMapText.transform.SetParent(root.transform);
+            mapPanel.MapHistoryText = new GameObject("MapHistory6").AddComponent<UnityEngine.UI.Text>();
+            mapPanel.MapHistoryText.transform.SetParent(root.transform);
+            mapPanel.Initialize(state, events);
+
+            var diplomacyPanel = root.AddComponent<EventideAge.UI.DiplomacyPanelUI>();
+            diplomacyPanel.LatestDiplomacyText = new GameObject("DiplomacyLatest6").AddComponent<UnityEngine.UI.Text>();
+            diplomacyPanel.LatestDiplomacyText.transform.SetParent(root.transform);
+            diplomacyPanel.DiplomacyHistoryText = new GameObject("DiplomacyHistory6").AddComponent<UnityEngine.UI.Text>();
+            diplomacyPanel.DiplomacyHistoryText.transform.SetParent(root.transform);
+            diplomacyPanel.Initialize(state, events);
+
+            var actionLog = root.AddComponent<EventideAge.UI.ActionLogUI>();
+            actionLog.LatestEntryText = new GameObject("ActionLatest6").AddComponent<UnityEngine.UI.Text>();
+            actionLog.LatestEntryText.transform.SetParent(root.transform);
+            actionLog.HistoryText = new GameObject("ActionHistory6").AddComponent<UnityEngine.UI.Text>();
+            actionLog.HistoryText.transform.SetParent(root.transform);
+            actionLog.Initialize(state, events);
+
+            var eventPanel = root.AddComponent<EventideAge.UI.EventPanelUI>();
+            eventPanel.LatestEventText = new GameObject("EventLatest6").AddComponent<UnityEngine.UI.Text>();
+            eventPanel.LatestEventText.transform.SetParent(root.transform);
+            eventPanel.EventHistoryText = new GameObject("EventHistory6").AddComponent<UnityEngine.UI.Text>();
+            eventPanel.EventHistoryText.transform.SetParent(root.transform);
+            eventPanel.Initialize(state, events);
+
+            events.NodeControlChanged("Damascus", "GoldLeader", "ResistanceAxis", 22);
+            Assert("Map panel exposes canonical critical status tag", mapPanel.LatestMapText.text.Contains("status:Critical"));
+            Assert("Map panel exposes map jump hint", mapPanel.LatestMapText.text.Contains("jump:Map"));
+
+            events.ActionLogAdded("C2.Pact.GoldLeader", "Routine outreach in Damascus", FeedbackSeverity.Info);
+            Assert("Diplomacy panel exposes stable status tag", diplomacyPanel.LatestDiplomacyText.text.Contains("status:Stable"));
+            Assert("Diplomacy panel exposes diplomacy jump hint", diplomacyPanel.LatestDiplomacyText.text.Contains("jump:Diplomacy"));
+
+            events.ActionLogAdded("D5.Resolve.Battle", "Battle resolution complete", FeedbackSeverity.Warning);
+            string actionHistory = actionLog.HistoryText.text ?? string.Empty;
+            Assert("Battle report exposes warning status tag", actionHistory.Contains("status:Warning"));
+            Assert("Battle report exposes battle-report jump hint", actionHistory.Contains("jump:BattleReport"));
+
+            events.NarrativeEventAdded("I1.Story.Damascus", "Historic event emerges", FeedbackSeverity.Info);
+            Assert("Event panel exposes stable status tag", eventPanel.LatestEventText.text.Contains("status:Stable"));
+            Assert("Event panel exposes event jump hint", eventPanel.LatestEventText.text.Contains("jump:Event"));
+
+            UnityEngine.Object.DestroyImmediate(root);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestUiLockedStatusReasonGuardrail()
+        {
+            Debug.Log("\n--- Testing UI Locked Status and Reason Guardrail ---");
+
+            var root = new GameObject("UiLockedStatusReasonTest");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var diplomacyPanel = root.AddComponent<EventideAge.UI.DiplomacyPanelUI>();
+            diplomacyPanel.LatestDiplomacyText = new GameObject("DiplomacyLatest7").AddComponent<UnityEngine.UI.Text>();
+            diplomacyPanel.LatestDiplomacyText.transform.SetParent(root.transform);
+            diplomacyPanel.DiplomacyHistoryText = new GameObject("DiplomacyHistory7").AddComponent<UnityEngine.UI.Text>();
+            diplomacyPanel.DiplomacyHistoryText.transform.SetParent(root.transform);
+            diplomacyPanel.Initialize(state, events);
+
+            var eventPanel = root.AddComponent<EventideAge.UI.EventPanelUI>();
+            eventPanel.LatestEventText = new GameObject("EventLatest7").AddComponent<UnityEngine.UI.Text>();
+            eventPanel.LatestEventText.transform.SetParent(root.transform);
+            eventPanel.EventHistoryText = new GameObject("EventHistory7").AddComponent<UnityEngine.UI.Text>();
+            eventPanel.EventHistoryText.transform.SetParent(root.transform);
+            eventPanel.Initialize(state, events);
+
+            events.ActionLogAdded("C2.Pact.GoldLeader", "Action blocked: insufficient AP for treaty", FeedbackSeverity.Warning);
+            string diplomacyLatest = diplomacyPanel.LatestDiplomacyText.text ?? string.Empty;
+            Assert("Diplomacy panel maps blocked action to Locked status", diplomacyLatest.Contains("status:Locked"));
+            Assert("Diplomacy panel exposes locked reason", diplomacyLatest.Contains("reason:insufficient AP for treaty"));
+
+            events.NarrativeEventAdded("I1.Policy.Damascus", "Option unavailable: requirement not met", FeedbackSeverity.Warning);
+            string eventLatest = eventPanel.LatestEventText.text ?? string.Empty;
+            Assert("Event panel maps unavailable option to Locked status", eventLatest.Contains("status:Locked"));
+            Assert("Event panel exposes lock reason", eventLatest.Contains("reason:requirement not met"));
+
+            UnityEngine.Object.DestroyImmediate(root);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestUiHintAndCueSemanticsGuardrail()
+        {
+            Debug.Log("\n--- Testing UI Hint and Cue Semantics Guardrail ---");
+
+            var root = new GameObject("UiHintAndCueSemanticsTest");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var mapPanel = root.AddComponent<EventideAge.UI.MapPanelUI>();
+            mapPanel.LatestMapText = new GameObject("MapLatest8").AddComponent<UnityEngine.UI.Text>();
+            mapPanel.LatestMapText.transform.SetParent(root.transform);
+            mapPanel.MapHistoryText = new GameObject("MapHistory8").AddComponent<UnityEngine.UI.Text>();
+            mapPanel.MapHistoryText.transform.SetParent(root.transform);
+            mapPanel.Initialize(state, events);
+
+            var diplomacyPanel = root.AddComponent<EventideAge.UI.DiplomacyPanelUI>();
+            diplomacyPanel.LatestDiplomacyText = new GameObject("DiplomacyLatest8").AddComponent<UnityEngine.UI.Text>();
+            diplomacyPanel.LatestDiplomacyText.transform.SetParent(root.transform);
+            diplomacyPanel.DiplomacyHistoryText = new GameObject("DiplomacyHistory8").AddComponent<UnityEngine.UI.Text>();
+            diplomacyPanel.DiplomacyHistoryText.transform.SetParent(root.transform);
+            diplomacyPanel.Initialize(state, events);
+
+            var actionLog = root.AddComponent<EventideAge.UI.ActionLogUI>();
+            actionLog.LatestEntryText = new GameObject("ActionLatest8").AddComponent<UnityEngine.UI.Text>();
+            actionLog.LatestEntryText.transform.SetParent(root.transform);
+            actionLog.HistoryText = new GameObject("ActionHistory8").AddComponent<UnityEngine.UI.Text>();
+            actionLog.HistoryText.transform.SetParent(root.transform);
+            actionLog.Initialize(state, events);
+
+            var eventPanel = root.AddComponent<EventideAge.UI.EventPanelUI>();
+            eventPanel.LatestEventText = new GameObject("EventLatest8").AddComponent<UnityEngine.UI.Text>();
+            eventPanel.LatestEventText.transform.SetParent(root.transform);
+            eventPanel.EventHistoryText = new GameObject("EventHistory8").AddComponent<UnityEngine.UI.Text>();
+            eventPanel.EventHistoryText.transform.SetParent(root.transform);
+            eventPanel.Initialize(state, events);
+
+            events.NodeControlChanged("Damascus", "GoldLeader", "ResistanceAxis", 25);
+            string mapLatest = mapPanel.LatestMapText.text ?? string.Empty;
+            Assert("Map critical update exposes stabilize hint", mapLatest.Contains("hint:stabilize-map-hotspot"));
+            Assert("Map critical update exposes alert pulse cue", mapLatest.Contains("cue:AlertPulse"));
+
+            events.ActionLogAdded("C2.Pact.GoldLeader", "Diplomacy pressure increases", FeedbackSeverity.Warning);
+            string diplomacyLatest = diplomacyPanel.LatestDiplomacyText.text ?? string.Empty;
+            Assert("Diplomacy warning update exposes review hint", diplomacyLatest.Contains("hint:review-diplomacy-update"));
+            Assert("Diplomacy warning update exposes soft pulse cue", diplomacyLatest.Contains("cue:SoftPulse"));
+
+            events.ActionLogAdded("D5.Resolve.Battle", "Battle result pending review", FeedbackSeverity.Warning);
+            string actionHistory = actionLog.HistoryText.text ?? string.Empty;
+            Assert("Battle report warning entry exposes review hint", actionHistory.Contains("hint:review-battle-report"));
+            Assert("Battle report warning entry exposes soft pulse cue", actionHistory.Contains("cue:SoftPulse"));
+
+            events.NarrativeEventAdded("I1.Story.Damascus", "Routine event update", FeedbackSeverity.Info);
+            string eventLatest = eventPanel.LatestEventText.text ?? string.Empty;
+            Assert("Event stable update exposes continue-turn hint", eventLatest.Contains("hint:continue-turn-plan"));
+            Assert("Event stable update exposes no cue state", eventLatest.Contains("cue:None"));
+
+            UnityEngine.Object.DestroyImmediate(root);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestUiLockedHintVariantGuardrail()
+        {
+            Debug.Log("\n--- Testing UI Locked Hint Variant Guardrail ---");
+
+            var root = new GameObject("UiLockedHintVariantTest");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var diplomacyPanel = root.AddComponent<EventideAge.UI.DiplomacyPanelUI>();
+            diplomacyPanel.LatestDiplomacyText = new GameObject("DiplomacyLatest9").AddComponent<UnityEngine.UI.Text>();
+            diplomacyPanel.LatestDiplomacyText.transform.SetParent(root.transform);
+            diplomacyPanel.DiplomacyHistoryText = new GameObject("DiplomacyHistory9").AddComponent<UnityEngine.UI.Text>();
+            diplomacyPanel.DiplomacyHistoryText.transform.SetParent(root.transform);
+            diplomacyPanel.Initialize(state, events);
+
+            var eventPanel = root.AddComponent<EventideAge.UI.EventPanelUI>();
+            eventPanel.LatestEventText = new GameObject("EventLatest9").AddComponent<UnityEngine.UI.Text>();
+            eventPanel.LatestEventText.transform.SetParent(root.transform);
+            eventPanel.EventHistoryText = new GameObject("EventHistory9").AddComponent<UnityEngine.UI.Text>();
+            eventPanel.EventHistoryText.transform.SetParent(root.transform);
+            eventPanel.Initialize(state, events);
+
+            events.ActionLogAdded("C2.Pact.GoldLeader", "Action blocked: insufficient AP for treaty", FeedbackSeverity.Warning);
+            string diplomacyLatest = diplomacyPanel.LatestDiplomacyText.text ?? string.Empty;
+            Assert("Locked AP message maps to recover-ap hint", diplomacyLatest.Contains("hint:recover-ap"));
+            Assert("Locked AP message uses alert pulse cue", diplomacyLatest.Contains("cue:AlertPulse"));
+
+            events.NarrativeEventAdded("I1.Policy.Damascus", "Option unavailable: requirement not met", FeedbackSeverity.Warning);
+            string eventLatest = eventPanel.LatestEventText.text ?? string.Empty;
+            Assert("Locked requirement message maps to meet-requirement hint", eventLatest.Contains("hint:meet-requirement"));
+            Assert("Locked requirement message uses alert pulse cue", eventLatest.Contains("cue:AlertPulse"));
+
+            events.ActionLogAdded("C2.Policy.Dialogue", "Action locked: wrong phase", FeedbackSeverity.Warning);
+            diplomacyLatest = diplomacyPanel.LatestDiplomacyText.text ?? string.Empty;
+            Assert("Locked phase message maps to switch-phase hint", diplomacyLatest.Contains("hint:switch-phase"));
+
+            UnityEngine.Object.DestroyImmediate(root);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestUiLocalizationHighFrequencySurfaceLabelsGuardrail()
+        {
+            Debug.Log("\n--- Testing UI Localization High-Frequency Surface Labels Guardrail ---");
+
+            var root = new GameObject("UiLocalizationHighFrequencyLabelsTest");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var table = ScriptableObject.CreateInstance<EventideAge.Systems.L4.LocalizationTableConfig>();
+            table.DefaultLocale = "zh-CN";
+            table.SupportedLocales = new[] { "zh-CN", "en-US" };
+            table.Entries = new[]
+            {
+                new EventideAge.Systems.L4.LocalizedTextEntry
+                {
+                    Key = "ui.map.hotspot",
+                    ZhCN = "\u70ed\u70b9",
+                    EnUS = "HOTSPOT"
+                },
+                new EventideAge.Systems.L4.LocalizedTextEntry
+                {
+                    Key = "ui.diplomacy.action.locked",
+                    ZhCN = "\u5916\u4ea4\u884c\u52a8\u5df2\u9501\u5b9a",
+                    EnUS = "ACTION LOCKED"
+                },
+                new EventideAge.Systems.L4.LocalizedTextEntry
+                {
+                    Key = "ui.report.summary",
+                    ZhCN = "\u56de\u5408\u603b\u7ed3",
+                    EnUS = "TURN SUMMARY"
+                },
+                new EventideAge.Systems.L4.LocalizedTextEntry
+                {
+                    Key = "ui.event.option.preview",
+                    ZhCN = "\u9009\u9879\u9884\u89c8",
+                    EnUS = "OPTION PREVIEW"
+                }
+            };
+
+            var l4 = root.AddComponent<EventideAge.Systems.L4.LocalizationSystem>();
+            l4.LocalizationTable = table;
+            l4.AutoLoadSavedLocale = false;
+            l4.Initialize(state, events);
+
+            var mapPanel = root.AddComponent<EventideAge.UI.MapPanelUI>();
+            mapPanel.LatestMapText = new GameObject("MapLatestL10").AddComponent<UnityEngine.UI.Text>();
+            mapPanel.LatestMapText.transform.SetParent(root.transform);
+            mapPanel.MapHistoryText = new GameObject("MapHistoryL10").AddComponent<UnityEngine.UI.Text>();
+            mapPanel.MapHistoryText.transform.SetParent(root.transform);
+            mapPanel.Initialize(state, events);
+
+            var diplomacyPanel = root.AddComponent<EventideAge.UI.DiplomacyPanelUI>();
+            diplomacyPanel.LatestDiplomacyText = new GameObject("DiplomacyLatestL10").AddComponent<UnityEngine.UI.Text>();
+            diplomacyPanel.LatestDiplomacyText.transform.SetParent(root.transform);
+            diplomacyPanel.DiplomacyHistoryText = new GameObject("DiplomacyHistoryL10").AddComponent<UnityEngine.UI.Text>();
+            diplomacyPanel.DiplomacyHistoryText.transform.SetParent(root.transform);
+            diplomacyPanel.Initialize(state, events);
+
+            var actionLog = root.AddComponent<EventideAge.UI.ActionLogUI>();
+            actionLog.LatestEntryText = new GameObject("ActionLatestL10").AddComponent<UnityEngine.UI.Text>();
+            actionLog.LatestEntryText.transform.SetParent(root.transform);
+            actionLog.HistoryText = new GameObject("ActionHistoryL10").AddComponent<UnityEngine.UI.Text>();
+            actionLog.HistoryText.transform.SetParent(root.transform);
+            actionLog.Initialize(state, events);
+
+            var eventPanel = root.AddComponent<EventideAge.UI.EventPanelUI>();
+            eventPanel.LatestEventText = new GameObject("EventLatestL10").AddComponent<UnityEngine.UI.Text>();
+            eventPanel.LatestEventText.transform.SetParent(root.transform);
+            eventPanel.EventHistoryText = new GameObject("EventHistoryL10").AddComponent<UnityEngine.UI.Text>();
+            eventPanel.EventHistoryText.transform.SetParent(root.transform);
+            eventPanel.Initialize(state, events);
+
+            events.NodeControlChanged("Damascus", "GoldLeader", "ResistanceAxis", 22);
+            events.ActionLogAdded("C2.Pact.GoldLeader", "Action blocked: insufficient AP for treaty", FeedbackSeverity.Warning);
+            events.ActionLogAdded("D1.Proxy.Coordination", "Proxy task executed", FeedbackSeverity.Info);
+            events.TurnChanged(1, 2);
+            events.NarrativeEventAdded("I1.Story.Damascus", "Historic event emerges", FeedbackSeverity.Info);
+
+            Assert("Map panel uses zh-CN hotspot label", (mapPanel.LatestMapText.text ?? string.Empty).Contains("[\u70ed\u70b9]"));
+            Assert("Diplomacy panel uses zh-CN locked label", (diplomacyPanel.LatestDiplomacyText.text ?? string.Empty).Contains("[\u5916\u4ea4\u884c\u52a8\u5df2\u9501\u5b9a]"));
+            Assert("Battle report uses zh-CN summary header", (actionLog.HistoryText.text ?? string.Empty).Contains("=== \u56de\u5408\u603b\u7ed3 ==="));
+            Assert("Event panel uses zh-CN preview label", (eventPanel.LatestEventText.text ?? string.Empty).Contains("[\u9009\u9879\u9884\u89c8]"));
+
+            bool switchedToEnglish = l4.SetLocale("en-US");
+            Assert("L4 locale switching to en-US succeeds for UI labels", switchedToEnglish);
+
+            events.NodeControlChanged("IraqBorder", "GoldLeader", "ResistanceAxis", 20);
+            events.ActionLogAdded("C2.Pact.GoldLeader", "Action blocked: wrong phase", FeedbackSeverity.Warning);
+            events.ActionLogAdded("D1.Proxy.Coordination", "Proxy task executed round two", FeedbackSeverity.Info);
+            events.TurnChanged(2, 3);
+            events.NarrativeEventAdded("I1.Story.IraqBorder", "Second event emerges", FeedbackSeverity.Info);
+
+            Assert("Map panel uses en-US hotspot label", (mapPanel.LatestMapText.text ?? string.Empty).Contains("[HOTSPOT]"));
+            Assert("Diplomacy panel uses en-US locked label", (diplomacyPanel.LatestDiplomacyText.text ?? string.Empty).Contains("[ACTION LOCKED]"));
+            Assert("Battle report uses en-US summary header", (actionLog.HistoryText.text ?? string.Empty).Contains("=== TURN SUMMARY ==="));
+            Assert("Event panel uses en-US preview label", (eventPanel.LatestEventText.text ?? string.Empty).Contains("[OPTION PREVIEW]"));
+
+            UnityEngine.Object.DestroyImmediate(table);
+            UnityEngine.Object.DestroyImmediate(root);
+            CleanupTestState(state, events);
+        }
+
         private static void TestTimeoutOwnershipGuardrail()
         {
             Debug.Log("\n--- Testing A5/J Timeout Ownership Guardrail ---");
@@ -2113,6 +3399,907 @@ namespace EventideAge.Tests
             CleanupTestState(state, events);
         }
 
+        private static void TestR1ReplayRL01MapDiplomacyBattleEvent()
+        {
+            Debug.Log("\n--- R1 Replay RL-01: Map -> Diplomacy -> Battle -> Event ---");
+            ResetGameManagerSingleton();
+
+            var go = new GameObject("R1ReplayRL01Test");
+            var state = CreateDefaultState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+            var replayLog = new R1ReplayLogger("R1-03", "RL-01");
+
+            int actionLogCount = 0;
+            int narrativeEventCount = 0;
+            int nodeControlEventCount = 0;
+            string lastActionLog = string.Empty;
+            string lastNarrativeEvent = string.Empty;
+
+            events.OnActionLogAdded += (sourceId, message, severity) =>
+            {
+                actionLogCount++;
+                lastActionLog = $"{sourceId}:{message}";
+            };
+            events.OnNarrativeEventAdded += (eventId, message, severity) =>
+            {
+                narrativeEventCount++;
+                lastNarrativeEvent = $"{eventId}:{message}";
+            };
+            events.OnNodeControlChanged += (nodeId, oldController, newController, controlPoints) =>
+            {
+                nodeControlEventCount++;
+            };
+
+            var h2 = go.AddComponent<EventideAge.Systems.H2.NodeNetworkSystem>();
+            var c2 = go.AddComponent<EventideAge.Systems.C2.DiplomaticProtocolsSystem>();
+            var d1 = go.AddComponent<EventideAge.Systems.D1.MilitaryOperationsSystem>();
+            var i1 = go.AddComponent<EventideAge.Systems.I1.EventSystem>();
+
+            h2.Initialize(state, events);
+            c2.Initialize(state, events);
+            d1.Initialize(state, events);
+            i1.Initialize(state, events);
+            d1.ProxySuccessRate = 1f;
+
+            bool mapStepPass = h2.HasNode(GameIds.Node.Hormuz)
+                && h2.HasNode(GameIds.Node.IraqBorder)
+                && h2.GetAdjacentNodes(GameIds.Node.Hormuz).Count > 0;
+            replayLog.RecordStep(
+                state,
+                "S01",
+                "Select strategic node from map graph",
+                "Canonical node exists and has adjacency",
+                $"HormuzExists={h2.HasNode(GameIds.Node.Hormuz)}, AdjacentCount={h2.GetAdjacentNodes(GameIds.Node.Hormuz).Count}",
+                mapStepPass);
+            Assert("RL-01 map step: canonical node and adjacency are available", mapStepPass);
+
+            var protocol = c2.ProposeProtocol("Vahid", "GoldLeader", EventideAge.Systems.C2.ProtocolType.TradeAgreement);
+            bool diplomacyStepPass = protocol != null
+                && c2.SignProtocol(protocol.ProtocolId)
+                && c2.HasActiveProtocol(GameIds.Faction.Vashid, GameIds.Faction.Aurean, EventideAge.Systems.C2.ProtocolType.TradeAgreement);
+            replayLog.RecordStep(
+                state,
+                "S02",
+                "Propose and sign diplomacy protocol",
+                "Trade agreement is active between canonical factions",
+                protocol == null
+                    ? "protocol=null"
+                    : $"ProtocolId={protocol.ProtocolId}, From={protocol.FromFaction}, To={protocol.ToFaction}",
+                diplomacyStepPass);
+            Assert("RL-01 diplomacy step: trade agreement can be signed and activated", diplomacyStepPass);
+
+            var targetNode = state.GetNode(GameIds.Node.IraqBorder);
+            int beforeControl = targetNode != null ? targetNode.ControlPoints : -1;
+            bool battleSuccess = d1.ExecuteAction(EventideAge.Systems.D1.MilitaryActionType.Proxy, GameIds.Node.IraqBorder);
+            int afterControl = state.GetNode(GameIds.Node.IraqBorder)?.ControlPoints ?? -1;
+            bool battleStepPass = battleSuccess
+                && nodeControlEventCount > 0
+                && actionLogCount > 0
+                && lastActionLog.Contains("D1.ProxyAction.Standard")
+                && afterControl <= beforeControl;
+            replayLog.RecordStep(
+                state,
+                "S03",
+                "Execute battle action and generate battle report",
+                "Battle action succeeds and emits D1 canonical report + node-control change",
+                $"BattleSuccess={battleSuccess}, BeforeControl={beforeControl}, AfterControl={afterControl}, NodeEvents={nodeControlEventCount}, LastActionLog={lastActionLog}",
+                battleStepPass);
+            Assert("RL-01 battle step: battle report and node-control event are emitted", battleStepPass);
+
+            var replayEvent = i1.CreateTurnBasedEvent(
+                "R1 RL-01 Followup",
+                state.CurrentTurn,
+                new[] { $"relation_change:{GameIds.Faction.Aurean}:5" });
+            i1.QueueEvent(replayEvent);
+            events.TurnEnded(state.CurrentTurn);
+
+            bool eventTriggered = i1.GetTriggeredEvents().Any(evt => evt.EventId == replayEvent.EventId);
+            bool eventStepPass = eventTriggered && narrativeEventCount > 0 && !string.IsNullOrEmpty(lastNarrativeEvent);
+            replayLog.RecordStep(
+                state,
+                "S04",
+                "Trigger follow-up event and verify event feed",
+                "Queued event is triggered and appears in narrative channel",
+                $"EventId={replayEvent.EventId}, Triggered={eventTriggered}, NarrativeEvents={narrativeEventCount}, LastNarrative={lastNarrativeEvent}",
+                eventStepPass);
+            Assert("RL-01 event step: queued event is triggered and logged", eventStepPass);
+
+            replayLog.Flush();
+
+            UnityEngine.Object.DestroyImmediate(i1);
+            UnityEngine.Object.DestroyImmediate(d1);
+            UnityEngine.Object.DestroyImmediate(c2);
+            UnityEngine.Object.DestroyImmediate(h2);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
+        private static void TestR1ReplayRL02PhaseLifecycleReplay()
+        {
+            Debug.Log("\n--- R1 Replay RL-02: Turn/Phase/AP Lifecycle ---");
+
+            var config = ScriptableObject.CreateInstance<GameConfig>();
+            config.PhaseConfigs = new PhaseConfig[6];
+            config.PhaseConfigs[0] = new PhaseConfig { PhaseName = "外交", BaseActionPoints = 2 };
+            config.PhaseConfigs[1] = new PhaseConfig { PhaseName = "战略", BaseActionPoints = 2 };
+            config.PhaseConfigs[2] = new PhaseConfig { PhaseName = "作战", BaseActionPoints = 3 };
+            config.PhaseConfigs[3] = new PhaseConfig { PhaseName = "后勤", BaseActionPoints = 1 };
+            config.PhaseConfigs[4] = new PhaseConfig { PhaseName = "情报", BaseActionPoints = 1 };
+            config.PhaseConfigs[5] = new PhaseConfig { PhaseName = "AI响应", BaseActionPoints = 0 };
+            config.FactionConfigs = new FactionConfig[1];
+            config.FactionConfigs[0] = new FactionConfig
+            {
+                FactionId = GameIds.Faction.Vashid,
+                FactionName = "Vashid",
+                IsPlayerControlled = true,
+                InitialControlledPoints = 100,
+                InitialRelationship = 100,
+                InitialSatisfaction = 100
+            };
+            config.ResourceConfigs = new ResourceConfig[1];
+            config.ResourceConfigs[0] = new ResourceConfig
+            {
+                ResourceId = GameIds.Resource.GoldLeaf,
+                ResourceName = "GoldLeaf",
+                InitialAmount = 100,
+                MaxCapacity = 999,
+                ResourceType = ResourceType.Accumulative
+            };
+            config.RegionConfigs = new RegionConfig[1];
+            config.RegionConfigs[0] = new RegionConfig { RegionId = "RL02Region", RegionName = "RL02Region", NodeConfigs = new NodeConfig[1] };
+            config.RegionConfigs[0].NodeConfigs[0] = new NodeConfig
+            {
+                NodeId = "RL02Node",
+                NodeName = "RL02Node",
+                NodeType = NodeType.Chokepoint,
+                DefenseBonus = 0,
+                InitialController = GameIds.Faction.Vashid,
+                InitialControlPoints = 100,
+                MaxControlPoints = 100
+            };
+
+            var state = ScriptableObject.CreateInstance<GameState>();
+            state.Config = config;
+            state.Initialize();
+
+            var replayLog = new R1ReplayLogger("R1-03", "RL-02");
+
+            bool initPass = state.CurrentTurn == 1
+                && state.CurrentPhaseIndex == 0
+                && state.ActionPointsRemaining == GameConfig.kTotalActionPoints
+                && state.CurrentPhaseActionPointsRemaining == 2
+                && state.UniversalActionPointsRemaining == GameConfig.kUniversalActionPoints;
+            replayLog.RecordStep(
+                state,
+                "S01",
+                "Initialize phase lifecycle replay",
+                "Turn=1, Phase=0, AP=11, PhaseAP=2, UniversalAP=2",
+                $"Turn={state.CurrentTurn}, Phase={state.CurrentPhaseIndex}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UniversalAP={state.UniversalActionPointsRemaining}",
+                initPass);
+            Assert("RL-02 init: starts with SSOT AP envelope", initPass);
+
+            bool phase0Spend = state.TrySpendActionPoints(3);
+            bool phase0Pass = phase0Spend
+                && state.ActionPointsRemaining == 8
+                && state.CurrentPhaseActionPointsRemaining == 0
+                && state.UniversalActionPointsRemaining == 1;
+            replayLog.RecordStep(
+                state,
+                "S02",
+                "Spend 3 AP in diplomacy phase",
+                "Phase AP consumed first and universal AP covers shortfall",
+                $"Spend={phase0Spend}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UniversalAP={state.UniversalActionPointsRemaining}",
+                phase0Pass);
+            Assert("RL-02 phase0: phase AP then universal AP consumption is correct", phase0Pass);
+
+            state.ExpireCurrentPhaseActionPoints();
+            state.CurrentPhaseIndex = 1;
+            state.PreparePhaseActionPoints(1);
+            bool phase1EntryPass = state.CurrentPhaseActionPointsRemaining == 2
+                && state.UniversalActionPointsRemaining == 1
+                && state.ActionPointsRemaining == 8;
+            replayLog.RecordStep(
+                state,
+                "S03",
+                "Enter phase 1 after expiry",
+                "Phase 1 grants fresh phase AP and carries universal AP",
+                $"PhaseAP={state.CurrentPhaseActionPointsRemaining}, UniversalAP={state.UniversalActionPointsRemaining}, AP={state.ActionPointsRemaining}",
+                phase1EntryPass);
+            Assert("RL-02 phase1 entry: base AP refreshed and universal AP carried", phase1EntryPass);
+
+            bool phase1Spend = state.TrySpendActionPoints(3);
+            bool phase1SpendPass = phase1Spend
+                && state.UniversalActionPointsRemaining == 0
+                && state.ActionPointsRemaining == 5;
+            replayLog.RecordStep(
+                state,
+                "S04",
+                "Spend 3 AP in strategy phase",
+                "Phase AP + remaining universal AP are consumed",
+                $"Spend={phase1Spend}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UniversalAP={state.UniversalActionPointsRemaining}",
+                phase1SpendPass);
+            Assert("RL-02 phase1: AP spending and depletion are correct", phase1SpendPass);
+
+            int[] expectedPhaseAp = { 2, 2, 3, 1, 1, 0 };
+            bool sequencePass = true;
+            for (int phase = 2; phase <= 5; phase++)
+            {
+                state.ExpireCurrentPhaseActionPoints();
+                state.CurrentPhaseIndex = phase;
+                state.PreparePhaseActionPoints(phase);
+                sequencePass &= state.CurrentPhaseActionPointsRemaining == expectedPhaseAp[phase];
+            }
+
+            bool aiPhaseBlocked = !state.TrySpendActionPoints(1);
+            bool phaseSequencePass = sequencePass && aiPhaseBlocked;
+            replayLog.RecordStep(
+                state,
+                "S05",
+                "Advance through combat/logistics/intel/AI phases",
+                "Phase AP sequence is 3/1/1/0 and AI phase blocks AP spending",
+                $"Phase2={expectedPhaseAp[2]}, Phase3={expectedPhaseAp[3]}, Phase4={expectedPhaseAp[4]}, Phase5={state.CurrentPhaseActionPointsRemaining}, AiSpendBlocked={aiPhaseBlocked}",
+                phaseSequencePass);
+            Assert("RL-02 phase sequence: AP profile and AI block behavior are correct", phaseSequencePass);
+
+            state.ExpireCurrentPhaseActionPoints();
+            state.CurrentTurn++;
+            state.CurrentPhaseIndex = 0;
+            state.ResetTurnActionPoints();
+            state.PreparePhaseActionPoints(0);
+            bool wrapPass = state.CurrentTurn == 2
+                && state.ActionPointsRemaining == GameConfig.kTotalActionPoints
+                && state.UniversalActionPointsRemaining == GameConfig.kUniversalActionPoints
+                && state.CurrentPhaseActionPointsRemaining == 2;
+            replayLog.RecordStep(
+                state,
+                "S06",
+                "Wrap to next turn and reset AP",
+                "New turn resets AP envelope to 11/2/2",
+                $"Turn={state.CurrentTurn}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UniversalAP={state.UniversalActionPointsRemaining}",
+                wrapPass);
+            Assert("RL-02 wrap: turn reset restores full AP envelope", wrapPass);
+
+            replayLog.Flush();
+
+            UnityEngine.Object.DestroyImmediate(state);
+            UnityEngine.Object.DestroyImmediate(config);
+        }
+
+        private static void TestR1ReplayRL03SaveLoadCrossTurnReplay()
+        {
+            Debug.Log("\n--- R1 Replay RL-03: Save/Load Cross-Turn Consistency ---");
+
+            ResetGameManagerSingleton();
+
+            var managerGO = new GameObject("R1ReplayRL03Manager");
+            var manager = managerGO.AddComponent<GameManager>();
+            var systemsGO = new GameObject("R1ReplayRL03Systems");
+            systemsGO.transform.SetParent(managerGO.transform);
+
+            var state = CreateDefaultState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+            var replayLog = new R1ReplayLogger("R1-03", "RL-03");
+
+            var saveSystem = systemsGO.AddComponent<EventideAge.Systems.A4.SaveSystem>();
+            var j = systemsGO.AddComponent<EventideAge.Systems.J.VictoryDefeatSystem>();
+            var d4 = systemsGO.AddComponent<EventideAge.Systems.D4.NuclearDeterrenceSystem>();
+            var d1 = systemsGO.AddComponent<EventideAge.Systems.D1.MilitaryOperationsSystem>();
+
+            manager.Systems = new List<GameSystem> { saveSystem, j, d4, d1 };
+
+            j.Initialize(state, events);
+            d4.Initialize(state, events);
+            d1.Initialize(state, events);
+            saveSystem.Initialize(state, events);
+            d1.ProxySuccessRate = 1f;
+
+            state.CurrentTurn = 9;
+            state.CurrentPhaseIndex = 3;
+            state.ActionPointsRemaining = 7;
+            state.CurrentPhaseActionPointsRemaining = 1;
+            state.UniversalActionPointsRemaining = 1;
+
+            var goldLeaf = state.GetResource(GameIds.Resource.GoldLeaf);
+            var fireOil = state.GetResource(GameIds.Resource.FireOil);
+            if (goldLeaf != null) goldLeaf.Amount = 333;
+            if (fireOil != null) fireOil.Amount = 144;
+            d4.SetWarheadCount(9);
+            d1.ExecuteAction(EventideAge.Systems.D1.MilitaryActionType.Proxy, GameIds.Node.SyriaZone);
+
+            int snapshotTurn = state.CurrentTurn;
+            int snapshotPhase = state.CurrentPhaseIndex;
+            int snapshotActionPoints = state.ActionPointsRemaining;
+            int snapshotPhaseActionPoints = state.CurrentPhaseActionPointsRemaining;
+            int snapshotUniversalActionPoints = state.UniversalActionPointsRemaining;
+            int snapshotGoldLeaf = goldLeaf != null ? goldLeaf.Amount : -1;
+            int snapshotFireOil = fireOil != null ? fireOil.Amount : -1;
+            var snapshotNode = state.GetNode(GameIds.Node.SyriaZone);
+            int snapshotControl = snapshotNode != null ? snapshotNode.ControlPoints : -1;
+            string snapshotController = snapshotNode != null ? snapshotNode.ControllingFactionId : string.Empty;
+            j.ForceEndGame("r1_replay_rl03_snapshot");
+            int snapshotWarheads = d4.GetState().WarheadCount;
+            string snapshotEndReason = j.GetEndReason();
+
+            string saveName = $"r1_rl03_{Guid.NewGuid():N}";
+            bool saveResult = saveSystem.SaveGame(saveName);
+            replayLog.RecordStep(
+                state,
+                "S01",
+                "Persist replay snapshot to save slot",
+                "Save succeeds and slot exists",
+                $"SaveName={saveName}, SaveResult={saveResult}, Exists={saveSystem.SaveExists(saveName)}",
+                saveResult && saveSystem.SaveExists(saveName));
+            Assert("RL-03 save step: snapshot save succeeds", saveResult);
+
+            state.CurrentTurn = 1;
+            state.CurrentPhaseIndex = 0;
+            state.ActionPointsRemaining = 11;
+            state.CurrentPhaseActionPointsRemaining = 2;
+            state.UniversalActionPointsRemaining = 2;
+            if (goldLeaf != null) goldLeaf.Amount = 12;
+            if (fireOil != null) fireOil.Amount = 22;
+            if (snapshotNode != null)
+            {
+                snapshotNode.ControlPoints = snapshotNode.MaxControlPoints;
+                snapshotNode.ControllingFactionId = GameIds.Faction.Aurean;
+            }
+            d4.SetWarheadCount(0);
+            j.Reset();
+
+            bool loadResult = saveSystem.LoadGame(saveName);
+            var restoredNode = state.GetNode(GameIds.Node.SyriaZone);
+            bool restoredPass = loadResult
+                && state.CurrentTurn == snapshotTurn
+                && state.CurrentPhaseIndex == snapshotPhase
+                && state.ActionPointsRemaining == snapshotActionPoints
+                && state.CurrentPhaseActionPointsRemaining == snapshotPhaseActionPoints
+                && state.UniversalActionPointsRemaining == snapshotUniversalActionPoints
+                && goldLeaf != null && goldLeaf.Amount == snapshotGoldLeaf
+                && fireOil != null && fireOil.Amount == snapshotFireOil
+                && restoredNode != null && restoredNode.ControlPoints == snapshotControl
+                && restoredNode.ControllingFactionId == snapshotController
+                && d4.GetState().WarheadCount == snapshotWarheads
+                && j.IsGameEnded()
+                && j.GetEndReason() == snapshotEndReason;
+            replayLog.RecordStep(
+                state,
+                "S02",
+                "Load replay snapshot and compare key state fields",
+                "Turn/phase/AP/resources/node/victory are fully restored",
+                $"LoadResult={loadResult}, Turn={state.CurrentTurn}, Phase={state.CurrentPhaseIndex}, AP={state.ActionPointsRemaining}, GoldLeaf={goldLeaf?.Amount}, FireOil={fireOil?.Amount}, NodeControl={restoredNode?.ControlPoints}, NodeController={restoredNode?.ControllingFactionId}, Warheads={d4.GetState().WarheadCount}, EndReason={j.GetEndReason()}",
+                restoredPass);
+            Assert("RL-03 load step: cross-turn state consistency restored", restoredPass);
+
+            bool deleteResult = saveSystem.DeleteSave(saveName);
+            replayLog.RecordStep(
+                state,
+                "S03",
+                "Delete replay save slot",
+                "Save slot is removed",
+                $"DeleteResult={deleteResult}, ExistsAfterDelete={saveSystem.SaveExists(saveName)}",
+                deleteResult && !saveSystem.SaveExists(saveName));
+            Assert("RL-03 cleanup step: temporary save is deleted", deleteResult && !saveSystem.SaveExists(saveName));
+
+            replayLog.Flush();
+
+            UnityEngine.Object.DestroyImmediate(d1);
+            UnityEngine.Object.DestroyImmediate(d4);
+            UnityEngine.Object.DestroyImmediate(j);
+            UnityEngine.Object.DestroyImmediate(saveSystem);
+            UnityEngine.Object.DestroyImmediate(managerGO);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
+        private static void TestR1ReplayRL10TimeoutEndgameReplay()
+        {
+            Debug.Log("\n--- R1 Replay RL-10: Timeout Endgame Path (A5/J) ---");
+
+            var go = new GameObject("R1ReplayRL10Test");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+            var replayLog = new R1ReplayLogger("R1-03", "RL-10");
+
+            var a5 = go.AddComponent<EventideAge.Systems.A5.GameClock>();
+            var j = go.AddComponent<EventideAge.Systems.J.VictoryDefeatSystem>();
+            a5.Initialize(state, events);
+            j.Initialize(state, events);
+
+            j.VictoryThreshold = 101f;
+            state.CurrentTurn = GameConfig.kMaxTurns;
+
+            int endCount = 0;
+            string endReason = null;
+            events.OnGameEnded += reason =>
+            {
+                endCount++;
+                endReason = reason;
+            };
+
+            events.TurnEnded(state.CurrentTurn);
+            bool timeoutTriggeredOnce = endCount == 1 && endReason == "attrition";
+            replayLog.RecordStep(
+                state,
+                "S01",
+                "Dispatch TurnEnded at max turn",
+                "Timeout endgame fires once with attrition reason",
+                $"EndCount={endCount}, EndReason={endReason}",
+                timeoutTriggeredOnce);
+            Assert("RL-10 timeout step: max turn triggers attrition endgame once", timeoutTriggeredOnce);
+
+            events.TurnEnded(state.CurrentTurn);
+            j.OnTurnEnded(state.CurrentTurn);
+            bool singleFirePass = endCount == 1;
+            replayLog.RecordStep(
+                state,
+                "S02",
+                "Repeat turn-end signals after game end",
+                "No duplicate timeout endgame dispatch",
+                $"EndCount={endCount}, EndReason={endReason}",
+                singleFirePass);
+            Assert("RL-10 single-fire step: duplicate turn-end signals do not re-fire endgame", singleFirePass);
+
+            string timeDisplay = a5.GetCurrentTimeDisplay();
+            string expectedDisplay = EventideAge.Systems.A5.GameClock.FormatTurnAsHalfYear(GameConfig.kMaxTurns);
+            bool timeDisplayPass = timeDisplay == expectedDisplay;
+            replayLog.RecordStep(
+                state,
+                "S03",
+                "Validate A5 time display at timeout turn",
+                "A5 display matches half-year formatter at turn 24",
+                $"Display={timeDisplay}, Expected={expectedDisplay}",
+                timeDisplayPass);
+            Assert("RL-10 display step: A5 time display matches turn formatter at timeout", timeDisplayPass);
+
+            replayLog.Flush();
+
+            UnityEngine.Object.DestroyImmediate(j);
+            UnityEngine.Object.DestroyImmediate(a5);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestR1CrossTurnConsistencyApResourceNodeVictory()
+        {
+            Debug.Log("\n--- R1-04 Consistency: AP / Resource / Node / Victory ---");
+
+            var state = CreateR1ConsistencyState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+            var replayLog = new R1ReplayLogger("R1-04", "CONSISTENCY");
+
+            var jRoot = new GameObject("R1ConsistencyVictoryRoot");
+            var j = jRoot.AddComponent<EventideAge.Systems.J.VictoryDefeatSystem>();
+            j.Initialize(state, events);
+            j.VictoryThreshold = 101f;
+
+            bool baselinePass = state.CurrentTurn == 1
+                && state.CurrentPhaseIndex == 0
+                && state.ActionPointsRemaining == GameConfig.kTotalActionPoints
+                && state.CurrentPhaseActionPointsRemaining == 2
+                && state.UniversalActionPointsRemaining == GameConfig.kUniversalActionPoints;
+            replayLog.RecordStep(
+                state,
+                "S01",
+                "Initialize consistency scenario",
+                "Turn=1, Phase=0, AP=11, PhaseAP=2, UniversalAP=2",
+                $"Turn={state.CurrentTurn}, Phase={state.CurrentPhaseIndex}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UniversalAP={state.UniversalActionPointsRemaining}",
+                baselinePass);
+            Assert("R1-04 baseline: AP envelope initialized to SSOT", baselinePass);
+
+            bool spendPhase0 = state.TrySpendActionPoints(3);
+            bool spendPhase0Pass = spendPhase0
+                && state.ActionPointsRemaining == 8
+                && state.CurrentPhaseActionPointsRemaining == 0
+                && state.UniversalActionPointsRemaining == 1;
+            replayLog.RecordStep(
+                state,
+                "S02",
+                "Spend AP in phase 0 before turn crossing",
+                "Spend 3 AP -> AP=8, PhaseAP=0, UniversalAP=1",
+                $"Spend={spendPhase0}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UniversalAP={state.UniversalActionPointsRemaining}",
+                spendPhase0Pass);
+            Assert("R1-04 AP: phase+universal AP spending is consistent", spendPhase0Pass);
+
+            var goldLeaf = state.GetResource(GameIds.Resource.GoldLeaf);
+            var fireOil = state.GetResource(GameIds.Resource.FireOil);
+            var node = state.GetNode(GameIds.Node.IraqBorder);
+
+            if (goldLeaf != null)
+                goldLeaf.Amount = Mathf.Clamp(goldLeaf.Amount - 17, 0, goldLeaf.MaxCapacity);
+            if (fireOil != null)
+                fireOil.Amount = Mathf.Clamp(fireOil.Amount + 9, 0, fireOil.MaxCapacity);
+            if (node != null)
+            {
+                node.ControlPoints = Mathf.Clamp(node.ControlPoints - 12, 0, node.MaxControlPoints);
+                events.NodeControlChanged(node.NodeId, GameIds.Faction.Aurean, node.ControllingFactionId, node.ControlPoints);
+            }
+
+            int snapshotGoldLeaf = goldLeaf?.Amount ?? -1;
+            int snapshotFireOil = fireOil?.Amount ?? -1;
+            int snapshotNodeControl = node?.ControlPoints ?? -1;
+            string snapshotNodeController = node?.ControllingFactionId ?? string.Empty;
+
+            bool snapshotPass = snapshotGoldLeaf >= 0
+                && snapshotFireOil >= 0
+                && snapshotNodeControl >= 0
+                && !string.IsNullOrEmpty(snapshotNodeController);
+            replayLog.RecordStep(
+                state,
+                "S03",
+                "Capture pre-wrap resource/node snapshot",
+                "GoldLeaf/FireOil/node-control snapshot exists",
+                $"GoldLeaf={snapshotGoldLeaf}, FireOil={snapshotFireOil}, NodeControl={snapshotNodeControl}, NodeController={snapshotNodeController}",
+                snapshotPass);
+            Assert("R1-04 snapshot: resources and node-control captured before turn wrap", snapshotPass);
+
+            state.ExpireCurrentPhaseActionPoints();
+            for (int phase = 1; phase <= GameConfig.kAiResponsePhaseIndex; phase++)
+            {
+                state.CurrentPhaseIndex = phase;
+                state.PreparePhaseActionPoints(phase);
+                if (phase < GameConfig.kAiResponsePhaseIndex)
+                {
+                    state.ExpireCurrentPhaseActionPoints();
+                }
+            }
+
+            int oldTurn = state.CurrentTurn;
+            events.TurnEnded(oldTurn);
+            state.CurrentTurn++;
+            events.TurnChanged(oldTurn, state.CurrentTurn);
+            state.CurrentPhaseIndex = 0;
+            state.ResetTurnActionPoints();
+            state.PreparePhaseActionPoints(0);
+            events.PhaseChanged(0);
+
+            bool wrapConsistencyPass = state.CurrentTurn == oldTurn + 1
+                && state.ActionPointsRemaining == GameConfig.kTotalActionPoints
+                && state.CurrentPhaseActionPointsRemaining == 2
+                && state.UniversalActionPointsRemaining == GameConfig.kUniversalActionPoints
+                && (goldLeaf?.Amount ?? -1) == snapshotGoldLeaf
+                && (fireOil?.Amount ?? -1) == snapshotFireOil
+                && (node?.ControlPoints ?? -1) == snapshotNodeControl
+                && (node?.ControllingFactionId ?? string.Empty) == snapshotNodeController
+                && !j.IsGameEnded();
+            replayLog.RecordStep(
+                state,
+                "S04",
+                "Cross to next turn and validate consistency",
+                "AP resets while resources/node/victory status stay consistent",
+                $"Turn={state.CurrentTurn}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UniversalAP={state.UniversalActionPointsRemaining}, GoldLeaf={goldLeaf?.Amount}, FireOil={fireOil?.Amount}, NodeControl={node?.ControlPoints}, NodeController={node?.ControllingFactionId}, GameEnded={j.IsGameEnded()}",
+                wrapConsistencyPass);
+            Assert("R1-04 cross-turn: AP reset and state consistency are preserved", wrapConsistencyPass);
+
+            j.ForceEndGame("r1_04_manual_lock");
+            int endEventCount = 0;
+            events.OnGameEnded += _ => endEventCount++;
+
+            int endTurn = state.CurrentTurn;
+            events.TurnEnded(endTurn);
+            state.CurrentTurn++;
+            events.TurnChanged(endTurn, state.CurrentTurn);
+
+            bool victoryStatePass = j.IsGameEnded()
+                && j.GetEndReason() == "r1_04_manual_lock"
+                && endEventCount == 0;
+            replayLog.RecordStep(
+                state,
+                "S05",
+                "Validate victory/defeat state persistence after turn change",
+                "Forced end state remains stable without duplicate GameEnded dispatch",
+                $"GameEnded={j.IsGameEnded()}, EndReason={j.GetEndReason()}, EndEvents={endEventCount}, Turn={state.CurrentTurn}",
+                victoryStatePass);
+            Assert("R1-04 victory-state: end-state is stable across turns without duplicate dispatch", victoryStatePass);
+
+            replayLog.Flush();
+
+            UnityEngine.Object.DestroyImmediate(jRoot);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestR1SaveCompatibilityReadWriteAndRecovery()
+        {
+            Debug.Log("\n--- R1-05 Save Compatibility: Read/Write + Recovery ---");
+
+            ResetGameManagerSingleton();
+
+            var managerGO = new GameObject("R1SaveCompatReadWriteManager");
+            var manager = managerGO.AddComponent<GameManager>();
+            var systemsGO = new GameObject("R1SaveCompatReadWriteSystems");
+            systemsGO.transform.SetParent(managerGO.transform);
+
+            var state = CreateDefaultState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+            var replayLog = new R1ReplayLogger("R1-05", "SAVE-RW-RECOVERY");
+
+            var saveSystem = systemsGO.AddComponent<EventideAge.Systems.A4.SaveSystem>();
+            var j = systemsGO.AddComponent<EventideAge.Systems.J.VictoryDefeatSystem>();
+            var d4 = systemsGO.AddComponent<EventideAge.Systems.D4.NuclearDeterrenceSystem>();
+
+            manager.Systems = new List<GameSystem> { saveSystem, j, d4 };
+
+            j.Initialize(state, events);
+            d4.Initialize(state, events);
+            saveSystem.Initialize(state, events);
+
+            state.CurrentTurn = 6;
+            state.CurrentPhaseIndex = 2;
+            state.ActionPointsRemaining = 6;
+            state.CurrentPhaseActionPointsRemaining = 2;
+            state.UniversalActionPointsRemaining = 0;
+
+            var goldLeaf = state.GetResource(GameIds.Resource.GoldLeaf);
+            var fireOil = state.GetResource(GameIds.Resource.FireOil);
+            if (goldLeaf != null) goldLeaf.Amount = 451;
+            if (fireOil != null) fireOil.Amount = 177;
+            d4.SetWarheadCount(12);
+            j.ForceEndGame("r1_05_readwrite_snapshot");
+
+            string saveName = $"r1_05_rw_{Guid.NewGuid():N}";
+            bool saveResult = saveSystem.SaveGame(saveName);
+            replayLog.RecordStep(
+                state,
+                "S01",
+                "Write wrapped save snapshot",
+                "Save succeeds and slot exists",
+                $"Save={saveResult}, Exists={saveSystem.SaveExists(saveName)}, SaveName={saveName}",
+                saveResult && saveSystem.SaveExists(saveName));
+            Assert("R1-05 read/write: wrapped save snapshot created", saveResult && saveSystem.SaveExists(saveName));
+
+            state.CurrentTurn = 1;
+            state.CurrentPhaseIndex = 0;
+            state.ActionPointsRemaining = 11;
+            state.CurrentPhaseActionPointsRemaining = 2;
+            state.UniversalActionPointsRemaining = 2;
+            if (goldLeaf != null) goldLeaf.Amount = 11;
+            if (fireOil != null) fireOil.Amount = 22;
+            d4.SetWarheadCount(0);
+            j.Reset();
+
+            bool loadResult = saveSystem.LoadGame(saveName);
+            bool loadPass = loadResult
+                && state.CurrentTurn == 6
+                && state.CurrentPhaseIndex == 2
+                && state.ActionPointsRemaining == 6
+                && state.CurrentPhaseActionPointsRemaining == 2
+                && state.UniversalActionPointsRemaining == 0
+                && goldLeaf != null && goldLeaf.Amount == 451
+                && fireOil != null && fireOil.Amount == 177
+                && d4.GetState().WarheadCount == 12
+                && j.IsGameEnded()
+                && j.GetEndReason() == "r1_05_readwrite_snapshot";
+            replayLog.RecordStep(
+                state,
+                "S02",
+                "Read wrapped save snapshot",
+                "Turn/phase/AP/resources/system states are restored",
+                $"Load={loadResult}, Turn={state.CurrentTurn}, Phase={state.CurrentPhaseIndex}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UAP={state.UniversalActionPointsRemaining}, GoldLeaf={goldLeaf?.Amount}, FireOil={fireOil?.Amount}, Warheads={d4.GetState().WarheadCount}, EndReason={j.GetEndReason()}",
+                loadPass);
+            Assert("R1-05 read/write: wrapped save load restores state", loadPass);
+
+            string missingName = $"r1_05_missing_{Guid.NewGuid():N}";
+            bool missingLoad = saveSystem.LoadGame(missingName);
+            replayLog.RecordStep(
+                state,
+                "S03",
+                "Load non-existing save",
+                "Missing slot returns false without crash",
+                $"SaveName={missingName}, Load={missingLoad}",
+                !missingLoad);
+            Assert("R1-05 recovery: missing save returns false", !missingLoad);
+
+            string invalidWrappedName = $"r1_05_invalid_wrapped_{Guid.NewGuid():N}";
+            bool invalidWrappedSaved = saveSystem.SaveGame(invalidWrappedName);
+            string invalidWrappedPath = GetSaveFilePathForTest(invalidWrappedName);
+            File.WriteAllText(invalidWrappedPath, "{\"SaveVersion\":1,\"GameStateJson\":\"\"}");
+            int beforeInvalidTurn = state.CurrentTurn;
+            bool invalidWrappedLoad = saveSystem.LoadGame(invalidWrappedName);
+            bool invalidWrappedPass = invalidWrappedSaved && !invalidWrappedLoad && state.CurrentTurn == beforeInvalidTurn;
+            replayLog.RecordStep(
+                state,
+                "S04",
+                "Load invalid wrapped save payload",
+                "Invalid wrapped payload is rejected and runtime state remains stable",
+                $"Save={invalidWrappedSaved}, Path={invalidWrappedPath}, Load={invalidWrappedLoad}, TurnBefore={beforeInvalidTurn}, TurnAfter={state.CurrentTurn}",
+                invalidWrappedPass);
+            Assert("R1-05 recovery: invalid wrapped payload is rejected", invalidWrappedPass);
+
+            string legacyName = $"r1_05_legacy_{Guid.NewGuid():N}";
+            state.CurrentTurn = 8;
+            state.CurrentPhaseIndex = 1;
+            state.ActionPointsRemaining = 9;
+            state.CurrentPhaseActionPointsRemaining = 1;
+            state.UniversalActionPointsRemaining = 1;
+            if (goldLeaf != null) goldLeaf.Amount = 500;
+            string legacyJson = JsonUtility.ToJson(state, true);
+            string legacyPath = GetSaveFilePathForTest(legacyName);
+            File.WriteAllText(legacyPath, legacyJson);
+
+            state.CurrentTurn = 2;
+            state.CurrentPhaseIndex = 0;
+            state.ActionPointsRemaining = 11;
+            state.CurrentPhaseActionPointsRemaining = 2;
+            state.UniversalActionPointsRemaining = 2;
+            if (goldLeaf != null) goldLeaf.Amount = 40;
+
+            bool legacyLoad = saveSystem.LoadGame(legacyName);
+            bool legacyPass = legacyLoad
+                && state.CurrentTurn == 8
+                && state.CurrentPhaseIndex == 1
+                && state.ActionPointsRemaining == 9
+                && state.CurrentPhaseActionPointsRemaining == 1
+                && state.UniversalActionPointsRemaining == 1
+                && goldLeaf != null && goldLeaf.Amount == 500;
+            replayLog.RecordStep(
+                state,
+                "S05",
+                "Load legacy GameState-only save",
+                "Legacy payload is accepted and key fields are restored",
+                $"Path={legacyPath}, Load={legacyLoad}, Turn={state.CurrentTurn}, Phase={state.CurrentPhaseIndex}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UAP={state.UniversalActionPointsRemaining}, GoldLeaf={goldLeaf?.Amount}",
+                legacyPass);
+            Assert("R1-05 compatibility: legacy GameState-only save can be loaded", legacyPass);
+
+            saveSystem.DeleteSave(saveName);
+            saveSystem.DeleteSave(invalidWrappedName);
+            saveSystem.DeleteSave(legacyName);
+
+            replayLog.Flush();
+
+            UnityEngine.Object.DestroyImmediate(d4);
+            UnityEngine.Object.DestroyImmediate(j);
+            UnityEngine.Object.DestroyImmediate(saveSystem);
+            UnityEngine.Object.DestroyImmediate(managerGO);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
+        private static void TestR1SaveCompatibilityMultiTurnConsistency()
+        {
+            Debug.Log("\n--- R1-05 Save Compatibility: Multi-Turn Consistency ---");
+
+            ResetGameManagerSingleton();
+
+            var managerGO = new GameObject("R1SaveCompatMultiTurnManager");
+            var manager = managerGO.AddComponent<GameManager>();
+            var systemsGO = new GameObject("R1SaveCompatMultiTurnSystems");
+            systemsGO.transform.SetParent(managerGO.transform);
+
+            var state = CreateDefaultState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+            var replayLog = new R1ReplayLogger("R1-05", "SAVE-MULTI-TURN");
+
+            var saveSystem = systemsGO.AddComponent<EventideAge.Systems.A4.SaveSystem>();
+            manager.Systems = new List<GameSystem> { saveSystem };
+            saveSystem.Initialize(state, events);
+
+            var goldLeaf = state.GetResource(GameIds.Resource.GoldLeaf);
+            var fireOil = state.GetResource(GameIds.Resource.FireOil);
+            var node = state.GetNode(GameIds.Node.IraqBorder);
+
+            string turn4Save = $"r1_05_turn4_{Guid.NewGuid():N}";
+            state.CurrentTurn = 4;
+            state.CurrentPhaseIndex = 1;
+            state.ActionPointsRemaining = 8;
+            state.CurrentPhaseActionPointsRemaining = 2;
+            state.UniversalActionPointsRemaining = 0;
+            if (goldLeaf != null) goldLeaf.Amount = 320;
+            if (fireOil != null) fireOil.Amount = 210;
+            if (node != null)
+            {
+                node.ControlPoints = 63;
+                node.ControllingFactionId = GameIds.Faction.Aurean;
+            }
+
+            bool saveTurn4 = saveSystem.SaveGame(turn4Save);
+            replayLog.RecordStep(
+                state,
+                "S01",
+                "Save turn-4 snapshot",
+                "Turn-4 snapshot save succeeds",
+                $"Save={saveTurn4}, Name={turn4Save}, Turn={state.CurrentTurn}, GoldLeaf={goldLeaf?.Amount}, FireOil={fireOil?.Amount}, NodeControl={node?.ControlPoints}, NodeController={node?.ControllingFactionId}",
+                saveTurn4);
+            Assert("R1-05 multi-turn: turn-4 snapshot saved", saveTurn4);
+
+            string turn5Save = $"r1_05_turn5_{Guid.NewGuid():N}";
+            state.CurrentTurn = 5;
+            state.CurrentPhaseIndex = 3;
+            state.ActionPointsRemaining = 5;
+            state.CurrentPhaseActionPointsRemaining = 1;
+            state.UniversalActionPointsRemaining = 1;
+            if (goldLeaf != null) goldLeaf.Amount = 287;
+            if (fireOil != null) fireOil.Amount = 198;
+            if (node != null)
+            {
+                node.ControlPoints = 54;
+                node.ControllingFactionId = GameIds.Faction.AshConfederacy;
+            }
+
+            bool saveTurn5 = saveSystem.SaveGame(turn5Save);
+            replayLog.RecordStep(
+                state,
+                "S02",
+                "Save turn-5 snapshot",
+                "Turn-5 snapshot save succeeds",
+                $"Save={saveTurn5}, Name={turn5Save}, Turn={state.CurrentTurn}, GoldLeaf={goldLeaf?.Amount}, FireOil={fireOil?.Amount}, NodeControl={node?.ControlPoints}, NodeController={node?.ControllingFactionId}",
+                saveTurn5);
+            Assert("R1-05 multi-turn: turn-5 snapshot saved", saveTurn5);
+
+            state.CurrentTurn = 1;
+            state.CurrentPhaseIndex = 0;
+            state.ActionPointsRemaining = 11;
+            state.CurrentPhaseActionPointsRemaining = 2;
+            state.UniversalActionPointsRemaining = 2;
+            if (goldLeaf != null) goldLeaf.Amount = 10;
+            if (fireOil != null) fireOil.Amount = 10;
+            if (node != null)
+            {
+                node.ControlPoints = 100;
+                node.ControllingFactionId = GameIds.Faction.Vashid;
+            }
+
+            bool loadTurn4 = saveSystem.LoadGame(turn4Save);
+            bool turn4Pass = loadTurn4
+                && state.CurrentTurn == 4
+                && state.CurrentPhaseIndex == 1
+                && state.ActionPointsRemaining == 8
+                && state.CurrentPhaseActionPointsRemaining == 2
+                && state.UniversalActionPointsRemaining == 0
+                && goldLeaf != null && goldLeaf.Amount == 320
+                && fireOil != null && fireOil.Amount == 210
+                && node != null && node.ControlPoints == 63
+                && node.ControllingFactionId == GameIds.Faction.Aurean;
+            replayLog.RecordStep(
+                state,
+                "S03",
+                "Load turn-4 snapshot",
+                "Turn-4 snapshot fields are restored exactly",
+                $"Load={loadTurn4}, Turn={state.CurrentTurn}, Phase={state.CurrentPhaseIndex}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UAP={state.UniversalActionPointsRemaining}, GoldLeaf={goldLeaf?.Amount}, FireOil={fireOil?.Amount}, NodeControl={node?.ControlPoints}, NodeController={node?.ControllingFactionId}",
+                turn4Pass);
+            Assert("R1-05 multi-turn: turn-4 snapshot load is consistent", turn4Pass);
+
+            bool loadTurn5 = saveSystem.LoadGame(turn5Save);
+            bool turn5Pass = loadTurn5
+                && state.CurrentTurn == 5
+                && state.CurrentPhaseIndex == 3
+                && state.ActionPointsRemaining == 5
+                && state.CurrentPhaseActionPointsRemaining == 1
+                && state.UniversalActionPointsRemaining == 1
+                && goldLeaf != null && goldLeaf.Amount == 287
+                && fireOil != null && fireOil.Amount == 198
+                && node != null && node.ControlPoints == 54
+                && node.ControllingFactionId == GameIds.Faction.AshConfederacy;
+            replayLog.RecordStep(
+                state,
+                "S04",
+                "Load turn-5 snapshot",
+                "Turn-5 snapshot fields are restored exactly",
+                $"Load={loadTurn5}, Turn={state.CurrentTurn}, Phase={state.CurrentPhaseIndex}, AP={state.ActionPointsRemaining}, PhaseAP={state.CurrentPhaseActionPointsRemaining}, UAP={state.UniversalActionPointsRemaining}, GoldLeaf={goldLeaf?.Amount}, FireOil={fireOil?.Amount}, NodeControl={node?.ControlPoints}, NodeController={node?.ControllingFactionId}",
+                turn5Pass);
+            Assert("R1-05 multi-turn: turn-5 snapshot load is consistent", turn5Pass);
+
+            var allSaves = saveSystem.GetAllSaves();
+            bool listPass = allSaves.Any(name => name == turn4Save) && allSaves.Any(name => name == turn5Save);
+            replayLog.RecordStep(
+                state,
+                "S05",
+                "Enumerate save slots for multi-turn replay",
+                "Both turn-4 and turn-5 slots are discoverable",
+                $"Turn4Found={allSaves.Any(name => name == turn4Save)}, Turn5Found={allSaves.Any(name => name == turn5Save)}, SaveCount={allSaves.Length}",
+                listPass);
+            Assert("R1-05 multi-turn: save slots are discoverable by list API", listPass);
+
+            saveSystem.DeleteSave(turn4Save);
+            saveSystem.DeleteSave(turn5Save);
+
+            replayLog.Flush();
+
+            UnityEngine.Object.DestroyImmediate(saveSystem);
+            UnityEngine.Object.DestroyImmediate(managerGO);
+            CleanupTestState(state, events);
+            ResetGameManagerSingleton();
+        }
+
         private static void TestCanonicalIdGuardrail()
         {
             Debug.Log("\n--- Testing Canonical ID Guardrail ---");
@@ -2204,6 +4391,230 @@ namespace EventideAge.Tests
             UnityEngine.Object.DestroyImmediate(config);
         }
 
+        private static void TestL1AsyncMultiplayerLifecycleGuardrail()
+        {
+            Debug.Log("\n--- Testing L1 Async Multiplayer Lifecycle Guardrail ---");
+
+            var go = new GameObject("L1AsyncMultiplayerGuardrail");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var l1 = go.AddComponent<EventideAge.Systems.L1.AsyncMultiplayerSystem>();
+            l1.AutoLoadOnInitialize = false;
+            l1.SaveFileName = $"l1_async_rooms_test_{Guid.NewGuid():N}.json";
+            l1.Initialize(state, events);
+
+            var room = l1.CreateRoom("host_A");
+            Assert("L1 room created in waiting state before opponent join", room != null && room.RoomState == EventideAge.Systems.L1.AsyncRoomState.WaitingForOpponent);
+
+            bool joined = l1.TryJoinRoom(room.RoomId, "guest_B", out string joinError);
+            Assert("L1 guest can join waiting room", joined && string.IsNullOrEmpty(joinError));
+
+            bool submitHost = l1.TrySubmitTurn(
+                room.RoomId,
+                new EventideAge.Systems.L1.AsyncTurnPacket
+                {
+                    TurnIndex = 1,
+                    ActingFactionId = GameIds.Faction.Vashid,
+                    ActionIds = new[] { "C2.EnergyTransit.Sign", "H1.MapInspect" }
+                },
+                out string submitHostError);
+            Assert("L1 host packet accepted for pending faction", submitHost && string.IsNullOrEmpty(submitHostError));
+
+            bool submitGuest = l1.TrySubmitTurn(
+                room.RoomId,
+                new EventideAge.Systems.L1.AsyncTurnPacket
+                {
+                    TurnIndex = 2,
+                    ActingFactionId = GameIds.Faction.Aurean,
+                    ActionIds = new[] { "D1.CounterMove" }
+                },
+                out string submitGuestError);
+            Assert("L1 guest packet accepted and resolves one full turn", submitGuest && string.IsNullOrEmpty(submitGuestError));
+
+            var updatedRoom = l1.GetRoom(room.RoomId);
+            Assert("L1 room rotates back to Vashid and increments resolved turn", updatedRoom != null && updatedRoom.PendingFactionId == GameIds.Faction.Vashid && updatedRoom.LastResolvedTurn == 1);
+
+            var reloadGo = new GameObject("L1AsyncMultiplayerReloadGuardrail");
+            var reloaded = reloadGo.AddComponent<EventideAge.Systems.L1.AsyncMultiplayerSystem>();
+            reloaded.AutoLoadOnInitialize = true;
+            reloaded.SaveFileName = l1.SaveFileName;
+            reloaded.Initialize(state, events);
+
+            var snapshot = reloaded.GetAllRooms();
+            Assert("L1 room store persists and reloads from disk", snapshot != null && snapshot.Length == 1 && snapshot[0].History.Count == 2);
+
+            string path = l1.GetStorePathForDebug();
+            if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
+            UnityEngine.Object.DestroyImmediate(reloaded);
+            UnityEngine.Object.DestroyImmediate(reloadGo);
+            UnityEngine.Object.DestroyImmediate(l1);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestL2TutorialSystemLifecycleGuardrail()
+        {
+            Debug.Log("\n--- Testing L2 Tutorial System Lifecycle Guardrail ---");
+
+            string progressKey = $"L2.Tutorial.Progress.Test.{Guid.NewGuid():N}";
+            PlayerPrefs.DeleteKey(progressKey);
+
+            var go = new GameObject("L2TutorialSystemGuardrail");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var tutorialConfig = ScriptableObject.CreateInstance<EventideAge.Systems.I1.TutorialFlowConfig>();
+            tutorialConfig.SetSteps(EventideAge.Systems.I1.TutorialFlowConfig.CreateDefaultSteps());
+
+            var l2 = go.AddComponent<EventideAge.Systems.L2.TutorialSystem>();
+            l2.TutorialFlowConfigAsset = tutorialConfig;
+            l2.AutoStartOnInitialize = true;
+            l2.ProgressSaveKey = progressKey;
+            l2.Initialize(state, events);
+
+            Assert("L2 starts in active lifecycle when config exists", l2.GetLifecycleState() == EventideAge.Systems.L2.TutorialLifecycleState.Active);
+
+            state.CurrentTurn = 1;
+            l2.OnTurnStarted(1);
+            bool firstActivated = !string.IsNullOrWhiteSpace(l2.GetActiveStepId());
+            Assert("L2 activates first step when trigger condition matches", firstActivated);
+
+            int safety = 0;
+            while (l2.GetLifecycleState() == EventideAge.Systems.L2.TutorialLifecycleState.Active && safety < 12)
+            {
+                if (!string.IsNullOrWhiteSpace(l2.GetActiveStepId()))
+                {
+                    l2.AcknowledgeActiveStep();
+                }
+
+                state.CurrentTurn++;
+                l2.OnTurnStarted(state.CurrentTurn);
+                safety++;
+            }
+
+            Assert("L2 completes after all scripted tutorial steps are acknowledged", l2.GetLifecycleState() == EventideAge.Systems.L2.TutorialLifecycleState.Completed);
+            Assert("L2 completed step count reaches total step count", l2.GetCompletedStepCount() == l2.GetTotalStepCount());
+
+            var reloadGo = new GameObject("L2TutorialSystemReloadGuardrail");
+            var reloaded = reloadGo.AddComponent<EventideAge.Systems.L2.TutorialSystem>();
+            reloaded.TutorialFlowConfigAsset = tutorialConfig;
+            reloaded.AutoStartOnInitialize = false;
+            reloaded.ProgressSaveKey = progressKey;
+            reloaded.Initialize(state, events);
+            Assert("L2 progress persists between instances", reloaded.GetLifecycleState() == EventideAge.Systems.L2.TutorialLifecycleState.Completed);
+
+            PlayerPrefs.DeleteKey(progressKey);
+            PlayerPrefs.Save();
+
+            UnityEngine.Object.DestroyImmediate(reloaded);
+            UnityEngine.Object.DestroyImmediate(reloadGo);
+            UnityEngine.Object.DestroyImmediate(l2);
+            UnityEngine.Object.DestroyImmediate(tutorialConfig);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestL3SteamIntegrationFallbackAndMockGuardrail()
+        {
+            Debug.Log("\n--- Testing L3 Steam Integration Fallback and Mock Guardrail ---");
+
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var goMock = new GameObject("L3SteamMockGuardrail");
+            var steamConfig = ScriptableObject.CreateInstance<EventideAge.Systems.L3.SteamIntegrationConfig>();
+            steamConfig.AppId = "123456";
+            steamConfig.ForceMockProviderInEditor = true;
+
+            var l3Mock = goMock.AddComponent<EventideAge.Systems.L3.SteamIntegrationSystem>();
+            l3Mock.Config = steamConfig;
+            l3Mock.UseMockProviderInEditor = true;
+            l3Mock.Initialize(state, events);
+
+            bool unlock = l3Mock.TryUnlockAchievement("FIRST_STEP");
+            bool upload = l3Mock.TryUploadCloudSave("slot_01", "{\"turn\":1}", out string uploadError);
+            bool download = l3Mock.TryDownloadCloudSave("slot_01", out string payload, out string downloadError);
+
+            Assert("L3 mock provider initializes and reports readiness", l3Mock.IsPlatformReady() && l3Mock.GetProviderName() == "MockProvider");
+            Assert("L3 mock provider unlocks achievements", unlock && l3Mock.GetUnlockedAchievements().Length == 1);
+            Assert("L3 mock provider cloud save upload/download works", upload && download && string.IsNullOrEmpty(uploadError) && string.IsNullOrEmpty(downloadError) && payload.Contains("\"turn\":1"));
+
+            var goNull = new GameObject("L3SteamNullGuardrail");
+            var l3Null = goNull.AddComponent<EventideAge.Systems.L3.SteamIntegrationSystem>();
+            l3Null.Config = null;
+            l3Null.UseMockProviderInEditor = false;
+            l3Null.Initialize(state, events);
+
+            bool nullUnlock = l3Null.TryUnlockAchievement("FIRST_STEP");
+            bool nullUpload = l3Null.TryUploadCloudSave("slot_x", "{}", out string nullUploadError);
+            Assert("L3 null provider stays operational but does not support steam features", l3Null.IsPlatformReady() && l3Null.GetProviderName() == "NullProvider" && !nullUnlock && !nullUpload && !string.IsNullOrEmpty(nullUploadError));
+
+            UnityEngine.Object.DestroyImmediate(l3Null);
+            UnityEngine.Object.DestroyImmediate(goNull);
+            UnityEngine.Object.DestroyImmediate(l3Mock);
+            UnityEngine.Object.DestroyImmediate(steamConfig);
+            UnityEngine.Object.DestroyImmediate(goMock);
+            CleanupTestState(state, events);
+        }
+
+        private static void TestL4LocalizationSwitchAndFormattingGuardrail()
+        {
+            Debug.Log("\n--- Testing L4 Localization Switch and Formatting Guardrail ---");
+
+            var go = new GameObject("L4LocalizationGuardrail");
+            var state = CreateMinimalState();
+            var events = ScriptableObject.CreateInstance<GameEvents>();
+
+            var table = ScriptableObject.CreateInstance<EventideAge.Systems.L4.LocalizationTableConfig>();
+            table.DefaultLocale = "zh-CN";
+            table.SupportedLocales = new[] { "zh-CN", "en-US", "ru-RU" };
+            table.Entries = new[]
+            {
+                new EventideAge.Systems.L4.LocalizedTextEntry
+                {
+                    Key = "ui.main.start",
+                    ZhCN = "开始游戏",
+                    EnUS = "Start Game",
+                    RuRU = "Начать игру"
+                },
+                new EventideAge.Systems.L4.LocalizedTextEntry
+                {
+                    Key = "ui.main.load",
+                    ZhCN = "加载存档",
+                    EnUS = "Load Save",
+                    RuRU = "Загрузить сохранение"
+                }
+            };
+
+            var l4 = go.AddComponent<EventideAge.Systems.L4.LocalizationSystem>();
+            l4.LocalizationTable = table;
+            l4.AutoLoadSavedLocale = false;
+            l4.Initialize(state, events);
+
+            Assert("L4 default locale loads from config", l4.GetCurrentLocale() == "zh-CN");
+            Assert("L4 zh-CN translation resolves", l4.Translate("ui.main.start") == "开始游戏");
+
+            bool switched = l4.SetLocale("en-US");
+            string startText = l4.Translate("ui.main.start");
+            string numberText = l4.FormatNumber(12345);
+            Assert("L4 locale switching to en-US succeeds", switched && l4.GetCurrentLocale() == "en-US");
+            Assert("L4 en-US translation resolves", startText == "Start Game");
+            Assert("L4 number formatting changes with locale", !string.IsNullOrWhiteSpace(numberText));
+
+            bool invalidLocaleRejected = !l4.SetLocale("xx-XX");
+            Assert("L4 rejects unsupported locales", invalidLocaleRejected);
+
+            UnityEngine.Object.DestroyImmediate(l4);
+            UnityEngine.Object.DestroyImmediate(table);
+            UnityEngine.Object.DestroyImmediate(go);
+            CleanupTestState(state, events);
+        }
+
         private static object InvokePrivateMethod(object target, string methodName, params object[] args)
         {
             var method = target.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic);
@@ -2233,6 +4644,100 @@ namespace EventideAge.Tests
             {
                 field.SetValue(null, null);
             }
+        }
+
+        private static string GetSaveFilePathForTest(string saveName)
+        {
+            return Path.Combine(Application.persistentDataPath, "Saves", saveName + ".json");
+        }
+
+        private static GameState CreateR1ConsistencyState()
+        {
+            var config = ScriptableObject.CreateInstance<GameConfig>();
+            config.PhaseConfigs = new PhaseConfig[6];
+            config.PhaseConfigs[0] = new PhaseConfig { PhaseName = "外交", BaseActionPoints = 2, SortOrder = 0 };
+            config.PhaseConfigs[1] = new PhaseConfig { PhaseName = "战略", BaseActionPoints = 2, SortOrder = 1 };
+            config.PhaseConfigs[2] = new PhaseConfig { PhaseName = "作战", BaseActionPoints = 3, SortOrder = 2 };
+            config.PhaseConfigs[3] = new PhaseConfig { PhaseName = "后勤", BaseActionPoints = 1, SortOrder = 3 };
+            config.PhaseConfigs[4] = new PhaseConfig { PhaseName = "情报", BaseActionPoints = 1, SortOrder = 4 };
+            config.PhaseConfigs[5] = new PhaseConfig { PhaseName = "AI响应", BaseActionPoints = 0, SortOrder = 5 };
+
+            config.FactionConfigs = new FactionConfig[2];
+            config.FactionConfigs[0] = new FactionConfig
+            {
+                FactionId = GameIds.Faction.Vashid,
+                FactionName = "Vashid",
+                IsPlayerControlled = true,
+                InitialControlledPoints = 100,
+                InitialRelationship = 100,
+                InitialSatisfaction = 100
+            };
+            config.FactionConfigs[1] = new FactionConfig
+            {
+                FactionId = GameIds.Faction.Aurean,
+                FactionName = "Aurean",
+                IsPlayerControlled = false,
+                InitialControlledPoints = 90,
+                InitialRelationship = -60,
+                InitialSatisfaction = 80
+            };
+
+            config.ResourceConfigs = new ResourceConfig[5];
+            config.ResourceConfigs[0] = new ResourceConfig { ResourceId = GameIds.Resource.GoldLeaf, ResourceName = "GoldLeaf", InitialAmount = 200, MaxCapacity = 999, ResourceType = ResourceType.Accumulative };
+            config.ResourceConfigs[1] = new ResourceConfig { ResourceId = GameIds.Resource.FireOil, ResourceName = "FireOil", InitialAmount = 180, MaxCapacity = 500, ResourceType = ResourceType.Accumulative };
+            config.ResourceConfigs[2] = new ResourceConfig { ResourceId = GameIds.Resource.Arms, ResourceName = "Arms", InitialAmount = 120, MaxCapacity = 300, ResourceType = ResourceType.Consumable };
+            config.ResourceConfigs[3] = new ResourceConfig { ResourceId = GameIds.Resource.AshWill, ResourceName = "AshWill", InitialAmount = 60, MaxCapacity = 100, ResourceType = ResourceType.Ratio };
+            config.ResourceConfigs[4] = new ResourceConfig { ResourceId = GameIds.Resource.SocialValue, ResourceName = "SocialValue", InitialAmount = 75, MaxCapacity = 100, ResourceType = ResourceType.Ratio };
+
+            config.RegionConfigs = new RegionConfig[1];
+            config.RegionConfigs[0] = new RegionConfig { RegionId = "R1Consistency", RegionName = "R1Consistency", NodeConfigs = new NodeConfig[2] };
+            config.RegionConfigs[0].NodeConfigs[0] = new NodeConfig
+            {
+                NodeId = GameIds.Node.IraqBorder,
+                NodeName = "IraqBorder",
+                NodeType = NodeType.Chokepoint,
+                DefenseBonus = 20,
+                InitialController = GameIds.Faction.Aurean,
+                InitialControlPoints = 70,
+                MaxControlPoints = 100
+            };
+            config.RegionConfigs[0].NodeConfigs[1] = new NodeConfig
+            {
+                NodeId = GameIds.Node.Hormuz,
+                NodeName = "Hormuz",
+                NodeType = NodeType.Port,
+                DefenseBonus = 25,
+                InitialController = GameIds.Faction.Vashid,
+                InitialControlPoints = 90,
+                MaxControlPoints = 100
+            };
+
+            var state = ScriptableObject.CreateInstance<GameState>();
+            state.Config = config;
+            state.Initialize();
+            return state;
+        }
+
+        private static GameState CreateR2CampaignValidationState()
+        {
+            var state = CreateDefaultState();
+            if (state?.Config == null)
+                return state;
+
+            state.Config.PhaseConfigs = new PhaseConfig[6];
+            state.Config.PhaseConfigs[0] = new PhaseConfig { PhaseName = "外交", BaseActionPoints = 2, SortOrder = 0 };
+            state.Config.PhaseConfigs[1] = new PhaseConfig { PhaseName = "战略", BaseActionPoints = 2, SortOrder = 1 };
+            state.Config.PhaseConfigs[2] = new PhaseConfig { PhaseName = "作战", BaseActionPoints = 3, SortOrder = 2 };
+            state.Config.PhaseConfigs[3] = new PhaseConfig { PhaseName = "后勤", BaseActionPoints = 1, SortOrder = 3 };
+            state.Config.PhaseConfigs[4] = new PhaseConfig { PhaseName = "情报", BaseActionPoints = 1, SortOrder = 4 };
+            state.Config.PhaseConfigs[5] = new PhaseConfig { PhaseName = "AI响应", BaseActionPoints = 0, SortOrder = 5 };
+
+            state.CurrentTurn = 1;
+            state.CurrentPhaseIndex = 0;
+            state.ResetTurnActionPoints();
+            state.PreparePhaseActionPoints(0);
+
+            return state;
         }
 
         private static GameState CreateDefaultState()

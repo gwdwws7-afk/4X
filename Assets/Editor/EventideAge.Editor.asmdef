@@ -6,7 +6,8 @@
         "EventideAge.Config",
         "EventideAge.Systems",
         "EventideAge.UI",
-        "EventideAge.Tests"
+        "EventideAge.Tests",
+        "Unity.2D.Sprite.Editor"
     ],
     "includePlatforms": [
         "Editor"

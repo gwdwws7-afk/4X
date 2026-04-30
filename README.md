@@ -26,7 +26,8 @@ File → Open Project → 选择 C:\test\4X
 
 在 Unity Editor 菜单栏:
 ```
-EventideAge → Setup Project
+EventideAge → Setup Complete Scene (one click)
+EventideAge → Setup Project (alias, same pipeline)
 ```
 
 这将自动创建:
@@ -175,7 +176,7 @@ Assets/
 ## 已知问题
 
 1. 首次 Play 需要在 Editor 中设置 ScriptableObject 引用
-2. 使用菜单 `EventideAge → Setup Project` 自动完成
+2. 使用菜单 `EventideAge → Setup Complete Scene`（主入口）或 `EventideAge → Setup Project`（同一管线别名）自动完成
 
 ---
 

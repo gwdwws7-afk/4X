@@ -34,7 +34,8 @@ Menu: EventideAge → Generate GameState with Default Config
 
 ### 步骤3: 创建GameManager
 ```
-Menu: EventideAge → Setup Complete Scene → "在当前场景中创建 GameManager"
+Menu: EventideAge → Setup Complete Scene (one click)
+Menu: EventideAge → Setup Project (alias, same pipeline)
 ```
 
 ### 步骤4: 检查编译

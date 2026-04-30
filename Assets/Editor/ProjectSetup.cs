@@ -9,8 +9,8 @@ namespace EventideAge.Editor
         [MenuItem("EventideAge/Setup Project")]
         public static void SetupProjectMenu()
         {
-            SceneSetup.RunOneClickSetup();
-            Debug.Log("[ProjectSetup] Routed to SceneSetup.RunOneClickSetup().");
+            SceneCreator.SetupBaselineScenesAndConfig();
+            Debug.Log("[ProjectSetup] Routed to SceneCreator.SetupBaselineScenesAndConfig().");
         }
 
         [MenuItem("EventideAge/Setup Project (Window)")]
@@ -26,10 +26,12 @@ namespace EventideAge.Editor
             EditorGUILayout.Space();
 
             EditorGUILayout.HelpBox(
-                "Setup Project now reuses the same one-click pipeline as " +
-                "EventideAge -> Setup Complete Scene to avoid setup drift.\n\n" +
+                "Setup Project now executes the design-baseline pipeline:\n" +
+                "- Generate baseline ScriptableObjects\n" +
+                "- Create/update Boot/Main/PlayablePrototype scenes\n" +
+                "- Update Build Settings scene list\n\n" +
                 "Recommended:\n" +
-                "1) EventideAge -> Setup Complete Scene (or Setup Project)\n" +
+                "1) EventideAge -> Setup Project\n" +
                 "2) EventideAge -> Run All Tests",
                 MessageType.Info);
 

@@ -41,7 +41,10 @@ namespace EventideAge.UI
 
         private void HandleNotificationAdded(string sourceId, string message, FeedbackSeverity severity)
         {
-            string line = $"[{severity.ToString().ToUpperInvariant()}] [{sourceId}] {message}";
+            string canonicalSourceId = UiCanonicalText.CanonicalizeSourceId(sourceId);
+            string canonicalMessage = UiCanonicalText.CanonicalizeMessage(message);
+            string line = $"[{severity.ToString().ToUpperInvariant()}] [{canonicalSourceId}] {canonicalMessage}";
+            line = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalMessage, UiSurfaceTarget.BattleReport);
             _entries.Enqueue(line);
             while (_entries.Count > Mathf.Max(1, MaxEntries))
             {

@@ -130,15 +130,25 @@ namespace EventideAge.Systems.G
         public int MinArmsForMilitaryAction = 5;
         public float LowResourceThreshold = 0.3f;
 
+        [Header("R2-04 Strategy Set")]
+        public AIStrategySet StrategySetConfig;
+
+        [Header("R3-03 Difficulty Set")]
+        public AIDifficultySet DifficultySetConfig;
+        public AIDifficultyLevel DifficultyLevel = AIDifficultyLevel.Standard;
+
         private Dictionary<string, FactionAI> _factionAIs = new Dictionary<string, FactionAI>();
+        private Dictionary<string, AIFactionStrategyProfile> _strategyProfiles = new Dictionary<string, AIFactionStrategyProfile>();
         private Dictionary<string, HashSet<string>> _nodeAdjacency = new Dictionary<string, HashSet<string>>();
         private Dictionary<string, string> _nodeRegionLookup = new Dictionary<string, string>();
+        private AIDifficultyProfile _activeDifficultyProfile;
         private int _turnSinceLastUpdate;
 
         public override void Initialize(GameState state, GameEvents events)
         {
             base.Initialize(state, events);
 
+            ApplyDifficultyProfile();
             BuildNodeAdjacency();
             InitializeFactionAIs();
 
@@ -152,65 +162,148 @@ namespace EventideAge.Systems.G
             Events.OnTurnEnded -= HandleTurnEnded;
         }
 
+        private void ApplyDifficultyProfile()
+        {
+            _activeDifficultyProfile = ResolveDifficultyProfile();
+            if (_activeDifficultyProfile == null)
+                return;
+
+            AggressiveAggression = Mathf.Clamp(_activeDifficultyProfile.AggressiveAggression, 0.5f, 2f);
+            DefensiveDefense = Mathf.Clamp(_activeDifficultyProfile.DefensiveDefense, 0.5f, 2f);
+            DiplomaticDiplomacy = Mathf.Clamp(_activeDifficultyProfile.DiplomaticDiplomacy, 0.5f, 2f);
+            ExpansionistExpansion = Mathf.Clamp(_activeDifficultyProfile.ExpansionistExpansion, 0.5f, 2f);
+
+            AIUpdateInterval = Mathf.Max(1, _activeDifficultyProfile.AIUpdateInterval);
+            BaseCoordinationCost = Mathf.Max(0, _activeDifficultyProfile.BaseCoordinationCost);
+
+            MilitaryActionThreshold = Mathf.Clamp01(_activeDifficultyProfile.MilitaryActionThreshold);
+            DiplomaticActionThreshold = Mathf.Clamp01(_activeDifficultyProfile.DiplomaticActionThreshold);
+            EconomicActionThreshold = Mathf.Clamp01(_activeDifficultyProfile.EconomicActionThreshold);
+
+            MinGoldLeafForAttack = Mathf.Max(0, _activeDifficultyProfile.MinGoldLeafForAttack);
+            MinArmsForMilitaryAction = Mathf.Max(0, _activeDifficultyProfile.MinArmsForMilitaryAction);
+            LowResourceThreshold = Mathf.Clamp01(_activeDifficultyProfile.LowResourceThreshold);
+        }
+
+        private AIDifficultyProfile ResolveDifficultyProfile()
+        {
+            var configuredProfile = DifficultySetConfig != null
+                ? DifficultySetConfig.GetProfile(DifficultyLevel)
+                : null;
+
+            if (configuredProfile != null)
+                return configuredProfile.Clone();
+
+            return AIDifficultySet.CreateDefaultProfile(DifficultyLevel);
+        }
+
         private void InitializeFactionAIs()
         {
-            _factionAIs[GameIds.Faction.Aurean] = new FactionAI
-            {
-                FactionId = GameIds.Faction.Aurean,
-                Personality = AIPersonality.Aggressive,
-                AggressionLevel = 0.8f,
-                DefenseLevel = 0.5f,
-                DiplomaticLevel = 0.3f,
-                ExpansionLevel = 0.7f,
-                ActiveGoals = new List<string> { "maintain_blockade", "protect_allies", "expand_influence" },
-                ThreatPerception = 0.7f,
-                OpportunityPerception = 0.8f
-            };
+            _factionAIs.Clear();
+            _strategyProfiles.Clear();
 
-            _factionAIs[GameIds.Faction.SacredFire] = new FactionAI
+            var defaultProfiles = BuildDefaultStrategyProfileMap();
+            foreach (var kvp in defaultProfiles)
             {
-                FactionId = GameIds.Faction.SacredFire,
-                Personality = AIPersonality.Defensive,
-                AggressionLevel = 0.3f,
-                DefenseLevel = 0.9f,
-                DiplomaticLevel = 0.4f,
-                ExpansionLevel = 0.2f,
-                ActiveGoals = new List<string> { "defend_core_territory", "maintain_stability" },
-                ThreatPerception = 0.9f,
-                OpportunityPerception = 0.3f
-            };
+                _strategyProfiles[kvp.Key] = kvp.Value;
+            }
 
-            _factionAIs[GameIds.Faction.GoldenHord] = new FactionAI
+            var configuredProfiles = BuildConfiguredStrategyProfileMap();
+            foreach (var kvp in configuredProfiles)
             {
-                FactionId = GameIds.Faction.GoldenHord,
-                Personality = AIPersonality.Diplomatic,
-                AggressionLevel = 0.4f,
-                DefenseLevel = 0.6f,
-                DiplomaticLevel = 0.8f,
-                ExpansionLevel = 0.3f,
-                ActiveGoals = new List<string> { "build_alliances", "trade_expansion", "maintain_balance" },
-                ThreatPerception = 0.5f,
-                OpportunityPerception = 0.6f
-            };
+                _strategyProfiles[kvp.Key] = kvp.Value;
+            }
 
-            _factionAIs[GameIds.Faction.AshConfederacy] = new FactionAI
+            foreach (var profile in _strategyProfiles.Values)
             {
-                FactionId = GameIds.Faction.AshConfederacy,
-                Personality = AIPersonality.Aggressive,
-                AggressionLevel = 0.7f,
-                DefenseLevel = 0.5f,
-                DiplomaticLevel = 0.2f,
-                ExpansionLevel = 0.6f,
-                ActiveGoals = new List<string> { "destabilize_region", "exploit_conflicts", "expand_influence" },
-                ThreatPerception = 0.6f,
-                OpportunityPerception = 0.7f
-            };
+                var ai = BuildRuntimeAi(profile);
+                _factionAIs[ai.FactionId] = ai;
+            }
 
             foreach (var ai in _factionAIs.Values)
             {
                 ApplyPersonalityModifiers(ai);
                 UpdateFactionAssessment(ai);
             }
+
+            if (StrategySetConfig != null)
+            {
+                Debug.Log($"[FactionAISystem] Loaded AI strategy set with overrides. Profiles={_strategyProfiles.Count}");
+            }
+
+            Debug.Log($"[FactionAISystem] Difficulty={DifficultyLevel} Thresholds(M:{MilitaryActionThreshold:F2},D:{DiplomaticActionThreshold:F2},E:{EconomicActionThreshold:F2})");
+        }
+
+        private Dictionary<string, AIFactionStrategyProfile> BuildDefaultStrategyProfileMap()
+        {
+            var result = new Dictionary<string, AIFactionStrategyProfile>();
+            var defaults = AIStrategySet.CreateDefaultProfiles();
+            for (int i = 0; i < defaults.Length; i++)
+            {
+                var profile = defaults[i];
+                if (profile == null || string.IsNullOrWhiteSpace(profile.FactionId))
+                    continue;
+
+                string canonicalFactionId = GameIds.ResolveFactionId(profile.FactionId);
+                var clonedProfile = profile.Clone();
+                clonedProfile.FactionId = canonicalFactionId;
+                result[canonicalFactionId] = clonedProfile;
+            }
+
+            return result;
+        }
+
+        private Dictionary<string, AIFactionStrategyProfile> BuildConfiguredStrategyProfileMap()
+        {
+            var result = new Dictionary<string, AIFactionStrategyProfile>();
+            if (StrategySetConfig == null)
+                return result;
+
+            var profiles = StrategySetConfig.Profiles;
+            for (int i = 0; i < profiles.Length; i++)
+            {
+                var profile = profiles[i];
+                if (profile == null || string.IsNullOrWhiteSpace(profile.FactionId))
+                    continue;
+
+                string canonicalFactionId = GameIds.ResolveFactionId(profile.FactionId);
+                if (string.IsNullOrWhiteSpace(canonicalFactionId))
+                    continue;
+
+                var clonedProfile = profile.Clone();
+                clonedProfile.FactionId = canonicalFactionId;
+                result[canonicalFactionId] = clonedProfile;
+            }
+
+            return result;
+        }
+
+        private FactionAI BuildRuntimeAi(AIFactionStrategyProfile profile)
+        {
+            var runtimeGoals = new List<string>();
+            var configuredGoals = profile.ActiveGoals;
+            if (configuredGoals != null)
+            {
+                for (int i = 0; i < configuredGoals.Length; i++)
+                {
+                    if (string.IsNullOrWhiteSpace(configuredGoals[i]))
+                        continue;
+                    runtimeGoals.Add(configuredGoals[i].Trim());
+                }
+            }
+
+            return new FactionAI
+            {
+                FactionId = profile.FactionId,
+                Personality = profile.Personality,
+                AggressionLevel = profile.AggressionLevel,
+                DefenseLevel = profile.DefenseLevel,
+                DiplomaticLevel = profile.DiplomaticLevel,
+                ExpansionLevel = profile.ExpansionLevel,
+                ActiveGoals = runtimeGoals,
+                ThreatPerception = profile.ThreatPerception,
+                OpportunityPerception = profile.OpportunityPerception
+            };
         }
 
         private void ApplyPersonalityModifiers(FactionAI ai)
@@ -386,6 +479,12 @@ namespace EventideAge.Systems.G
         {
             var goldLeaf = State.GetResource(GameIds.Resource.GoldLeaf);
             if (goldLeaf == null || goldLeaf.Amount < MinGoldLeafForAttack)
+            {
+                return false;
+            }
+
+            var arms = State.GetResource(GameIds.Resource.Arms);
+            if (arms == null || arms.Amount < MinArmsForMilitaryAction)
             {
                 return false;
             }
@@ -580,7 +679,7 @@ namespace EventideAge.Systems.G
             option.ExpectedOutcome *= Random.Range(0.7f, 1.1f);
             option.ExpectedOutcome = Mathf.Clamp(option.ExpectedOutcome, 0.1f, 0.9f);
 
-            option.Priority = CalculateMilitaryPriority(ai, node, option.ExpectedOutcome);
+            option.Priority = ApplyPhasePreference(ai.FactionId, AIDecisionType.Military, CalculateMilitaryPriority(ai, node, option.ExpectedOutcome));
 
             option.CostAp = 1;
             option.CostGold = CalculateMilitaryCost(node);
@@ -760,6 +859,7 @@ namespace EventideAge.Systems.G
                 option.Priority *= 1.3f;
             }
 
+            option.Priority = ApplyPhasePreference(ai.FactionId, AIDecisionType.Diplomatic, option.Priority);
             option.ShouldExecute = option.Priority >= DiplomaticActionThreshold;
 
             return option;
@@ -779,6 +879,7 @@ namespace EventideAge.Systems.G
             };
 
             option.Priority = ai.AggressionLevel * 0.4f;
+            option.Priority = ApplyPhasePreference(ai.FactionId, AIDecisionType.Economic, option.Priority);
             option.Description = "实施封锁";
             option.ShouldExecute = option.Priority > 0.3f && ai.EconomicStrength > 300f;
 
@@ -800,6 +901,7 @@ namespace EventideAge.Systems.G
                 };
 
                 option.Priority = 0.7f - (ai.EconomicStrength / 100f);
+                option.Priority = ApplyPhasePreference(ai.FactionId, AIDecisionType.Economic, option.Priority);
                 option.Description = "专注经济发展";
                 option.ShouldExecute = true;
                 options.Add(option);
@@ -849,9 +951,29 @@ namespace EventideAge.Systems.G
             }
 
             option.Description = $"控制贸易节点 {node.NodeName}";
+            option.Priority = ApplyPhasePreference(ai.FactionId, AIDecisionType.Economic, option.Priority);
             option.ShouldExecute = ai.EconomicStrength > 200f && option.Priority > EconomicActionThreshold;
 
             return option;
+        }
+
+        private float ApplyPhasePreference(string factionId, AIDecisionType decisionType, float basePriority)
+        {
+            float normalizedPriority = Mathf.Clamp01(basePriority);
+            float weight = GetPhasePreferenceWeight(factionId, decisionType);
+            return Mathf.Clamp01(normalizedPriority * Mathf.Max(0f, weight));
+        }
+
+        private float GetPhasePreferenceWeight(string factionId, AIDecisionType decisionType)
+        {
+            string canonicalFactionId = GameIds.ResolveFactionId(factionId);
+            if (!_strategyProfiles.TryGetValue(canonicalFactionId, out var profile) || profile == null)
+                return 1f;
+
+            int phaseIndex = State != null
+                ? Mathf.Clamp(State.CurrentPhaseIndex, 0, GameConfig.kAiResponsePhaseIndex)
+                : 0;
+            return profile.GetPhaseWeight(decisionType, phaseIndex);
         }
 
         private AIDecision SelectBestDecision(List<AIDecision> decisions)
@@ -1139,6 +1261,27 @@ namespace EventideAge.Systems.G
             }
 
             return null;
+        }
+
+        public void SetDifficulty(AIDifficultyLevel difficulty, bool reinitializeAIs = true)
+        {
+            DifficultyLevel = difficulty;
+            ApplyDifficultyProfile();
+
+            if (reinitializeAIs && State != null && Events != null)
+            {
+                InitializeFactionAIs();
+            }
+        }
+
+        public AIDifficultyLevel GetDifficulty()
+        {
+            return DifficultyLevel;
+        }
+
+        public AIDifficultyProfile GetActiveDifficultyProfile()
+        {
+            return _activeDifficultyProfile != null ? _activeDifficultyProfile.Clone() : null;
         }
 
         public FactionAI GetAI(string factionId)

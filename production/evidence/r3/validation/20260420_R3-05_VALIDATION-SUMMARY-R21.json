@@ -1,0 +1,19 @@
+{
+  "stage": "R3-05",
+  "generatedOn": "2026-04-20",
+  "validationRuns": 3,
+  "baseProfile": "R21-win-floor-guard",
+  "verdict": "FAIL",
+  "runKpiPass": [
+    { "run": "V01", "batch": "R3-05-B002-R21-V01", "pass": 9, "total": 13 },
+    { "run": "V02", "batch": "R3-05-B002-R21-V02", "pass": 10, "total": 13 },
+    { "run": "V03", "batch": "R3-05-B002-R21-V03", "pass": 8, "total": 13 }
+  ],
+  "failingKpiIds": [
+    "WIN_RATE_EASY",
+    "WIN_RATE_STANDARD",
+    "WIN_RATE_HARD",
+    "WIN_RATE_OVERALL",
+    "SINGLE_PATH_VICTORY_MONOPOLY"
+  ]
+}

@@ -1,0 +1,89 @@
+﻿{
+  "version": "r3-04k-targeted-v1",
+  "date": "2026-04-22",
+  "objective": "Close AVG_END_TURN_OVERALL and DEFEAT_SHARE_OVERALL residual gates from R99 baseline",
+  "batches": [
+    {
+      "batchId": "R3-04K-B001",
+      "profiles": [
+        { "roundCode": "R118", "kpiPass": "10/13" },
+        { "roundCode": "R119", "kpiPass": "10/13" },
+        { "roundCode": "R120", "kpiPass": "10/13" }
+      ],
+      "selectedBest": "R119",
+      "promotion": "rejected"
+    },
+    {
+      "batchId": "R3-04K-B002",
+      "profiles": [
+        { "roundCode": "R121", "kpiPass": "11/13" },
+        { "roundCode": "R122", "kpiPass": "11/13" },
+        { "roundCode": "R123", "kpiPass": "11/13" }
+      ],
+      "selectedBest": "R121",
+      "promotion": "rejected"
+    },
+    {
+      "batchId": "R3-04K-B003",
+      "profiles": [
+        { "roundCode": "R124", "kpiPass": "11/13" },
+        { "roundCode": "R125", "kpiPass": "11/13" },
+        { "roundCode": "R126", "kpiPass": "11/13" }
+      ],
+      "selectedBest": "R124",
+      "promotion": "rejected"
+    },
+    {
+      "batchId": "R3-04K-B004",
+      "profiles": [
+        {
+          "roundCode": "R127",
+          "batchId": "R3-04K-B004-R127",
+          "label": "r125-standard-recover-plus-a",
+          "easyBias": 0.261,
+          "standardBias": 0.156,
+          "hardBias": 0.049,
+          "easyInitScale": 1.13,
+          "standardInitScale": 1.1,
+          "hardInitScale": 1.04,
+          "socialTradeInitScale": 0.16,
+          "easyVictoryThreshold": 85,
+          "standardVictoryThreshold": 83,
+          "hardVictoryThreshold": 81,
+          "easyMilitaryCollapseThreshold": 4,
+          "standardMilitaryCollapseThreshold": 9,
+          "hardMilitaryCollapseThreshold": 24,
+          "pressureOffset": 0.24,
+          "pressureTurnScale": 0.229,
+          "conflictBase": 0.4,
+          "conflictTurnScale": 0.0135,
+          "resourceDeltaScale": 0.958,
+          "resourceNoiseScale": 2.02,
+          "relationDeltaScale": 2.58,
+          "satisfactionScale": 0.86,
+          "earlySuppressionTurns": 12,
+          "earlyPositiveGainScale": 0.36,
+          "shockChance": 0.38,
+          "shockMagnitude": 30,
+          "captureChanceScale": 2.78,
+          "lossChanceScale": 0.56,
+          "nonConflictNodeScale": 0.78,
+          "nodeDriftScale": 2.4,
+          "easyDurationPerTurn": 23,
+          "standardDurationPerTurn": 29,
+          "hardDurationPerTurn": 33,
+          "kpiPass": "11/13"
+        },
+        { "roundCode": "R128", "kpiPass": "11/13" },
+        { "roundCode": "R129", "kpiPass": "10/13" }
+      ],
+      "selectedBest": "R127",
+      "promotion": "rejected"
+    }
+  ],
+  "remainingResidualGaps": [
+    "AVG_END_TURN_OVERALL",
+    "DEFEAT_SHARE_OVERALL"
+  ],
+  "fallbackBaseline": "R99"
+}

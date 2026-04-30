@@ -1,0 +1,76 @@
+{
+  "lockVersion": "R3-03-AI-DIFFICULTY-V1",
+  "generatedOn": "2026-04-20",
+  "source": "Assets/Scripts/Systems/G/AIDifficultySet.cs::CreateDefaultProfiles",
+  "tiers": [
+    {
+      "difficulty": "easy",
+      "personalityMultipliers": {
+        "aggressiveAggression": 1.2,
+        "defensiveDefense": 1.25,
+        "diplomaticDiplomacy": 1.2,
+        "expansionistExpansion": 1.2
+      },
+      "cadence": {
+        "aiUpdateInterval": 2,
+        "baseCoordinationCost": 14
+      },
+      "decisionThresholds": {
+        "militaryActionThreshold": 0.62,
+        "diplomaticActionThreshold": 0.52,
+        "economicActionThreshold": 0.42
+      },
+      "resourceGating": {
+        "minGoldLeafForAttack": 45,
+        "minArmsForMilitaryAction": 10,
+        "lowResourceThreshold": 0.45
+      }
+    },
+    {
+      "difficulty": "standard",
+      "personalityMultipliers": {
+        "aggressiveAggression": 1.5,
+        "defensiveDefense": 1.5,
+        "diplomaticDiplomacy": 1.5,
+        "expansionistExpansion": 1.5
+      },
+      "cadence": {
+        "aiUpdateInterval": 1,
+        "baseCoordinationCost": 10
+      },
+      "decisionThresholds": {
+        "militaryActionThreshold": 0.5,
+        "diplomaticActionThreshold": 0.4,
+        "economicActionThreshold": 0.3
+      },
+      "resourceGating": {
+        "minGoldLeafForAttack": 30,
+        "minArmsForMilitaryAction": 5,
+        "lowResourceThreshold": 0.3
+      }
+    },
+    {
+      "difficulty": "hard",
+      "personalityMultipliers": {
+        "aggressiveAggression": 1.75,
+        "defensiveDefense": 1.7,
+        "diplomaticDiplomacy": 1.7,
+        "expansionistExpansion": 1.75
+      },
+      "cadence": {
+        "aiUpdateInterval": 1,
+        "baseCoordinationCost": 8
+      },
+      "decisionThresholds": {
+        "militaryActionThreshold": 0.42,
+        "diplomaticActionThreshold": 0.32,
+        "economicActionThreshold": 0.24
+      },
+      "resourceGating": {
+        "minGoldLeafForAttack": 20,
+        "minArmsForMilitaryAction": 3,
+        "lowResourceThreshold": 0.2
+      }
+    }
+  ]
+}

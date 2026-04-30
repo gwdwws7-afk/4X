@@ -10,6 +10,10 @@
   - 固定回归场景定义（至少覆盖平稳/封锁升级/主路线中断绕行）。
 - `regression-results-template.csv`
   - 每次测试批次记录模板（输入参数、输出指标、是否通过）。
+- `r3-kpi-baseline.csv`
+  - R3 平衡 KPI 基线（胜率/时长/资源波动/终局分布）机器口径。
+- `r3-simulation-results-template.csv`
+  - R3 批量仿真结果模板（供 R3-02 1000 局跑批回填）。
 - `consequence-ledger-template.csv`
   - 行动后果追踪账本模板（对应 Unified GDD 5.4）。
 - `regression-runbook.md`
@@ -24,6 +28,7 @@
 3. 将结果填入 `regression-results-template.csv`。
 4. 核对 `consequence-ledger-template.csv` 与 `ui-consequence-surface-map.md` 的口径一致性。
 5. 任一场景不满足期望区间，本轮参数不得标记为可发布。
+6. R3 阶段需同时满足 `r3-kpi-baseline.csv` 的 hard gate 指标。
 
 ## 门禁规则
 

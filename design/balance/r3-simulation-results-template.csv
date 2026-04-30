@@ -1,0 +1,4 @@
+batch_id,run_id,run_date,build_ref,difficulty,seed,end_type,end_reason,victory_path,end_turn,duration_minutes,goldleaf_cv,fireoil_cv,arms_cv,ashwill_min,fireoil_min,goldleaf_min,notes
+R3-02-B001,R3-02-000001,YYYY-MM-DD,commit_or_tag,standard,10001,PENDING,PENDING,PENDING,0,0,0,0,0,0,0,0,fill after simulation run
+R3-02-B001,R3-02-000002,YYYY-MM-DD,commit_or_tag,standard,10002,PENDING,PENDING,PENDING,0,0,0,0,0,0,0,0,fill after simulation run
+R3-02-B001,R3-02-000003,YYYY-MM-DD,commit_or_tag,standard,10003,PENDING,PENDING,PENDING,0,0,0,0,0,0,0,0,fill after simulation run

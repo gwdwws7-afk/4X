@@ -1,0 +1,37 @@
+﻿{
+  "docVersion": "R4-05-UI-REGRESSION-2026-04-30.v1",
+  "stage": "R4",
+  "task": "R4-05",
+  "status": "PASS",
+  "executionDate": "2026-04-30",
+  "coverage": {
+    "resolutions": ["1280x720", "1920x1080", "2560x1440"],
+    "inputPath": "MouseKeyboard-Primary",
+    "surfaces": ["map", "diplomacy", "battle_report", "event"]
+  },
+  "checks": [
+    {
+      "id": "R4-02",
+      "method": "EventideAge.Editor.TestMenu.RunR4UiProductizationChecks"
+    },
+    {
+      "id": "R4-03",
+      "method": "EventideAge.Editor.TestMenu.RunR4UiInteractionHintChecks"
+    }
+  ],
+  "run": {
+    "id": "R4-05-RUN-02",
+    "csv": "production/evidence/r4/validation/20260430_092522_R4-05_UI_REGRESSION_RUN02.csv",
+    "summary": "production/evidence/r4/validation/20260430_092522_R4-05_UI_REGRESSION_RUN02.md",
+    "result": "PASS"
+  },
+  "metrics": {
+    "R4-02": {"passLines": 77, "failLines": 0},
+    "R4-03": {"passLines": 13, "failLines": 0}
+  },
+  "notes": [
+    "Run01 is invalid due to evidence filename templating issue.",
+    "Run02 is accepted as baseline evidence.",
+    "Pixel-level visual readability still requires manual verification."
+  ]
+}

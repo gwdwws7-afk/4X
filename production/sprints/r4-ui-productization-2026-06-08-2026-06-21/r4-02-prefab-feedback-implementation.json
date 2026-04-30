@@ -1,0 +1,43 @@
+﻿{
+  "docVersion": "R4-02-IMPLEMENTATION-2026-04-23.v1",
+  "stage": "R4",
+  "task": "R4-02",
+  "slice": "semantic-alignment",
+  "status": "PASS",
+  "executionDate": "2026-04-23",
+  "surfaces": ["map", "diplomacy", "battle_report", "event"],
+  "semanticTags": ["Stable", "Warning", "Critical", "Locked"],
+  "jumpTargets": ["Map", "Diplomacy", "BattleReport", "Event"],
+  "files": [
+    "Assets/Scripts/UI/UiSurfaceSemantics.cs",
+    "Assets/Scripts/UI/MapPanelUI.cs",
+    "Assets/Scripts/UI/DiplomacyPanelUI.cs",
+    "Assets/Scripts/UI/ActionLogUI.cs",
+    "Assets/Scripts/UI/EventPanelUI.cs",
+    "Assets/Scripts/UI/NotificationPanelUI.cs",
+    "Assets/Scripts/Tests/StandaloneTest.cs",
+    "Assets/Editor/TestMenu.cs",
+    "Assets/Scripts/Tests/TestRunner.cs"
+  ],
+  "testCases": [
+    "TestUiCanonicalDisplayGuardrail",
+    "TestUiPanelAggregationAndOrderingGuardrail",
+    "TestUiPriorityAndDedupGuardrail",
+    "TestUiDigestSummaryGuardrail",
+    "TestUiTurnSummaryGuardrail",
+    "TestUiStatusAndJumpSemanticsGuardrail",
+    "TestUiLockedStatusReasonGuardrail"
+  ],
+  "evidence": {
+    "runAllLog": "production/evidence/r4/validation/20260423_RUNALL_AFTER_R402.log",
+    "runAllResult": "412 passed, 0 failed",
+    "r4ChecksLog": "production/evidence/r4/validation/20260423_R4-02_UI-CHECKS.log",
+    "r4ChecksPassLines": 55,
+    "r4ChecksFailLines": 0
+  },
+  "remaining": [
+    "prefab visual finalization",
+    "multi-resolution readability pass",
+    "interaction polish"
+  ]
+}

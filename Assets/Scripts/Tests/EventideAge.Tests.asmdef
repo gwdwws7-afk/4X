@@ -3,6 +3,7 @@
     "rootNamespace": "EventideAge.Tests",
     "references": [
         "EventideAge.Core",
+        "EventideAge.Config",
         "EventideAge.Systems",
         "EventideAge.UI"
     ],

@@ -1,0 +1,16 @@
+{
+  "stage": "R3-05",
+  "generatedOn": "2026-04-21",
+  "validationRuns": 3,
+  "baseProfile": "R99-r82-early-suppress-c",
+  "verdict": "FAIL",
+  "runKpiPass": [
+    { "run": "V01", "batch": "R3-05-B002-R99-V01", "pass": 11, "total": 13 },
+    { "run": "V02", "batch": "R3-05-B002-R99-V02", "pass": 11, "total": 13 },
+    { "run": "V03", "batch": "R3-05-B002-R99-V03", "pass": 11, "total": 13 }
+  ],
+  "failingKpiIds": [
+    "AVG_END_TURN_OVERALL",
+    "DEFEAT_SHARE_OVERALL"
+  ]
+}

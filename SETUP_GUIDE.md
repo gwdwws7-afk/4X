@@ -21,7 +21,9 @@ EventideAge → Create Main Game Scene
 
 ### 4. 创建GameManager（MenuItem）
 ```
-EventideAge → Setup Complete Scene → "在当前场景中创建 GameManager"
+EventideAge → Setup Complete Scene (one click)
+EventideAge → Setup Project (alias, same pipeline)
+EventideAge → Setup Complete Scene (Window)  # optional manual flow
 ```
 
 这将自动创建：
@@ -146,7 +148,7 @@ EventideAge → Run All Tests
 
 ### 引用缺失
 如果系统引用显示 None：
-1. 确保运行了 SceneSetup 中的 "在当前场景中创建 GameManager"
+1. 确保运行 `EventideAge → Setup Complete Scene` 或 `EventideAge → Setup Project`
 2. 检查 GameManager → Systems 列表是否包含所有系统
 
 ### 存档不工作

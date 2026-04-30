@@ -50,7 +50,8 @@
    Menu: EventideAge → Create Main Game Scene
 
 4. 创建游戏管理:
-   Menu: EventideAge → Setup Complete Scene → "在当前场景中创建 GameManager"
+   Menu: EventideAge → Setup Complete Scene (one click)
+   Menu: EventideAge → Setup Project (alias, same pipeline)
 ```
 
 ### 运行测试

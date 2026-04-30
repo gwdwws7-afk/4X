@@ -16,7 +16,8 @@ allowed-tools: Read, Glob, Grep, Bash
 ```
 1. 打开 Unity Editor
 2. 加载 C:\test\4X 项目
-3. 执行菜单: EventideAge → Setup Complete Scene → "在当前场景中创建 GameManager"
+3. 执行菜单: EventideAge → Setup Complete Scene (one click)
+   备选: EventideAge → Setup Project (alias, same pipeline)
 4. 检查 Console 是否有红色错误
 ```
 

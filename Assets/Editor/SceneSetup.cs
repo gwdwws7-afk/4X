@@ -33,15 +33,19 @@ using EventideAge.Systems.H2;
 using EventideAge.Systems.H3;
 using EventideAge.Systems.I1;
 using EventideAge.Systems.J;
+using EventideAge.Systems.L1;
+using EventideAge.Systems.L2;
+using EventideAge.Systems.L3;
+using EventideAge.Systems.L4;
 using EventideAge.UI;
 
 namespace EventideAge.Editor
 {
     public class SceneSetup : EditorWindow
     {
-        private const string kDefaultConfigPath = "Assets/ScriptableObjects/GameConfig_Default.asset";
-        private const string kDefaultStatePath = "Assets/ScriptableObjects/GameState.asset";
-        private const string kDefaultEventsPath = "Assets/ScriptableObjects/GameEvents.asset";
+        private const string kDefaultConfigPath = GameConfigGenerator.kDefaultConfigPath;
+        private const string kDefaultStatePath = GameConfigGenerator.kDefaultStatePath;
+        private const string kDefaultEventsPath = GameConfigGenerator.kDefaultEventsPath;
         private const string kDefaultPrefabPath = "Assets/Prefabs/GameManager.prefab";
 
         private string _configPath = kDefaultConfigPath;
@@ -130,15 +134,23 @@ namespace EventideAge.Editor
         private void CreateScriptableObjects()
         {
             EnsureDirectoryExists("Assets/ScriptableObjects");
+            EnsureDirectoryExists("Assets/ScriptableObjects/Config");
+            EnsureDirectoryExists("Assets/ScriptableObjects/Core");
 
             var config = AssetDatabase.LoadAssetAtPath<GameConfig>(_configPath);
             if (config == null)
             {
                 config = DefaultGameConfig.CreateDefault();
+                config.name = "DefaultGameConfig";
                 SaveAsset(config, _configPath);
             }
             else
             {
+                if (config is DefaultGameConfig defaultConfig)
+                {
+                    defaultConfig.ApplyDesignBaseline();
+                }
+
                 EditorUtility.SetDirty(config);
             }
 
@@ -146,6 +158,7 @@ namespace EventideAge.Editor
             if (state == null)
             {
                 state = ScriptableObject.CreateInstance<GameState>();
+                state.name = "GameState";
                 SaveAsset(state, _statePath);
             }
 
@@ -157,6 +170,7 @@ namespace EventideAge.Editor
             if (events == null)
             {
                 events = ScriptableObject.CreateInstance<GameEvents>();
+                events.name = "GameEvents";
                 SaveAsset(events, _eventsPath);
             }
             else
@@ -279,6 +293,10 @@ namespace EventideAge.Editor
 
             AddSystemChild<EventSystem>(systemsGO, systemsList);
             AddSystemChild<VictoryDefeatSystem>(systemsGO, systemsList);
+            AddSystemChild<AsyncMultiplayerSystem>(systemsGO, systemsList);
+            AddSystemChild<TutorialSystem>(systemsGO, systemsList);
+            AddSystemChild<SteamIntegrationSystem>(systemsGO, systemsList);
+            AddSystemChild<LocalizationSystem>(systemsGO, systemsList);
 
             gameManager.Systems = systemsList;
 
@@ -297,6 +315,7 @@ namespace EventideAge.Editor
             AddSystemChild<AlertPanelUI>(uiGO, systemsList);
             AddSystemChild<EventPanelUI>(uiGO, systemsList);
             AddSystemChild<IntelPanelUI>(uiGO, systemsList);
+            uiGO.AddComponent<LaunchFlowUIController>();
 
             Debug.Log($"[SceneSetup] GameManager graph built with {systemsList.Count} systems/components.");
             return go;

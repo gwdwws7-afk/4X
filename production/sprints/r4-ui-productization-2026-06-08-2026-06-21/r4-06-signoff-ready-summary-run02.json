@@ -1,0 +1,35 @@
+{
+  "docVersion": "R4-06-SIGNOFF-READY-SUMMARY-RUN02.v1",
+  "stage": "R4",
+  "task": "R4-06",
+  "executionDate": "2026-04-30",
+  "status": "PENDING_HUMAN_SIGNOFF",
+  "completed": {
+    "autoLayoutPrecheck": "PASS",
+    "chainReplayAutomation": "PASS",
+    "uiRegression": "PASS",
+    "localizationCloseout": "PASS"
+  },
+  "blockers": {
+    "manualTodoCount": 12,
+    "requiredSignoffsPending": ["qa", "design", "producer"],
+    "techSignoff": "PRECHECK_PASS_2026-04-30"
+  },
+  "executionAsset": {
+    "workitemsMarkdown": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-manual-review-workitems-run02.md",
+    "workitemsJson": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-manual-review-workitems-run02.json",
+    "workitemCount": 16,
+    "autoClosedCount": 4
+  },
+  "gateImpact": {
+    "r6R4UiGateStatus": "PARTIAL",
+    "recommendedDecisionBeforeManualSignoff": "CONDITIONAL_GO"
+  },
+  "evidence": [
+    "production/evidence/r4/validation/20260430_151648_R4-06_UX_VISUAL_AUDIT_RUN01.csv",
+    "production/evidence/r4/validation/20260430_151648_R4-06_UX_VISUAL_AUDIT_RUN01.log",
+    "production/evidence/r4/validation/20260430_151648_R4-06_UX_VISUAL_AUDIT_RUN01.md",
+    "production/evidence/r1/replay-logs/20260430_151631_R1-03_RL-01.log",
+    "production/evidence/adhoc/20260430_R4_06_R1_REPLAY_REFRESH.log"
+  ]
+}

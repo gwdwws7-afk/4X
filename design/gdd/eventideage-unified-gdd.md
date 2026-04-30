@@ -305,7 +305,7 @@
 | GAP-03 | 运行时ID canonical化尾项 | Closed (2026-04-14) | B/C/D/G/H/J | 已闭环 | B/C/D/G/H 运行时入口与索引键 canonical 化 + alias 仅迁移入口 + 自动化回归通过 |
 | GAP-04 | 资源口径尾项（NorthCoins等历史残留） | Closed (2026-04-13) | B1/B5、A3、SSOT | 已闭环 | B1购买入口 canonical 化 + B5结算资源ID canonical 守卫 + 自动化回归通过 |
 | GAP-05 | UI时间显示与A5联动 | In Progress | K、A5、UIManager | 非阻塞 | HUD稳定显示 `2028 H1/H2`，与A5一致 |
-| GAP-06 | Setup Project 与 README 实际行为一致性 | In Progress | Editor、README、AGENTS | 非阻塞 | 一键入口行为与文档描述一致，避免误配置 |
+| GAP-06 | Setup Project 与 README 实际行为一致性 | Closed (2026-04-16) | Editor、README、AGENTS | 已闭环 | 一键入口行为与文档描述一致，避免误配置 |
 
 执行约束：
 

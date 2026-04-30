@@ -1,0 +1,75 @@
+﻿{
+  "docVersion": "R4-06-UX-ACCEPTANCE-2026-04-30.v3",
+  "stage": "R4",
+  "task": "R4-06",
+  "status": "IN_PROGRESS_12_MANUAL_ITEMS_PENDING",
+  "executionDate": "2026-04-30",
+  "prerequisites": [
+    "r4-02-prefab-feedback-implementation.md",
+    "r4-04-copy-readability-localization-closeout.md",
+    "r4-05-ui-regression-multi-resolution-input.md"
+  ],
+  "surfaces": ["map", "diplomacy", "battle_report", "event"],
+  "resolutions": ["1280x720", "1920x1080", "2560x1440"],
+  "inputPath": ["mouse_keyboard_primary"],
+  "automatedPrecheck": {
+    "runner": "EventideAge.Editor.TestMenu.RunR4UxVisualAudit",
+    "runId": "20260430_151648_R4-06_UX_VISUAL_AUDIT_RUN01",
+    "csv": "production/evidence/r4/validation/20260430_151648_R4-06_UX_VISUAL_AUDIT_RUN01.csv",
+    "log": "production/evidence/r4/validation/20260430_151648_R4-06_UX_VISUAL_AUDIT_RUN01.log",
+    "summary": "production/evidence/r4/validation/20260430_151648_R4-06_UX_VISUAL_AUDIT_RUN01.md",
+    "result": "PASS",
+    "metrics": {
+      "720p": { "panelsFound": "4/4", "outOfBounds": 0, "overlapPairs": "NONE" },
+      "1080p": { "panelsFound": "4/4", "outOfBounds": 0, "overlapPairs": "NONE" },
+      "1440p": { "panelsFound": "4/4", "outOfBounds": 0, "overlapPairs": "NONE" }
+    }
+  },
+  "chainAutoValidationRun02": {
+    "runner": "EventideAge.Editor.TestMenu.RunR1ReplayScenarios",
+    "status": "PASS",
+    "runDate": "2026-04-30",
+    "chainId": "RL-01",
+    "log": "production/evidence/r1/replay-logs/20260430_151631_R1-03_RL-01.log",
+    "batchLog": "production/evidence/adhoc/20260430_R4_06_R1_REPLAY_REFRESH.log"
+  },
+  "manualWalkthroughRun01": {
+    "status": "PENDING_MANUAL_SIGNOFF",
+    "markdown": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-manual-visual-walkthrough-run01.md",
+    "json": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-manual-visual-walkthrough-run01.json"
+  },
+  "manualWorkitemsRun01": {
+    "status": "READY_FOR_REVIEW",
+    "markdown": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-manual-review-workitems-run01.md",
+    "json": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-manual-review-workitems-run01.json",
+    "count": 16
+  },
+  "manualWorkitemsRun02": {
+    "status": "AUTO_PREFILLED_PENDING_HUMAN_SIGNOFF",
+    "markdown": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-manual-review-workitems-run02.md",
+    "json": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-manual-review-workitems-run02.json",
+    "count": 16,
+    "autoClosedCount": 4,
+    "manualPendingCount": 12
+  },
+  "signoffReadySummaryRun01": {
+    "markdown": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-signoff-ready-summary-run01.md",
+    "json": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-signoff-ready-summary-run01.json"
+  },
+  "signoffReadySummaryRun02": {
+    "markdown": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-signoff-ready-summary-run02.md",
+    "json": "production/sprints/r4-ui-productization-2026-06-08-2026-06-21/r4-06-signoff-ready-summary-run02.json"
+  },
+  "acceptanceCriteria": [
+    "No P0/P1 across all three resolutions.",
+    "Map->Diplomacy->Report->Event chain is playable end-to-end.",
+    "No silent/no-feedback interaction in high-frequency UI path."
+  ],
+  "signoff": {
+    "producer": "TODO",
+    "design": "TODO",
+    "qa": "TODO",
+    "tech": "PRECHECK_PASS_2026-04-30",
+    "decision": "TODO"
+  }
+}

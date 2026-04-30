@@ -1,0 +1,19 @@
+{
+  "stage": "R3-05",
+  "generatedOn": "2026-04-21",
+  "validationRuns": 3,
+  "baseProfile": "R88-r82-stability-pace-a",
+  "verdict": "FAIL",
+  "runKpiPass": [
+    { "run": "V01", "batch": "R3-05-B002-R88-V01", "pass": 9, "total": 13 },
+    { "run": "V02", "batch": "R3-05-B002-R88-V02", "pass": 11, "total": 13 },
+    { "run": "V03", "batch": "R3-05-B002-R88-V03", "pass": 11, "total": 13 }
+  ],
+  "failingKpiIds": [
+    "WIN_RATE_EASY",
+    "WIN_RATE_STANDARD",
+    "AVG_END_TURN_OVERALL",
+    "DEFEAT_SHARE_OVERALL",
+    "SINGLE_PATH_VICTORY_MONOPOLY"
+  ]
+}

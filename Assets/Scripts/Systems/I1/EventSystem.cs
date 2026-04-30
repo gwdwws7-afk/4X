@@ -21,10 +21,14 @@ namespace EventideAge.Systems.I1
         Random
     }
     
+    [Serializable]
     public class GameEvent
     {
         public string EventId;
+        public string TemplateId;
+        public string CanonicalKey;
         public string EventName;
+        public string Narrative;
         public EventType Type;
         public EventTrigger Trigger;
         public int TriggerTurn;
@@ -33,10 +37,19 @@ namespace EventideAge.Systems.I1
         public int TimeoutTurns;
         public List<string> Effects;
         public bool IsExpired;
+        public bool AllowRepeat;
     }
     
     public class EventSystem : GameSystem
     {
+        [Header("Event Pool")]
+        public EventPoolConfig EventPoolConfigAsset;
+        public bool AutoLoadEventPoolOnInitialize = true;
+
+        [Header("Tutorial Flow")]
+        public TutorialFlowConfig TutorialFlowConfigAsset;
+        public bool AutoLoadTutorialOnInitialize = true;
+
         [Header("Event Probabilities")]
         public float RandomEventBaseProbability = 0.15f;
         public float EndgameEventProbability = 0.3f;
@@ -46,20 +59,39 @@ namespace EventideAge.Systems.I1
         
         private List<GameEvent> _eventQueue = new List<GameEvent>();
         private List<GameEvent> _triggeredEvents = new List<GameEvent>();
+        private readonly HashSet<string> _queuedEventDedupKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _triggeredEventDedupKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private int _eventIdCounter = 0;
+        private int _lastPoolLoadDuplicateCount = 0;
+        private int _lastPoolLoadEnqueuedCount = 0;
+        private int _lastTutorialLoadDuplicateCount = 0;
+        private int _lastTutorialLoadEnqueuedCount = 0;
         
         public override void Initialize(GameState state, GameEvents events)
         {
             base.Initialize(state, events);
             
             Events.OnTurnEnded += HandleTurnEnded;
+
+            if (AutoLoadEventPoolOnInitialize && EventPoolConfigAsset != null)
+            {
+                LoadEventPoolFromConfig(EventPoolConfigAsset, clearQueue: false, resetTriggeredHistory: false);
+            }
+
+            if (AutoLoadTutorialOnInitialize && TutorialFlowConfigAsset != null)
+            {
+                LoadTutorialFlowFromConfig(TutorialFlowConfigAsset, clearQueue: false, resetTriggeredHistory: false);
+            }
             
             Debug.Log("[EventSystem] Initialized");
         }
         
         private void OnDestroy()
         {
-            Events.OnTurnEnded -= HandleTurnEnded;
+            if (Events != null)
+            {
+                Events.OnTurnEnded -= HandleTurnEnded;
+            }
         }
         
         private void HandleTurnEnded(int turnNumber)
@@ -68,10 +100,27 @@ namespace EventideAge.Systems.I1
             CheckTriggeredEvents(turnNumber);
             DecayEventProbabilities();
         }
-        
-        public void QueueEvent(GameEvent gameEvent)
+
+        public bool QueueEvent(GameEvent gameEvent)
         {
-            gameEvent.EventId = $"event_{_eventIdCounter++}";
+            if (gameEvent == null)
+                return false;
+
+            NormalizeEvent(gameEvent);
+            string dedupKey = EnsureEventCanonicalKey(gameEvent);
+
+            bool duplicatesTriggeredHistory = !gameEvent.AllowRepeat && _triggeredEventDedupKeys.Contains(dedupKey);
+            if (_queuedEventDedupKeys.Contains(dedupKey) || duplicatesTriggeredHistory)
+            {
+                Debug.LogWarning($"[EventSystem] Duplicate event skipped: {gameEvent.EventName} (key={dedupKey})");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(gameEvent.EventId))
+            {
+                gameEvent.EventId = $"event_{_eventIdCounter++}";
+            }
+
             if (gameEvent.TimeoutTurns <= 0)
                 gameEvent.TimeoutTurns = DefaultEventTimeout;
 
@@ -79,18 +128,27 @@ namespace EventideAge.Systems.I1
                 gameEvent.Probability = RandomEventBaseProbability;
 
             _eventQueue.Add(gameEvent);
+            _queuedEventDedupKeys.Add(dedupKey);
             
             Debug.Log($"[EventSystem] Event queued: {gameEvent.EventName} ({gameEvent.Type})");
+            return true;
         }
         
         public void TriggerEvent(string eventId)
         {
             var evt = _eventQueue.Find(e => e.EventId == eventId);
             if (evt == null) return;
+
+            string dedupKey = EnsureEventCanonicalKey(evt);
             
             ApplyEventEffects(evt);
             _triggeredEvents.Add(evt);
             _eventQueue.Remove(evt);
+            _queuedEventDedupKeys.Remove(dedupKey);
+            if (!evt.AllowRepeat)
+            {
+                _triggeredEventDedupKeys.Add(dedupKey);
+            }
 
             FeedbackSeverity severity = evt.Type == EventType.Endgame
                 ? FeedbackSeverity.Critical
@@ -116,6 +174,7 @@ namespace EventideAge.Systems.I1
                 evt.TimeoutTurns--;
                 if (evt.TimeoutTurns <= 0)
                 {
+                    _queuedEventDedupKeys.Remove(EnsureEventCanonicalKey(evt));
                     _eventQueue.RemoveAt(i);
                     Debug.Log($"[EventSystem] Event expired: {evt.EventName}");
                 }
@@ -181,6 +240,9 @@ namespace EventideAge.Systems.I1
         
         private void ApplyEventEffects(GameEvent evt)
         {
+            if (evt.Effects == null)
+                return;
+
             foreach (var effect in evt.Effects)
             {
                 ApplyEffect(effect);
@@ -395,8 +457,9 @@ namespace EventideAge.Systems.I1
                 Type = EventType.Random,
                 Trigger = EventTrigger.Random,
                 Probability = probability,
-                Effects = new List<string>(effects),
-                TimeoutTurns = DefaultEventTimeout
+                Effects = effects != null ? new List<string>(effects) : new List<string>(),
+                TimeoutTurns = DefaultEventTimeout,
+                AllowRepeat = true
             };
         }
         
@@ -409,8 +472,9 @@ namespace EventideAge.Systems.I1
                 Trigger = EventTrigger.TurnBased,
                 TriggerTurn = turn,
                 Probability = 1.0f,
-                Effects = new List<string>(effects),
-                TimeoutTurns = DefaultEventTimeout
+                Effects = effects != null ? new List<string>(effects) : new List<string>(),
+                TimeoutTurns = DefaultEventTimeout,
+                AllowRepeat = false
             };
         }
         
@@ -423,9 +487,126 @@ namespace EventideAge.Systems.I1
                 Trigger = EventTrigger.ConditionBased,
                 TriggerCondition = condition,
                 Probability = 1.0f,
-                Effects = new List<string>(effects),
-                TimeoutTurns = DefaultEventTimeout
+                Effects = effects != null ? new List<string>(effects) : new List<string>(),
+                TimeoutTurns = DefaultEventTimeout,
+                AllowRepeat = false
             };
+        }
+
+        public int LoadEventPoolFromConfig(bool clearQueue = true, bool resetTriggeredHistory = false)
+        {
+            return LoadEventPoolFromConfig(EventPoolConfigAsset, clearQueue, resetTriggeredHistory);
+        }
+
+        public int LoadEventPoolFromConfig(EventPoolConfig poolConfig, bool clearQueue = true, bool resetTriggeredHistory = false)
+        {
+            _lastPoolLoadDuplicateCount = 0;
+            _lastPoolLoadEnqueuedCount = 0;
+
+            if (clearQueue)
+            {
+                _eventQueue.Clear();
+                _queuedEventDedupKeys.Clear();
+            }
+
+            if (resetTriggeredHistory)
+            {
+                _triggeredEvents.Clear();
+                _triggeredEventDedupKeys.Clear();
+            }
+
+            if (poolConfig == null || poolConfig.Templates.Length == 0)
+            {
+                Debug.LogWarning("[EventSystem] Event pool load skipped: no config or templates.");
+                return 0;
+            }
+
+            foreach (var template in poolConfig.Templates)
+            {
+                if (template == null || !template.Enabled)
+                    continue;
+
+                bool queued = QueueEvent(template.ToGameEvent(DefaultEventTimeout, RandomEventBaseProbability));
+                if (queued)
+                {
+                    _lastPoolLoadEnqueuedCount++;
+                }
+                else
+                {
+                    _lastPoolLoadDuplicateCount++;
+                }
+            }
+
+            Debug.Log($"[EventSystem] Event pool loaded: enqueued={_lastPoolLoadEnqueuedCount}, duplicatesSkipped={_lastPoolLoadDuplicateCount}");
+            return _lastPoolLoadEnqueuedCount;
+        }
+
+        public int GetLastPoolLoadDuplicateCount()
+        {
+            return _lastPoolLoadDuplicateCount;
+        }
+
+        public int GetLastPoolLoadEnqueuedCount()
+        {
+            return _lastPoolLoadEnqueuedCount;
+        }
+
+        public int LoadTutorialFlowFromConfig(bool clearQueue = false, bool resetTriggeredHistory = false)
+        {
+            return LoadTutorialFlowFromConfig(TutorialFlowConfigAsset, clearQueue, resetTriggeredHistory);
+        }
+
+        public int LoadTutorialFlowFromConfig(TutorialFlowConfig tutorialConfig, bool clearQueue = false, bool resetTriggeredHistory = false)
+        {
+            _lastTutorialLoadDuplicateCount = 0;
+            _lastTutorialLoadEnqueuedCount = 0;
+
+            if (clearQueue)
+            {
+                _eventQueue.Clear();
+                _queuedEventDedupKeys.Clear();
+            }
+
+            if (resetTriggeredHistory)
+            {
+                _triggeredEvents.Clear();
+                _triggeredEventDedupKeys.Clear();
+            }
+
+            if (tutorialConfig == null || tutorialConfig.Steps.Length == 0)
+            {
+                Debug.LogWarning("[EventSystem] Tutorial flow load skipped: no config or steps.");
+                return 0;
+            }
+
+            foreach (var step in tutorialConfig.Steps)
+            {
+                if (step == null || !step.Enabled)
+                    continue;
+
+                bool queued = QueueEvent(step.ToGameEvent(DefaultEventTimeout));
+                if (queued)
+                {
+                    _lastTutorialLoadEnqueuedCount++;
+                }
+                else
+                {
+                    _lastTutorialLoadDuplicateCount++;
+                }
+            }
+
+            Debug.Log($"[EventSystem] Tutorial flow loaded: enqueued={_lastTutorialLoadEnqueuedCount}, duplicatesSkipped={_lastTutorialLoadDuplicateCount}");
+            return _lastTutorialLoadEnqueuedCount;
+        }
+
+        public int GetLastTutorialLoadDuplicateCount()
+        {
+            return _lastTutorialLoadDuplicateCount;
+        }
+
+        public int GetLastTutorialLoadEnqueuedCount()
+        {
+            return _lastTutorialLoadEnqueuedCount;
         }
         
         public GameEvent[] GetQueuedEvents()
@@ -436,6 +617,38 @@ namespace EventideAge.Systems.I1
         public GameEvent[] GetTriggeredEvents()
         {
             return _triggeredEvents.ToArray();
+        }
+
+        private void NormalizeEvent(GameEvent gameEvent)
+        {
+            if (gameEvent.Effects == null)
+                gameEvent.Effects = new List<string>();
+
+            gameEvent.EventName = string.IsNullOrWhiteSpace(gameEvent.EventName)
+                ? "UnnamedEvent"
+                : gameEvent.EventName.Trim();
+        }
+
+        private string EnsureEventCanonicalKey(GameEvent gameEvent)
+        {
+            if (gameEvent == null)
+                return string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(gameEvent.CanonicalKey))
+                return gameEvent.CanonicalKey;
+
+            if (!string.IsNullOrWhiteSpace(gameEvent.TemplateId))
+            {
+                gameEvent.CanonicalKey = $"template:{gameEvent.TemplateId.Trim().ToLowerInvariant()}";
+                return gameEvent.CanonicalKey;
+            }
+
+            string effects = gameEvent.Effects != null ? string.Join(";", gameEvent.Effects) : string.Empty;
+            gameEvent.CanonicalKey =
+                $"{gameEvent.EventName}|{gameEvent.Type}|{gameEvent.Trigger}|{gameEvent.TriggerTurn}|{gameEvent.TriggerCondition}|{effects}"
+                .Trim()
+                .ToLowerInvariant();
+            return gameEvent.CanonicalKey;
         }
     }
 }

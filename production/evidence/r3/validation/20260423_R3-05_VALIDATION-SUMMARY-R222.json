@@ -1,0 +1,21 @@
+{
+  "stage": "R3-05",
+  "generatedOn": "2026-04-23",
+  "validationRuns": 3,
+  "baseProfile": "R222-r212-hard-defeat-balance-c",
+  "verdict": "FAIL",
+  "runKpiPass": [
+    { "run": "V01", "batch": "R3-05-B002-R222-V01", "pass": 8, "total": 13 },
+    { "run": "V02", "batch": "R3-05-B002-R222-V02", "pass": 10, "total": 13 },
+    { "run": "V03", "batch": "R3-05-B002-R222-V03", "pass": 9, "total": 13 }
+  ],
+  "failingKpiIds": [
+    "WIN_RATE_EASY",
+    "WIN_RATE_STANDARD",
+    "WIN_RATE_HARD",
+    "AVG_END_TURN_OVERALL",
+    "RESOURCE_CV_FIREOIL",
+    "RESOURCE_CV_ARMS",
+    "DEFEAT_SHARE_OVERALL"
+  ]
+}

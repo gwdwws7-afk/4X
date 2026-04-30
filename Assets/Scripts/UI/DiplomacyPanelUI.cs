@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using EventideAge.Core;
+using EventideAge.Systems.L4;
 
 namespace EventideAge.UI
 {
@@ -44,6 +45,7 @@ namespace EventideAge.UI
         private long _nextSequence = 1;
         private long _turnStartSequence = 1;
         private string _latestReasonHint = string.Empty;
+        private LocalizationSystem _localizationSystem;
 
         public override void Initialize(GameState state, GameEvents events)
         {
@@ -60,6 +62,7 @@ namespace EventideAge.UI
                 DiplomacyPanel.SetActive(true);
             }
 
+            _localizationSystem = ResolveLocalizationSystem();
             _aggregationTurn = State != null ? State.CurrentTurn : -1;
             _dedupTurn = _aggregationTurn;
             _turnStartSequence = _nextSequence;
@@ -104,7 +107,9 @@ namespace EventideAge.UI
             string canonicalMessage = UiCanonicalText.CanonicalizeMessage(message);
             TrackReasonHint(canonicalSourceId, canonicalMessage);
             string dedupeKey = $"DIP-ACT|{canonicalSourceId}|{canonicalMessage}|{severity}";
-            PushEntry($"[{severity.ToString().ToUpperInvariant()}] [{canonicalSourceId}] {canonicalMessage}", severity, dedupeKey);
+            string line = $"[{severity.ToString().ToUpperInvariant()}] [{canonicalSourceId}] {canonicalMessage}";
+            line = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalMessage, UiSurfaceTarget.Diplomacy);
+            PushEntry(line, severity, dedupeKey);
         }
 
         private void HandleConsequenceAdded(string sourceActionId, string description, int durationTurns, bool reversible)
@@ -120,7 +125,9 @@ namespace EventideAge.UI
             TrackReasonHint(canonicalSourceId, canonicalDescription);
             FeedbackSeverity severity = (!reversible || durationTurns < 0) ? FeedbackSeverity.Warning : FeedbackSeverity.Info;
             string dedupeKey = $"DIP-CQ|{canonicalSourceId}|{canonicalDescription}|{durationTurns}|{reversible}";
-            PushEntry($"[CONSEQUENCE] [{canonicalSourceId}] {canonicalDescription} ({durationLabel})", severity, dedupeKey);
+            string line = $"[CONSEQUENCE] [{canonicalSourceId}] {canonicalDescription} ({durationLabel})";
+            line = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalDescription, UiSurfaceTarget.Diplomacy);
+            PushEntry(line, severity, dedupeKey);
         }
 
         private void HandleNotificationAdded(string sourceId, string message, FeedbackSeverity severity)
@@ -134,7 +141,9 @@ namespace EventideAge.UI
             string canonicalMessage = UiCanonicalText.CanonicalizeMessage(message);
             TrackReasonHint(canonicalSourceId, canonicalMessage);
             string dedupeKey = $"DIP-NOTICE|{canonicalSourceId}|{canonicalMessage}|{severity}";
-            PushEntry($"[NOTICE/{severity.ToString().ToUpperInvariant()}] [{canonicalSourceId}] {canonicalMessage}", severity, dedupeKey);
+            string line = $"[NOTICE/{severity.ToString().ToUpperInvariant()}] [{canonicalSourceId}] {canonicalMessage}";
+            line = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalMessage, UiSurfaceTarget.Diplomacy);
+            PushEntry(line, severity, dedupeKey);
         }
 
         private void HandleAlertAdded(string sourceId, string message, FeedbackSeverity severity)
@@ -148,7 +157,9 @@ namespace EventideAge.UI
             string canonicalMessage = UiCanonicalText.CanonicalizeMessage(message);
             TrackReasonHint(canonicalSourceId, canonicalMessage);
             string dedupeKey = $"DIP-ALERT|{canonicalSourceId}|{canonicalMessage}|{severity}";
-            PushEntry($"[ALERT/{severity.ToString().ToUpperInvariant()}] [{canonicalSourceId}] {canonicalMessage}", severity, dedupeKey);
+            string line = $"[ALERT/{severity.ToString().ToUpperInvariant()}] [{canonicalSourceId}] {canonicalMessage}";
+            line = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalMessage, UiSurfaceTarget.Diplomacy);
+            PushEntry(line, severity, dedupeKey);
         }
 
         private void HandleRelationshipChanged(string factionId, int delta)
@@ -188,6 +199,12 @@ namespace EventideAge.UI
                 : string.Join(" | ", aggregate.Reasons.Take(2));
             string summary = $"[RELATION] T{aggregate.Turn} {aggregate.FactionId}: net {netLabel} (updates x{aggregate.UpdateCount}) | reasons: {reasonsLabel}";
             FeedbackSeverity severity = GetRelationshipSeverity(aggregate.NetDelta);
+            summary = UiSurfaceSemantics.AppendMeta(
+                summary,
+                severity,
+                $"C1.Relation.{canonicalFactionId}",
+                reasonsLabel,
+                UiSurfaceTarget.Diplomacy);
             UpsertRelationshipEntry(canonicalFactionId, summary, severity);
         }
 
@@ -410,6 +427,7 @@ namespace EventideAge.UI
             string summary = $"[TURN {turn} SUMMARY] diplomacy events {turnEntries.Count} | relation updates {relationUpdates} | C/W/I {criticalCount}/{warningCount}/{infoCount}";
             FeedbackSeverity severity = criticalCount > 0 ? FeedbackSeverity.Warning : FeedbackSeverity.Info;
             string dedupeKey = $"DIP-TURN-SUMMARY|{turn}";
+            summary = UiSurfaceSemantics.AppendMeta(summary, severity, "C1.TurnSummary", summary, UiSurfaceTarget.Diplomacy);
             PushEntry(summary, severity, dedupeKey);
         }
 
@@ -443,6 +461,10 @@ namespace EventideAge.UI
                 {
                     LatestDiplomacyText.text = "No diplomacy updates.";
                 }
+                else if (latest.Line.IndexOf("status:Locked", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    LatestDiplomacyText.text = $"[{Localize("ui.diplomacy.action.locked", "ACTION LOCKED")}] {latest.Line}";
+                }
                 else if (latest.Line.StartsWith("[RELATION]", StringComparison.Ordinal) && latest.Severity != FeedbackSeverity.Info)
                 {
                     LatestDiplomacyText.text = $"[RELATION HOTSPOT] {latest.Line}";
@@ -471,6 +493,32 @@ namespace EventideAge.UI
 
                 DiplomacyHistoryText.text = sb.ToString().TrimEnd();
             }
+        }
+
+        private LocalizationSystem ResolveLocalizationSystem()
+        {
+            if (GameManager.Instance != null && GameManager.Instance.Systems != null)
+            {
+                for (int i = 0; i < GameManager.Instance.Systems.Count; i++)
+                {
+                    if (GameManager.Instance.Systems[i] is LocalizationSystem localization)
+                    {
+                        return localization;
+                    }
+                }
+            }
+
+            return UnityEngine.Object.FindObjectOfType<LocalizationSystem>();
+        }
+
+        private string Localize(string key, string fallback)
+        {
+            if (_localizationSystem == null)
+            {
+                return fallback;
+            }
+
+            return _localizationSystem.Translate(key, fallback);
         }
     }
 }

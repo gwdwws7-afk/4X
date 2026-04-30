@@ -1,0 +1,39 @@
+{
+  "reportVersion": "R2-06-CAMPAIGN-COMPLETION-V1",
+  "generatedOn": "2026-04-20",
+  "task": "R2-06",
+  "target": {
+    "turnWindow": 24,
+    "mustReachPostTurnState": true,
+    "timeoutEndReason": "attrition",
+    "feedbackRequirements": {
+      "noEmptyTurns": true,
+      "noFeedbackLessPhases": true
+    }
+  },
+  "results": {
+    "targetedChecks": {
+      "pass": 7,
+      "fail": 0,
+      "evidence": "production/evidence/r2/campaign-completion/20260420_R2-06_CAMPAIGN-COMPLETION-CHECKS.log"
+    },
+    "replayTrace": {
+      "chain": "CAMPAIGN-24TURN",
+      "steps": 24,
+      "allPass": true,
+      "evidence": "production/evidence/r2/campaign-completion/20260420_102347_R2-06_CAMPAIGN-24TURN.log"
+    },
+    "fullRegression": {
+      "pass": 390,
+      "fail": 0,
+      "evidence": "production/evidence/r2/campaign-completion/20260420_R2-06_RUNALL-REGRESSION.log"
+    }
+  },
+  "acceptance": {
+    "campaignNotEndedBeforeTurn24": true,
+    "postTurnStateReachedAfterTurn24": true,
+    "timeoutTriggeredOnceAtTurn24": true,
+    "noEmptyTurnsAcross24Turns": true,
+    "noFeedbackLessPhasesAcross24Turns": true
+  }
+}

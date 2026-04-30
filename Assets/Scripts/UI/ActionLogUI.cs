@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using EventideAge.Core;
+using EventideAge.Systems.L4;
 
 namespace EventideAge.UI
 {
@@ -40,6 +41,7 @@ namespace EventideAge.UI
         private long _nextSequence = 1;
         private int _dedupTurn = -1;
         private long _turnStartSequence = 1;
+        private LocalizationSystem _localizationSystem;
 
         public override void Initialize(GameState state, GameEvents events)
         {
@@ -53,6 +55,7 @@ namespace EventideAge.UI
                 ActionLogPanel.SetActive(true);
             }
 
+            _localizationSystem = ResolveLocalizationSystem();
             _dedupTurn = State != null ? State.CurrentTurn : -1;
             _turnStartSequence = _nextSequence;
             RefreshDisplay();
@@ -89,6 +92,7 @@ namespace EventideAge.UI
 
             string line = $"[{turnLabel}/{phaseLabel}] [{severityLabel}] [{canonicalSourceId}] {canonicalMessage}";
             BattleStage stage = ClassifyStage(canonicalSourceId);
+            line = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalMessage, UiSurfaceTarget.BattleReport);
             string dedupeKey = $"BATTLE-ACT|{stage}|{canonicalSourceId}|{canonicalMessage}|{severity}";
             PushEntry(line, stage, severity, dedupeKey);
         }
@@ -107,6 +111,7 @@ namespace EventideAge.UI
             string durationLabel = durationTurns < 0 ? "Persistent" : $"{durationTurns}T";
             FeedbackSeverity severity = (!reversible || durationTurns < 0) ? FeedbackSeverity.Warning : FeedbackSeverity.Info;
             string line = $"[{turnLabel}/{phaseLabel}] [CONSEQUENCE] [{canonicalSourceId}] {canonicalDescription} ({durationLabel})";
+            line = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalDescription, UiSurfaceTarget.BattleReport);
             string dedupeKey = $"BATTLE-CQ|{canonicalSourceId}|{canonicalDescription}|{durationTurns}|{reversible}";
             PushEntry(line, BattleStage.Consequence, severity, dedupeKey);
         }
@@ -217,12 +222,12 @@ namespace EventideAge.UI
             }
         }
 
-        private static string GetStageHeader(BattleStage stage)
+        private string GetStageHeader(BattleStage stage)
         {
             switch (stage)
             {
                 case BattleStage.Summary:
-                    return "=== TURN SUMMARY ===";
+                    return $"=== {Localize("ui.report.summary", "TURN SUMMARY")} ===";
                 case BattleStage.Execution:
                     return "=== ACTION EXECUTION ===";
                 case BattleStage.Resolution:
@@ -282,6 +287,7 @@ namespace EventideAge.UI
             FeedbackSeverity severity = criticalCount > 0 ? FeedbackSeverity.Warning : FeedbackSeverity.Info;
             string summary = $"[TURN {turn} SUMMARY] battle events {turnEntries.Count} | E/R/C {executionCount}/{resolutionCount}/{consequenceCount} | C/W/I {criticalCount}/{warningCount}/{infoCount}";
             string dedupeKey = $"BATTLE-TURN-SUMMARY|{turn}";
+            summary = UiSurfaceSemantics.AppendMeta(summary, severity, "D.TurnSummary", summary, UiSurfaceTarget.BattleReport);
             PushEntry(summary, BattleStage.Summary, severity, dedupeKey);
         }
 
@@ -352,6 +358,32 @@ namespace EventideAge.UI
 
                 HistoryText.text = sb.ToString().TrimEnd();
             }
+        }
+
+        private LocalizationSystem ResolveLocalizationSystem()
+        {
+            if (GameManager.Instance != null && GameManager.Instance.Systems != null)
+            {
+                for (int i = 0; i < GameManager.Instance.Systems.Count; i++)
+                {
+                    if (GameManager.Instance.Systems[i] is LocalizationSystem localization)
+                    {
+                        return localization;
+                    }
+                }
+            }
+
+            return UnityEngine.Object.FindObjectOfType<LocalizationSystem>();
+        }
+
+        private string Localize(string key, string fallback)
+        {
+            if (_localizationSystem == null)
+            {
+                return fallback;
+            }
+
+            return _localizationSystem.Translate(key, fallback);
         }
     }
 }

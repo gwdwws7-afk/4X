@@ -1,0 +1,16 @@
+{
+  "stage": "R3-05",
+  "generatedOn": "2026-04-22",
+  "validationRuns": 3,
+  "baseProfile": "R201-r198-hard-survival-c",
+  "verdict": "FAIL",
+  "runKpiPass": [
+    { "run": "V01", "batch": "R3-05-B002-R201-V01", "pass": 13, "total": 13 },
+    { "run": "V02", "batch": "R3-05-B002-R201-V02", "pass": 12, "total": 13 },
+    { "run": "V03", "batch": "R3-05-B002-R201-V03", "pass": 12, "total": 13 }
+  ],
+  "failingKpiIds": [
+    "WIN_RATE_HARD",
+    "DEFEAT_SHARE_OVERALL"
+  ]
+}

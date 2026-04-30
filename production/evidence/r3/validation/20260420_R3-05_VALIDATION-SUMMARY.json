@@ -1,0 +1,23 @@
+{
+  "stage": "R3-05",
+  "generatedOn": "2026-04-20",
+  "validationRuns": 3,
+  "baseProfile": "R3-04-R03-target-seek",
+  "verdict": "FAIL",
+  "runKpiPass": [
+    { "run": "V01", "batch": "R3-05-B001-V01", "pass": 4, "total": 13 },
+    { "run": "V02", "batch": "R3-05-B001-V02", "pass": 4, "total": 13 },
+    { "run": "V03", "batch": "R3-05-B001-V03", "pass": 4, "total": 13 }
+  ],
+  "failingKpiIds": [
+    "WIN_RATE_EASY",
+    "WIN_RATE_STANDARD",
+    "AVG_END_TURN_OVERALL",
+    "AVG_END_TURN_STANDARD",
+    "ATTRITION_RATE_OVERALL",
+    "RESOURCE_CV_GOLDLEAF",
+    "RESOURCE_CV_FIREOIL",
+    "RESOURCE_CV_ARMS",
+    "SINGLE_PATH_VICTORY_MONOPOLY"
+  ]
+}

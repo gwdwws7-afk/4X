@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using EventideAge.Core;
+using EventideAge.Systems.L4;
 
 namespace EventideAge.UI
 {
@@ -32,6 +33,7 @@ namespace EventideAge.UI
         private long _nextSequence = 1;
         private int _dedupTurn = -1;
         private long _turnStartSequence = 1;
+        private LocalizationSystem _localizationSystem;
 
         public override void Initialize(GameState state, GameEvents events)
         {
@@ -47,6 +49,7 @@ namespace EventideAge.UI
                 EventPanel.SetActive(true);
             }
 
+            _localizationSystem = ResolveLocalizationSystem();
             _dedupTurn = State != null ? State.CurrentTurn : -1;
             _turnStartSequence = _nextSequence;
             RefreshDisplay();
@@ -80,8 +83,9 @@ namespace EventideAge.UI
             string canonicalEventId = UiCanonicalText.CanonicalizeSourceId(eventId);
             string canonicalMessage = UiCanonicalText.CanonicalizeMessage(message);
             string line = $"[{severity.ToString().ToUpperInvariant()}] [{canonicalEventId}] {canonicalMessage}";
+            string decorated = UiSurfaceSemantics.AppendMeta(line, severity, canonicalEventId, canonicalMessage, UiSurfaceTarget.Event);
             string dedupeKey = $"EV-STORY|{canonicalEventId}|{canonicalMessage}|{severity}";
-            PushEvent(line, isStory: true, severity: severity, dedupeKey: dedupeKey);
+            PushEvent(decorated, isStory: true, severity: severity, dedupeKey: dedupeKey);
         }
 
         private void HandleNotificationAdded(string sourceId, string message, FeedbackSeverity severity)
@@ -89,8 +93,9 @@ namespace EventideAge.UI
             string canonicalSourceId = UiCanonicalText.CanonicalizeSourceId(sourceId);
             string canonicalMessage = UiCanonicalText.CanonicalizeMessage(message);
             string line = $"[SYSTEM/{severity.ToString().ToUpperInvariant()}] [{canonicalSourceId}] {canonicalMessage}";
+            string decorated = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalMessage, UiSurfaceTarget.Event);
             string dedupeKey = $"EV-NOTICE|{canonicalSourceId}|{canonicalMessage}|{severity}";
-            PushEvent(line, isStory: false, severity: severity, dedupeKey: dedupeKey);
+            PushEvent(decorated, isStory: false, severity: severity, dedupeKey: dedupeKey);
         }
 
         private void HandleAlertAdded(string sourceId, string message, FeedbackSeverity severity)
@@ -98,16 +103,18 @@ namespace EventideAge.UI
             string canonicalSourceId = UiCanonicalText.CanonicalizeSourceId(sourceId);
             string canonicalMessage = UiCanonicalText.CanonicalizeMessage(message);
             string line = $"[SYSTEM ALERT/{severity.ToString().ToUpperInvariant()}] [{canonicalSourceId}] {canonicalMessage}";
+            string decorated = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalMessage, UiSurfaceTarget.Event);
             string dedupeKey = $"EV-ALERT|{canonicalSourceId}|{canonicalMessage}|{severity}";
-            PushEvent(line, isStory: false, severity: severity, dedupeKey: dedupeKey);
+            PushEvent(decorated, isStory: false, severity: severity, dedupeKey: dedupeKey);
         }
 
         private void HandleGlobalAlertRaised(string message, FeedbackSeverity severity)
         {
             string canonicalMessage = UiCanonicalText.CanonicalizeMessage(message);
             string line = $"[GLOBAL/{severity.ToString().ToUpperInvariant()}] {canonicalMessage}";
+            string decorated = UiSurfaceSemantics.AppendMeta(line, severity, "I1.GlobalAlert", canonicalMessage, UiSurfaceTarget.Event);
             string dedupeKey = $"EV-GLOBAL|{canonicalMessage}|{severity}";
-            PushEvent(line, isStory: false, severity: severity, dedupeKey: dedupeKey);
+            PushEvent(decorated, isStory: false, severity: severity, dedupeKey: dedupeKey);
         }
 
         private void PushEvent(string line, bool isStory, FeedbackSeverity severity, string dedupeKey)
@@ -233,6 +240,7 @@ namespace EventideAge.UI
             FeedbackSeverity severity = criticalCount > 0 ? FeedbackSeverity.Warning : FeedbackSeverity.Info;
             string summary = $"[TURN {turn} SUMMARY] events {turnEntries.Count} | story/system {storyCount}/{systemCount} | C/W/I {criticalCount}/{warningCount}/{infoCount}";
             string dedupeKey = $"EVENT-TURN-SUMMARY|{turn}";
+            summary = UiSurfaceSemantics.AppendMeta(summary, severity, "I1.TurnSummary", summary, UiSurfaceTarget.Event);
             PushEvent(summary, isStory: false, severity: severity, dedupeKey: dedupeKey);
         }
 
@@ -258,7 +266,18 @@ namespace EventideAge.UI
                 var storyEntries = _events.Where(entry => entry.IsStory);
                 var systemEntries = _events.Where(entry => !entry.IsStory);
                 EventEntry latest = GetTopPriorityEntry(storyEntries) ?? GetTopPriorityEntry(systemEntries);
-                LatestEventText.text = latest != null ? latest.Line : "No events.";
+                if (latest == null)
+                {
+                    LatestEventText.text = "No events.";
+                }
+                else if (latest.IsStory)
+                {
+                    LatestEventText.text = $"[{Localize("ui.event.option.preview", "OPTION PREVIEW")}] {latest.Line}";
+                }
+                else
+                {
+                    LatestEventText.text = latest.Line;
+                }
             }
 
             if (EventHistoryText != null)
@@ -300,6 +319,32 @@ namespace EventideAge.UI
 
                 EventHistoryText.text = sb.ToString().TrimEnd();
             }
+        }
+
+        private LocalizationSystem ResolveLocalizationSystem()
+        {
+            if (GameManager.Instance != null && GameManager.Instance.Systems != null)
+            {
+                for (int i = 0; i < GameManager.Instance.Systems.Count; i++)
+                {
+                    if (GameManager.Instance.Systems[i] is LocalizationSystem localization)
+                    {
+                        return localization;
+                    }
+                }
+            }
+
+            return UnityEngine.Object.FindObjectOfType<LocalizationSystem>();
+        }
+
+        private string Localize(string key, string fallback)
+        {
+            if (_localizationSystem == null)
+            {
+                return fallback;
+            }
+
+            return _localizationSystem.Translate(key, fallback);
         }
     }
 }

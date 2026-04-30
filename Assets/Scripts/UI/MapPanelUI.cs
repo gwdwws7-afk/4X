@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using EventideAge.Core;
+using EventideAge.Systems.L4;
 
 namespace EventideAge.UI
 {
@@ -44,6 +45,7 @@ namespace EventideAge.UI
         private int _dedupTurn = -1;
         private long _nextSequence = 1;
         private long _turnStartSequence = 1;
+        private LocalizationSystem _localizationSystem;
 
         public override void Initialize(GameState state, GameEvents events)
         {
@@ -58,6 +60,7 @@ namespace EventideAge.UI
                 MapPanel.SetActive(true);
             }
 
+            _localizationSystem = ResolveLocalizationSystem();
             _aggregationTurn = State != null ? State.CurrentTurn : -1;
             _dedupTurn = _aggregationTurn;
             _turnStartSequence = _nextSequence;
@@ -131,6 +134,12 @@ namespace EventideAge.UI
             FeedbackSeverity severity = string.Equals(aggregate.InitialController, aggregate.CurrentController, StringComparison.OrdinalIgnoreCase)
                 ? FeedbackSeverity.Info
                 : FeedbackSeverity.Critical;
+            summary = UiSurfaceSemantics.AppendMeta(
+                summary,
+                severity,
+                $"H1.{canonicalNodeId}",
+                summary,
+                UiSurfaceTarget.Map);
             UpsertNodeEntry(canonicalNodeId, summary, severity);
         }
 
@@ -146,7 +155,9 @@ namespace EventideAge.UI
             string canonicalDescription = UiCanonicalText.CanonicalizeMessage(description);
             FeedbackSeverity severity = (!reversible || durationTurns < 0) ? FeedbackSeverity.Warning : FeedbackSeverity.Info;
             string dedupeKey = $"MAP-CQ|{canonicalSourceId}|{canonicalDescription}|{durationTurns}|{reversible}";
-            PushEntry($"[MAP CONSEQUENCE] [{canonicalSourceId}] {canonicalDescription} ({durationLabel})", severity, dedupeKey);
+            string line = $"[MAP CONSEQUENCE] [{canonicalSourceId}] {canonicalDescription} ({durationLabel})";
+            line = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalDescription, UiSurfaceTarget.Map);
+            PushEntry(line, severity, dedupeKey);
         }
 
         private void HandleIntelReportAdded(string sourceId, string message, FeedbackSeverity severity)
@@ -159,7 +170,9 @@ namespace EventideAge.UI
             string canonicalSourceId = UiCanonicalText.CanonicalizeSourceId(sourceId);
             string canonicalMessage = UiCanonicalText.CanonicalizeMessage(message);
             string dedupeKey = $"MAP-INTEL|{canonicalSourceId}|{canonicalMessage}|{severity}";
-            PushEntry($"[INTEL/{severity.ToString().ToUpperInvariant()}] {canonicalMessage}", severity, dedupeKey);
+            string line = $"[INTEL/{severity.ToString().ToUpperInvariant()}] {canonicalMessage}";
+            line = UiSurfaceSemantics.AppendMeta(line, severity, canonicalSourceId, canonicalMessage, UiSurfaceTarget.Map);
+            PushEntry(line, severity, dedupeKey);
         }
 
         private bool IsMapRelatedAction(string sourceActionId)
@@ -362,6 +375,7 @@ namespace EventideAge.UI
             string summary = $"[TURN {turn} SUMMARY] map events {turnEntries.Count} | hotspots {hotspotTransfers} | C/W/I {criticalCount}/{warningCount}/{infoCount}";
             FeedbackSeverity severity = (hotspotTransfers > 0 || criticalCount > 0) ? FeedbackSeverity.Warning : FeedbackSeverity.Info;
             string dedupeKey = $"MAP-TURN-SUMMARY|{turn}";
+            summary = UiSurfaceSemantics.AppendMeta(summary, severity, "MAP.TurnSummary", summary, UiSurfaceTarget.Map);
             PushEntry(summary, severity, dedupeKey);
         }
 
@@ -390,7 +404,7 @@ namespace EventideAge.UI
                 }
                 else if (latest.Severity == FeedbackSeverity.Critical)
                 {
-                    LatestMapText.text = $"[HOTSPOT] {latest.Line}";
+                    LatestMapText.text = $"[{Localize("ui.map.hotspot", "HOTSPOT")}] {latest.Line}";
                 }
                 else
                 {
@@ -416,6 +430,32 @@ namespace EventideAge.UI
 
                 MapHistoryText.text = sb.ToString().TrimEnd();
             }
+        }
+
+        private LocalizationSystem ResolveLocalizationSystem()
+        {
+            if (GameManager.Instance != null && GameManager.Instance.Systems != null)
+            {
+                for (int i = 0; i < GameManager.Instance.Systems.Count; i++)
+                {
+                    if (GameManager.Instance.Systems[i] is LocalizationSystem localization)
+                    {
+                        return localization;
+                    }
+                }
+            }
+
+            return UnityEngine.Object.FindObjectOfType<LocalizationSystem>();
+        }
+
+        private string Localize(string key, string fallback)
+        {
+            if (_localizationSystem == null)
+            {
+                return fallback;
+            }
+
+            return _localizationSystem.Translate(key, fallback);
         }
     }
 }

@@ -1,0 +1,33 @@
+{
+  "signoffVersion": "R2-07-CONTENT-LOCK-V1",
+  "generatedOn": "2026-04-20",
+  "stage": "R2",
+  "decision": "Go",
+  "summary": {
+    "targetedChecks": {
+      "r2_02": { "pass": 8, "fail": 0 },
+      "r2_03": { "pass": 37, "fail": 0 },
+      "r2_04": { "pass": 10, "fail": 0 },
+      "r2_05": { "pass": 9, "fail": 0 },
+      "r2_06": { "pass": 7, "fail": 0 }
+    },
+    "latestFullRegression": {
+      "task": "R2-06",
+      "pass": 390,
+      "fail": 0,
+      "evidence": "production/evidence/r2/campaign-completion/20260420_R2-06_RUNALL-REGRESSION.log"
+    }
+  },
+  "gates": {
+    "contentArtifactsLocked": true,
+    "campaign24TurnValidationPassed": true,
+    "noEmptyTurnAndNoFeedbackLessPhase": true,
+    "fullRegressionGreen": true,
+    "blockingGapsClosed": true
+  },
+  "nextStage": {
+    "name": "R3",
+    "entryTasks": ["R3-01", "R3-02"]
+  },
+  "signoffDoc": "production/sprints/r2-content-lock-2026-05-11-2026-05-24/r2-07-content-lock-signoff.md"
+}

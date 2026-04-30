@@ -1,0 +1,89 @@
+﻿{
+  "version": "r3-04l-targeted-v1",
+  "date": "2026-04-22",
+  "objective": "Close AVG_END_TURN_OVERALL and DEFEAT_SHARE_OVERALL residual gates while preserving win-rate windows",
+  "batches": [
+    {
+      "batchId": "R3-04L-B001",
+      "profiles": [
+        { "roundCode": "R130", "kpiPass": "10/13" },
+        { "roundCode": "R131", "kpiPass": "9/13" },
+        { "roundCode": "R132", "kpiPass": "10/13" }
+      ],
+      "selectedBest": "R132",
+      "promotion": "rejected"
+    },
+    {
+      "batchId": "R3-04L-B002",
+      "profiles": [
+        { "roundCode": "R133", "kpiPass": "11/13" },
+        { "roundCode": "R134", "kpiPass": "12/13" },
+        { "roundCode": "R135", "kpiPass": "10/13" }
+      ],
+      "selectedBest": "R134",
+      "promotion": "probe only"
+    },
+    {
+      "batchId": "R3-04L-B003",
+      "profiles": [
+        {
+          "roundCode": "R136",
+          "batchId": "R3-04L-B003-R136",
+          "label": "r134-avgturn-recover-a",
+          "easyBias": 0.261,
+          "standardBias": 0.155,
+          "hardBias": 0.051,
+          "easyInitScale": 1.13,
+          "standardInitScale": 1.11,
+          "hardInitScale": 1.06,
+          "socialTradeInitScale": 0.16,
+          "easyVictoryThreshold": 85,
+          "standardVictoryThreshold": 82.9,
+          "hardVictoryThreshold": 81.2,
+          "easyMilitaryCollapseThreshold": 5,
+          "standardMilitaryCollapseThreshold": 9,
+          "hardMilitaryCollapseThreshold": 21,
+          "pressureOffset": 0.234,
+          "pressureTurnScale": 0.242,
+          "conflictBase": 0.395,
+          "conflictTurnScale": 0.0141,
+          "resourceDeltaScale": 0.958,
+          "resourceNoiseScale": 2.02,
+          "relationDeltaScale": 2.64,
+          "satisfactionScale": 0.86,
+          "earlySuppressionTurns": 13,
+          "earlyPositiveGainScale": 0.35,
+          "shockChance": 0.38,
+          "shockMagnitude": 30,
+          "captureChanceScale": 2.73,
+          "lossChanceScale": 0.56,
+          "nonConflictNodeScale": 0.8,
+          "nodeDriftScale": 2.4,
+          "easyDurationPerTurn": 23,
+          "standardDurationPerTurn": 29,
+          "hardDurationPerTurn": 33,
+          "kpiPass": "13/13"
+        },
+        { "roundCode": "R137", "kpiPass": "12/13" },
+        { "roundCode": "R138", "kpiPass": "12/13" }
+      ],
+      "selectedBest": "R136",
+      "promotion": "validation failed"
+    }
+  ],
+  "validation": {
+    "R136": {
+      "verdict": "FAIL",
+      "failingKpiIds": [
+        "AVG_END_TURN_OVERALL",
+        "DEFEAT_SHARE_OVERALL"
+      ]
+    }
+  },
+  "defaultBaseline": "R99",
+  "secondaryCandidates": [
+    "R136",
+    "R137",
+    "R138"
+  ]
+}

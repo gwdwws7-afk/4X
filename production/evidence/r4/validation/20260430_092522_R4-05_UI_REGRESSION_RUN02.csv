@@ -1,0 +1,7 @@
+﻿"Timestamp","CaseId","Resolution","InputPath","Check","Method","ExitCode","PassLines","FailLines","Result","LogPath"
+"20260430_092522","R4-05-WIN-720P","1280 x 720","MouseKeyboard-Primary","R4-02","EventideAge.Editor.TestMenu.RunR4UiProductizationChecks","0","77","0","PASS","production\evidence\r4\validation\20260430_092522_R4-05-WIN-720P_R4-02.log"
+"20260430_092522","R4-05-WIN-720P","1280 x 720","MouseKeyboard-Primary","R4-03","EventideAge.Editor.TestMenu.RunR4UiInteractionHintChecks","0","13","0","PASS","production\evidence\r4\validation\20260430_092522_R4-05-WIN-720P_R4-03.log"
+"20260430_092522","R4-05-WIN-1080P","1920 x 1080","MouseKeyboard-Primary","R4-02","EventideAge.Editor.TestMenu.RunR4UiProductizationChecks","0","77","0","PASS","production\evidence\r4\validation\20260430_092522_R4-05-WIN-1080P_R4-02.log"
+"20260430_092522","R4-05-WIN-1080P","1920 x 1080","MouseKeyboard-Primary","R4-03","EventideAge.Editor.TestMenu.RunR4UiInteractionHintChecks","0","13","0","PASS","production\evidence\r4\validation\20260430_092522_R4-05-WIN-1080P_R4-03.log"
+"20260430_092522","R4-05-WIN-1440P","2560 x 1440","MouseKeyboard-Primary","R4-02","EventideAge.Editor.TestMenu.RunR4UiProductizationChecks","0","77","0","PASS","production\evidence\r4\validation\20260430_092522_R4-05-WIN-1440P_R4-02.log"
+"20260430_092522","R4-05-WIN-1440P","2560 x 1440","MouseKeyboard-Primary","R4-03","EventideAge.Editor.TestMenu.RunR4UiInteractionHintChecks","0","13","0","PASS","production\evidence\r4\validation\20260430_092522_R4-05-WIN-1440P_R4-03.log"

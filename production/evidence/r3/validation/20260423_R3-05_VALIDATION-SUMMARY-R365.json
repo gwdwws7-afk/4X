@@ -1,0 +1,16 @@
+{
+  "stage": "R3-05",
+  "generatedOn": "2026-04-23",
+  "validationRuns": 3,
+  "baseProfile": "R365-auto-grid-r311",
+  "verdict": "FAIL",
+  "runKpiPass": [
+    { "run": "V01", "batch": "R3-05-B002-R365-V01", "pass": 12, "total": 13 },
+    { "run": "V02", "batch": "R3-05-B002-R365-V02", "pass": 12, "total": 13 },
+    { "run": "V03", "batch": "R3-05-B002-R365-V03", "pass": 12, "total": 13 }
+  ],
+  "failingKpiIds": [
+    "WIN_RATE_STANDARD",
+    "DEFEAT_SHARE_OVERALL"
+  ]
+}

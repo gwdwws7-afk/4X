@@ -111,22 +111,29 @@ namespace EventideAge.Systems.A4
                 }
                 
                 string json = File.ReadAllText(path);
-                GameSaveData saveData = new GameSaveData();
-                JsonUtility.FromJsonOverwrite(json, saveData);
-                
-                if (saveData == null)
+                if (string.IsNullOrWhiteSpace(json))
                 {
-                    json = File.ReadAllText(path);
+                    Debug.LogError($"[SaveSystem] Load failed: save file is empty ({saveName})");
+                    return false;
+                }
+
+                bool looksLikeWrappedSave = json.Contains("\"GameStateJson\"");
+                if (!looksLikeWrappedSave)
+                {
                     JsonUtility.FromJsonOverwrite(json, State);
                     Debug.Log($"[SaveSystem] Loaded legacy save format: {saveName}");
                     return true;
                 }
-                
-                if (!string.IsNullOrEmpty(saveData.GameStateJson))
+
+                GameSaveData saveData = new GameSaveData();
+                JsonUtility.FromJsonOverwrite(json, saveData);
+                if (saveData == null || string.IsNullOrEmpty(saveData.GameStateJson))
                 {
-                    JsonUtility.FromJsonOverwrite(saveData.GameStateJson, State);
+                    Debug.LogError($"[SaveSystem] Load failed: invalid wrapped save data ({saveName})");
+                    return false;
                 }
-                
+
+                JsonUtility.FromJsonOverwrite(saveData.GameStateJson, State);
                 RestoreSystemStates(saveData);
                 
                 Debug.Log($"[SaveSystem] Game loaded: {saveName}");

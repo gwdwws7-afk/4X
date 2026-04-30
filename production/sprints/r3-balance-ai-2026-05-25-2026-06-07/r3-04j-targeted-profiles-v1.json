@@ -1,0 +1,96 @@
+﻿{
+  "version": "r3-04j-targeted-v2",
+  "date": "2026-04-22",
+  "objective": "Close residual KPI gaps without regressing R3-05 hard-gate stability",
+  "batches": [
+    {
+      "batchId": "R3-04J-B004",
+      "profiles": [
+        { "roundCode": "R112", "label": "r106-hard-pace-standard-floor-a", "kpiPass": "10/13" },
+        { "roundCode": "R113", "label": "r106-hard-pace-standard-floor-b", "kpiPass": "10/13" },
+        { "roundCode": "R114", "label": "r106-hard-pace-standard-floor-c", "kpiPass": "10/13" }
+      ],
+      "selectedBest": "R114",
+      "promotion": "rejected"
+    },
+    {
+      "batchId": "R3-04J-B005",
+      "profiles": [
+        {
+          "roundCode": "R115",
+          "batchId": "R3-04J-B005-R115",
+          "label": "r112-hard-recover-floor-a",
+          "easyBias": 0.259,
+          "standardBias": 0.152,
+          "hardBias": 0.05,
+          "easyInitScale": 1.13,
+          "standardInitScale": 1.07,
+          "hardInitScale": 1.04,
+          "socialTradeInitScale": 0.16,
+          "easyVictoryThreshold": 86,
+          "standardVictoryThreshold": 83,
+          "hardVictoryThreshold": 81,
+          "easyMilitaryCollapseThreshold": 4,
+          "standardMilitaryCollapseThreshold": 9,
+          "hardMilitaryCollapseThreshold": 22,
+          "pressureOffset": 0.241,
+          "pressureTurnScale": 0.229,
+          "conflictBase": 0.399,
+          "conflictTurnScale": 0.0134,
+          "resourceDeltaScale": 0.957,
+          "resourceNoiseScale": 2.02,
+          "relationDeltaScale": 2.52,
+          "satisfactionScale": 0.86,
+          "earlySuppressionTurns": 12,
+          "earlyPositiveGainScale": 0.36,
+          "shockChance": 0.38,
+          "shockMagnitude": 30,
+          "captureChanceScale": 2.87,
+          "lossChanceScale": 0.55,
+          "nonConflictNodeScale": 0.75,
+          "nodeDriftScale": 2.4,
+          "easyDurationPerTurn": 23,
+          "standardDurationPerTurn": 29,
+          "hardDurationPerTurn": 33,
+          "kpiPass": "11/13"
+        },
+        {
+          "roundCode": "R116",
+          "batchId": "R3-04J-B005-R116",
+          "label": "r112-hard-recover-floor-b",
+          "kpiPass": "10/13"
+        },
+        {
+          "roundCode": "R117",
+          "batchId": "R3-04J-B005-R117",
+          "label": "r112-hard-recover-floor-c",
+          "kpiPass": "10/13"
+        }
+      ],
+      "selectedBest": "R115",
+      "promotion": "rejected"
+    }
+  ],
+  "validation": {
+    "R112": {
+      "verdict": "FAIL",
+      "failingKpiIds": [
+        "WIN_RATE_EASY",
+        "WIN_RATE_HARD",
+        "AVG_END_TURN_OVERALL",
+        "DEFEAT_SHARE_OVERALL",
+        "SINGLE_PATH_VICTORY_MONOPOLY"
+      ]
+    },
+    "R115": {
+      "verdict": "FAIL",
+      "failingKpiIds": [
+        "WIN_RATE_EASY",
+        "AVG_END_TURN_OVERALL",
+        "DEFEAT_SHARE_OVERALL"
+      ]
+    }
+  },
+  "fallbackBaseline": "R99",
+  "nextAction": "Continue targeted tuning from R99 baseline"
+}

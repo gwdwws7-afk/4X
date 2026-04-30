@@ -1,0 +1,21 @@
+{
+  "stage": "R3-05",
+  "generatedOn": "2026-04-20",
+  "validationRuns": 3,
+  "baseProfile": "R12-winrate-recover-diversify",
+  "verdict": "FAIL",
+  "runKpiPass": [
+    { "run": "V01", "batch": "R3-05-B002-R12-V01", "pass": 6, "total": 13 },
+    { "run": "V02", "batch": "R3-05-B002-R12-V02", "pass": 6, "total": 13 },
+    { "run": "V03", "batch": "R3-05-B002-R12-V03", "pass": 7, "total": 13 }
+  ],
+  "failingKpiIds": [
+    "WIN_RATE_EASY",
+    "WIN_RATE_HARD",
+    "WIN_RATE_OVERALL",
+    "AVG_END_TURN_STANDARD",
+    "RESOURCE_CV_FIREOIL",
+    "RESOURCE_CV_ARMS",
+    "SINGLE_PATH_VICTORY_MONOPOLY"
+  ]
+}

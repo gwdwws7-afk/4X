@@ -1,0 +1,104 @@
+{
+  "lockVersion": "R3-04-TUNING-PROFILES-V1",
+  "generatedOn": "2026-04-20",
+  "source": "Assets/Scripts/Tests/R3TuningRunner.cs::BuildR304Profiles",
+  "rounds": [
+    {
+      "roundCode": "R01",
+      "batchId": "R3-04-B001-R01",
+      "label": "decelerate-window",
+      "bias": { "easy": 0.06, "standard": -0.02, "hard": -0.06 },
+      "initScale": { "easy": 0.85, "standard": 0.78, "hard": 0.92, "socialTrade": 0.55 },
+      "victoryThreshold": { "easy": 90.0, "standard": 92.0, "hard": 86.0 },
+      "militaryCollapseThreshold": { "easy": 18, "standard": 24, "hard": 28 },
+      "dynamics": {
+        "pressureOffset": 0.20,
+        "pressureTurnScale": 0.20,
+        "conflictBase": 0.28,
+        "conflictTurnScale": 0.008,
+        "resourceDeltaScale": 0.80,
+        "resourceNoiseScale": 1.40,
+        "relationDeltaScale": 1.10,
+        "satisfactionScale": 1.05
+      },
+      "suppressionAndShock": {
+        "earlySuppressionTurns": 8,
+        "earlyPositiveGainScale": 0.45,
+        "shockChance": 0.20,
+        "shockMagnitude": 18
+      },
+      "mapContest": {
+        "captureChanceScale": 0.80,
+        "lossChanceScale": 0.90,
+        "nonConflictNodeScale": 0.32,
+        "nodeDriftScale": 1.20
+      }
+    },
+    {
+      "roundCode": "R02",
+      "batchId": "R3-04-B001-R02",
+      "label": "stability-mix",
+      "bias": { "easy": 0.10, "standard": 0.00, "hard": -0.03 },
+      "initScale": { "easy": 0.92, "standard": 0.86, "hard": 0.95, "socialTrade": 0.65 },
+      "victoryThreshold": { "easy": 86.0, "standard": 88.0, "hard": 80.0 },
+      "militaryCollapseThreshold": { "easy": 20, "standard": 26, "hard": 30 },
+      "dynamics": {
+        "pressureOffset": 0.14,
+        "pressureTurnScale": 0.18,
+        "conflictBase": 0.30,
+        "conflictTurnScale": 0.009,
+        "resourceDeltaScale": 0.90,
+        "resourceNoiseScale": 1.30,
+        "relationDeltaScale": 1.00,
+        "satisfactionScale": 1.00
+      },
+      "suppressionAndShock": {
+        "earlySuppressionTurns": 6,
+        "earlyPositiveGainScale": 0.55,
+        "shockChance": 0.18,
+        "shockMagnitude": 16
+      },
+      "mapContest": {
+        "captureChanceScale": 0.90,
+        "lossChanceScale": 0.85,
+        "nonConflictNodeScale": 0.36,
+        "nodeDriftScale": 1.10
+      }
+    },
+    {
+      "roundCode": "R03",
+      "batchId": "R3-04-B001-R03",
+      "label": "target-seek",
+      "bias": { "easy": 0.12, "standard": 0.02, "hard": -0.01 },
+      "initScale": { "easy": 0.95, "standard": 0.90, "hard": 1.00, "socialTrade": 0.70 },
+      "victoryThreshold": { "easy": 84.0, "standard": 85.0, "hard": 78.0 },
+      "militaryCollapseThreshold": { "easy": 22, "standard": 28, "hard": 32 },
+      "dynamics": {
+        "pressureOffset": 0.10,
+        "pressureTurnScale": 0.16,
+        "conflictBase": 0.31,
+        "conflictTurnScale": 0.010,
+        "resourceDeltaScale": 0.95,
+        "resourceNoiseScale": 1.25,
+        "relationDeltaScale": 0.95,
+        "satisfactionScale": 0.98
+      },
+      "suppressionAndShock": {
+        "earlySuppressionTurns": 5,
+        "earlyPositiveGainScale": 0.62,
+        "shockChance": 0.15,
+        "shockMagnitude": 14
+      },
+      "mapContest": {
+        "captureChanceScale": 1.00,
+        "lossChanceScale": 0.80,
+        "nonConflictNodeScale": 0.40,
+        "nodeDriftScale": 1.00
+      }
+    }
+  ],
+  "selection": {
+    "bestRound": "R03",
+    "reason": "Highest KPI pass score (4/13), then closest to standard win rate and mid-turn pacing."
+  }
+}

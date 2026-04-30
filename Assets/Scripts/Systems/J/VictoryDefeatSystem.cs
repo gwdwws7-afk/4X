@@ -235,6 +235,12 @@ namespace EventideAge.Systems.J
                     firstNearComplete = path.Type;
             }
 
+            if (completedPaths >= 2)
+            {
+                TriggerEndgame("victory", "combined");
+                return;
+            }
+
             foreach (var path in _victoryPaths)
             {
                 if (path.Progress >= VictoryThreshold)
@@ -242,11 +248,6 @@ namespace EventideAge.Systems.J
                     TriggerEndgame("victory", path.Type.ToString().ToLower());
                     return;
                 }
-            }
-
-            if (completedPaths >= 2)
-            {
-                TriggerEndgame("victory", "combined");
             }
         }
 

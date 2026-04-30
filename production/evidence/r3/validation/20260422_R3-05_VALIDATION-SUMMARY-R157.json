@@ -1,0 +1,16 @@
+{
+  "stage": "R3-05",
+  "generatedOn": "2026-04-22",
+  "validationRuns": 3,
+  "baseProfile": "R157-r154-r305-gap-close-a2",
+  "verdict": "FAIL",
+  "runKpiPass": [
+    { "run": "V01", "batch": "R3-05-B002-R157-V01", "pass": 11, "total": 13 },
+    { "run": "V02", "batch": "R3-05-B002-R157-V02", "pass": 12, "total": 13 },
+    { "run": "V03", "batch": "R3-05-B002-R157-V03", "pass": 12, "total": 13 }
+  ],
+  "failingKpiIds": [
+    "AVG_END_TURN_OVERALL",
+    "DEFEAT_SHARE_OVERALL"
+  ]
+}

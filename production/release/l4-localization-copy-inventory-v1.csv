@@ -1,0 +1,24 @@
+﻿surface,key,owner,status,zh-CN,zh-TW,en-US,fa-IR,ar-SA,ru-RU,notes
+MainMenu,ui.main.start,L4,IN_TABLE,开始游戏,開始遊戲,Start Game,شروع بازی,ابدأ اللعبة,Начать игру,已在 LocalizationTableConfig
+MainMenu,ui.main.load,L4,IN_TABLE,加载存档,載入存檔,Load Save,بارگذاری ذخیره,تحميل الحفظ,Загрузить сохранение,已在 LocalizationTableConfig
+Tutorial,ui.tutorial.skip,L4,IN_TABLE,跳过教程,跳過教學,Skip Tutorial,رد آموزش,تخطي الدليل,Пропустить обучение,已在 LocalizationTableConfig
+LaunchPanel,ui.launch.title,UI,IN_USE,上线流程控制台,上線流程控制台,Launch Flow Control,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.guide.toggle.show,UI,IN_USE,显示引导,顯示引導,Show Guide,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.guide.toggle.hide,UI,IN_USE,隐藏引导,隱藏引導,Hide Guide,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.run_turn,UI,IN_USE,推进整回合,推進整回合,Run Full Turn,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.next_phase,UI,IN_USE,下一阶段,下一階段,Next Phase,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.run_campaign,UI,IN_USE,推进到24回合,推進到24回合,Run to Turn 24,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.diplomacy,UI,IN_USE,外交,外交,Diplomacy,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.strategy,UI,IN_USE,战略,戰略,Strategy,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.combat,UI,IN_USE,作战,作戰,Combat,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.logistics,UI,IN_USE,后勤,後勤,Logistics,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.intel,UI,IN_USE,情报,情報,Intel,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.next_node,UI,IN_USE,切换节点,切換節點,Switch Node,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.save,UI,IN_USE,保存,保存,Save,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.load,UI,IN_USE,读取,讀取,Load,,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.guide.body,UI,IN_USE,推荐流程（多行）,推薦流程（多行）,Recommended flow (multiline),,,,已接入 LaunchFlowUIController
+LaunchPanel,ui.launch.hint,UI,IN_USE,完整循环提示,完整循環提示,Loop validation hint,,,,已接入 LaunchFlowUIController
+Map,ui.map.hotspot,MapUI,IN_USE,热点,熱點,HOTSPOT,,,,已接入 MapPanelUI
+Diplomacy,ui.diplomacy.action.locked,DiplomacyUI,IN_USE,外交行动已锁定,外交行動已鎖定,ACTION LOCKED,,,,已接入 DiplomacyPanelUI
+Report,ui.report.summary,ReportUI,IN_USE,回合总结,回合總結,TURN SUMMARY,,,,已接入 ActionLogUI
+Event,ui.event.option.preview,EventUI,IN_USE,选项预览,選項預覽,OPTION PREVIEW,,,,已接入 EventPanelUI

@@ -1,0 +1,32 @@
+﻿{
+  "docVersion": "R4-06-MANUAL-WORKITEMS-RUN01.v1",
+  "stage": "R4",
+  "task": "R4-06",
+  "runId": "R4-06-MANUAL-RUN01",
+  "status": "READY_FOR_REVIEW",
+  "executionDate": "2026-04-30",
+  "workitemCount": 16,
+  "workitems": [
+    {"id":"R4-06-M01","type":"surface","resolution":"1280x720","target":"map","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M02","type":"surface","resolution":"1280x720","target":"diplomacy","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M03","type":"surface","resolution":"1280x720","target":"battle_report","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M04","type":"surface","resolution":"1280x720","target":"event","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M05","type":"surface","resolution":"1920x1080","target":"map","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M06","type":"surface","resolution":"1920x1080","target":"diplomacy","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M07","type":"surface","resolution":"1920x1080","target":"battle_report","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M08","type":"surface","resolution":"1920x1080","target":"event","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M09","type":"surface","resolution":"2560x1440","target":"map","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M10","type":"surface","resolution":"2560x1440","target":"diplomacy","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M11","type":"surface","resolution":"2560x1440","target":"battle_report","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-M12","type":"surface","resolution":"2560x1440","target":"event","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-C01","type":"chain","resolution":"all","target":"map_node_switch","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-C02","type":"chain","resolution":"all","target":"diplomacy_action","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-C03","type":"chain","resolution":"all","target":"report_review","owner":"QA","due":"TBD","status":"TODO"},
+    {"id":"R4-06-C04","type":"chain","resolution":"all","target":"event_preview","owner":"QA","due":"TBD","status":"TODO"}
+  ],
+  "autoEvidence": [
+    "production/evidence/r4/validation/20260430_141636_R4-06_UX_VISUAL_AUDIT_RUN01.csv",
+    "production/evidence/r4/validation/20260430_141636_R4-06_UX_VISUAL_AUDIT_RUN01.log",
+    "production/evidence/r4/validation/20260430_141636_R4-06_UX_VISUAL_AUDIT_RUN01.md"
+  ]
+}

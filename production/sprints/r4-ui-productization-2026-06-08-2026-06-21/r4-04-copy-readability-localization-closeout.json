@@ -1,0 +1,39 @@
+﻿{
+  "docVersion": "R4-04-L10-LOCALIZATION-CLOSEOUT-2026-04-30.v1",
+  "stage": "R4",
+  "task": "R4-04",
+  "slice": "high-frequency-surface-localization",
+  "status": "PASS",
+  "executionDate": "2026-04-30",
+  "keysClosed": [
+    "ui.map.hotspot",
+    "ui.diplomacy.action.locked",
+    "ui.report.summary",
+    "ui.event.option.preview"
+  ],
+  "files": [
+    "Assets/Scripts/UI/MapPanelUI.cs",
+    "Assets/Scripts/UI/DiplomacyPanelUI.cs",
+    "Assets/Scripts/UI/ActionLogUI.cs",
+    "Assets/Scripts/UI/EventPanelUI.cs",
+    "Assets/Scripts/Systems/L4/LocalizationTableConfig.cs",
+    "Assets/Scripts/Tests/StandaloneTest.cs",
+    "production/release/l4-localization-copy-inventory-v1.csv"
+  ],
+  "testCases": [
+    "TestUiLocalizationHighFrequencySurfaceLabelsGuardrail"
+  ],
+  "testEntrypoints": [
+    "StandaloneTest.RunAll",
+    "StandaloneTest.RunR4UiProductizationChecks"
+  ],
+  "evidence": {
+    "log": "production/evidence/adhoc/20260430_R4UI_L10_LOCALIZATION_RECHECK.log",
+    "passLines": 77,
+    "failLines": 0,
+    "batchExitCode": 0
+  },
+  "residual": [
+    "fa-IR/ar-SA/ru-RU for newly added keys use en-US fallback"
+  ]
+}

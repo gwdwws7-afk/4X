@@ -1,0 +1,15 @@
+{
+  "stage": "R3-05",
+  "generatedOn": "2026-04-23",
+  "validationRuns": 3,
+  "baseProfile": "R314-r307-defeat-floor-lift-d",
+  "verdict": "FAIL",
+  "runKpiPass": [
+    { "run": "V01", "batch": "R3-05-B002-R314-V01", "pass": 12, "total": 13 },
+    { "run": "V02", "batch": "R3-05-B002-R314-V02", "pass": 12, "total": 13 },
+    { "run": "V03", "batch": "R3-05-B002-R314-V03", "pass": 13, "total": 13 }
+  ],
+  "failingKpiIds": [
+    "DEFEAT_SHARE_OVERALL"
+  ]
+}
